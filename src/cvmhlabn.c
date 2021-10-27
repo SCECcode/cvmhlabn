@@ -32,7 +32,6 @@ int cvmhlabn_init(const char *dir, const char *label) {
 
 	// Configuration file location.
 	sprintf(configbuf, "%s/model/%s/data/config", dir, label);
-        printf("config location.. %s\n",configbuf);
 
 	// Read the configuration file.
 	if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != SUCCESS) {
@@ -42,7 +41,6 @@ int cvmhlabn_init(const char *dir, const char *label) {
 
 	// Set up the data directory.
 	sprintf(cvmhlabn_data_directory, "%s/model/%s/data/%s", dir, label, cvmhlabn_configuration->model_dir);
-        printf("model location.. %s\n",cvmhlabn_data_directory);
 
         /* Init vx */
         if (vx_setup(cvmhlabn_data_directory) != 0) {
