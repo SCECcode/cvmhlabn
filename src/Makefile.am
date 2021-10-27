@@ -42,7 +42,7 @@ libvxapi.a: vx_sub.o vx_io.o utils.o *.h
 	$(AR) rcs $@ $^
 
 cvmhlabn.o: cvmhlabn.c
-	$(CC) -o $@ -c $^ $(AM_CFLAGS)
+	$(CC) -fPIC -DDYNAMIC_LIBRARY -o $@ -c $^ $(AM_CFLAGS)
 
 vx_lite_cvmhlabn.o : vx_lite_cvmhlabn.c
 	$(CC) -o $@ -c $^ $(AM_CFLAGS)
