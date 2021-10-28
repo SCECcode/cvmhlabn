@@ -3,7 +3,7 @@
 lib_LIBRARIES = libgeo.a
 
 # Set compiler/linker flags
-AM_CFLAGS = -D_GNU_SOURCE -fno-builtin
+AM_CFLAGS = -D_GNU_SOURCE -fno-builtin -fPIC
 AM_LDFLAGS = $(LDFLAGS)
 
 
