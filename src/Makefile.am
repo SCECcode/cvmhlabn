@@ -1,19 +1,17 @@
 # Autoconf/automake file
 
-lib_LIBRARIES = libcvmhlabn.a
-bin_PROGRAMS = vx_lite_cvmhlabn run_vx_lite_cvmhlabn.sh
-include_HEADERS = vx_sub.h
+lib_LIBRARIES = libcvmhlabn.so 
+bin_PROGRAMS = vx_lite_cvmhlabn
+include_HEADERS = vx_io.h vx_sub.h voxet.h coor_para.h cproj.h cvmhlabn.h params.h proj.h
 
 # General compiler/linker flags
 AM_CFLAGS = ${CFLAGS} -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
             -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -fPIC
 AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgeo
 
-
 # Dist sources
-libcvmhlabn_a_SOURCES = vx_sub.c vx_io.c utils.c *.h
+libcvmhlabn_so_SOURCES = vx_sub.c vx_io.c *.h
 vx_lite_cvmhlabn_SOURCES = vx_lite_cvmhlabn.c
-run_vx_lite_cvmhlabn_sh_SOURCES = run_vx_lite_cvmhlabn.sh
 
 all: $(lib_LIBRARIES) $(bin_PROGRAMS)
 
@@ -52,7 +50,7 @@ vx_lite_cvmhlabn : vx_lite_cvmhlabn.o libvxapi.a
 
 run_vx.sh:
 
-run_vx_lite_cvmhlabn.sh:
+run_vx_lite.sh:
 
 
 clean:
