@@ -1,6 +1,6 @@
 # Autoconf/automake file
 
-lib_LIBRARIES = libcvmhlabn.so 
+lib_LIBRARIES = libcvmhlabn.a 
 bin_PROGRAMS = vx_lite_cvmhlabn
 include_HEADERS = vx_io.h vx_sub.h voxet.h coor_para.h cproj.h cvmhlabn.h params.h proj.h
 
@@ -10,7 +10,7 @@ AM_CFLAGS = ${CFLAGS} -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
 AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgeo
 
 # Dist sources
-libcvmhlabn_so_SOURCES = vx_sub.c vx_io.c *.h
+libcvmhlabn_a_SOURCES = vx_sub.c vx_io.c *.h
 vx_lite_cvmhlabn_SOURCES = vx_lite_cvmhlabn.c
 
 all: $(lib_LIBRARIES) $(bin_PROGRAMS)
