@@ -83,7 +83,8 @@ int vx_setup(const char *data_dir)
   sprintf(gtlpath, "%s/%s", data_dir, DEFAULT_GTL_FILE);
 
   char LR_PAR[CMLEN];
-  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
+//XXX  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
+  sprintf(LR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
   
   char HR_PAR[CMLEN];
   sprintf(HR_PAR, "%s/CVM_HR.vo", data_dir);
