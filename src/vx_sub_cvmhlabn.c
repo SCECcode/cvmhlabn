@@ -15,11 +15,9 @@
 #include "voxet.h"
 #include "proj.h"
 #include "cproj.h"
-#include "scec1d.h"
-#include "vs30_gtl.h"
 #include "utils.h"
 #include "vx_io.h"
-#include "vx_sub.h"
+#include "vx_sub_cvmhlabn.h"
 
 /* Smoothing parameters for SCEC 1D */
 #define SCEC_SMOOTH_DIST 50.0 // km
@@ -40,7 +38,6 @@ int (*callback_bkg)(vx_entry_t *entry, vx_request_t req_type) = NULL;
 /* Model state variables */
 static int is_setup = False;
 vx_zmode_t vx_zmode = VX_ZMODE_ELEV;
-int vx_use_gtl = True;
 struct axis lr_a, mr_a, hr_a, cm_a, to_a;
 struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
 float step_to[3], step_lr[3], step_hr[3], step_cm[3];
@@ -69,7 +66,6 @@ int vx_setup(const char *data_dir)
 {
   int NCells;
   int n;
-  char gtlpath[CMLEN];
 
   /* zero-out inparm for gctpc */
   for(n=0;n>15;n++) inparm[n]=0;
@@ -80,13 +76,13 @@ int vx_setup(const char *data_dir)
   lrtbuffer = cmtbuffer = hrtbuffer = NULL;
   cmvsbuffer = lrvsbuffer = hrvsbuffer = NULL;
 
-  sprintf(gtlpath, "%s/%s", data_dir, DEFAULT_GTL_FILE);
-
   char LR_PAR[CMLEN];
-  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
+//  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
+  sprintf(LR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
   
   char HR_PAR[CMLEN];
-  sprintf(HR_PAR, "%s/CVM_HR.vo", data_dir);
+    sprintf(HR_PAR, "%s/CVM_HR.vo", data_dir);
+//  sprintf(HR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
   
   char CM_PAR[CMLEN];
   sprintf(CM_PAR, "%s/CVM_CM.vo", data_dir);
@@ -403,12 +399,6 @@ int vx_setup(const char *data_dir)
   step_cm[1]=cm_a.V[1]/(cm_a.N[1]-1);
   step_cm[2]=cm_a.W[2]/(cm_a.N[2]-1);
 
-  // Load GTL
-  if (gtl_setup(gtlpath) != 0) {
-    fprintf(stderr, "Failed to perform GTL setup\n");
-    return(1);
-  }
-
   is_setup = True;
 
   return(0);
@@ -438,24 +428,7 @@ int vx_cleanup()
   free(hrvsbuffer);
 
   vx_zmode = VX_ZMODE_ELEV;
-  vx_use_gtl = True;
-  is_setup = False;
 
-  callback_bkg = NULL;
-
-  return(0);
-}
-
-
-/* Return current CVM-H version */
-int vx_version(char *version)
-{
-  if (vx_use_gtl == True) {
-    sprintf(version, "%s", VERSION);
-  } else {
-    sprintf(version, "%s (GTL Disabled)", 
-	    VERSION);
-  }
   return(0);
 }
 
@@ -463,13 +436,6 @@ int vx_version(char *version)
 /* Set query mode: elevation, elevation offset, depth */
 int vx_setzmode(vx_zmode_t m) {
   vx_zmode = m;
-  return(0);
-}
-
-
-/* Enable/disable GTL (default is enabled) */
-int vx_setgtl(int flag) {
-  vx_use_gtl = flag;
   return(0);
 }
 
@@ -482,13 +448,13 @@ int vx_getcoord(vx_entry_t *entry) {
 
 
 /* Private query function for material properties. Allows caller to 
-   disable advanced features like background model, GTL, and
-   depth/offset query modes.
+   disable advanced features like depth/offset query modes.
 */ 
 int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
   int j;
   double SP[2],SPUTM[2];
   int gcoor[3];
+  // fall into bkg
   int do_bkg = False;
   float surface, mtop;
   double elev, depth, zt, topo_gap;
@@ -590,8 +556,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       depth = surface - entry->coor_utm[2];
     }
 
-    if ((do_bkg == False) || ((do_bkg == True) && (callback_bkg == NULL)) || 
-	(enhanced == False)) {
+    if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
 	 the grid spacing. The -1 is necessary to do the counting 
 	 correctly. The rounding is necessary because the data are cell 
@@ -605,6 +570,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
+//XXX  return from High Resolution Area
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
@@ -615,6 +581,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
 	entry->data_src = VX_SRC_HR;
       } else {	  
+//XXX return from Low Resolution Area
 	gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
 	gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
 	gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
@@ -631,6 +598,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	  memcpy(&(entry->vs), &lrvsbuffer[j], p0.ESIZE);
 	  entry->data_src = VX_SRC_LR;
 	} else {   
+// HUM HUM.. since LR got overlap with CM
 	  gcoor[0]=round((entry->coor_utm[0]-cm_a.O[0])/step_cm[0]);
 	  gcoor[1]=round((entry->coor_utm[1]-cm_a.O[1])/step_cm[1]);
 	  gcoor[2]=round((entry->coor_utm[2]-cm_a.O[2])/step_cm[2]);
@@ -657,44 +625,13 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       }
     }
 
-    if ((enhanced == True) && (do_bkg == True) && (callback_bkg != NULL)) {
-      /* background model */
-      if (callback_bkg(entry, VX_REQUEST_ALL) != 0) {
-	/* Restore original input coords */
-	memcpy(entry->coor, incoor, sizeof(double) * 3);
-	return(1);
-      }
+//XXX  if it turns out to be do_bkg, that means return NO DATA 
+    if ((enhanced == True) && (do_bkg == True)) {
+      memcpy(entry->coor, incoor, sizeof(double) * 3);
+      return(1);
     } else {
       /* Compute rho */
       entry->rho = calc_rho(entry->vp, entry->data_src);
-
-      if ((do_bkg == False) && (enhanced == True) && (vx_use_gtl == True)) {
-
-	/* Compute gap between surface and mtop */
-	vx_model_top(entry->coor, entry->coor_type, &mtop, True);
-	if (mtop - p0.NO_DATA_VALUE > 0.1) {
-	  topo_gap = surface - mtop;
-	} else {
-	  topo_gap = 0.0;
-	}
-
-	/* Requery at fixed zt depth if point below trans zone */
-	zt = gtl_get_adj_transition(topo_gap);
-	if ((entry->coor[2] > surface - zt) && (entry->coor[2] <= surface)) {
-	  entry->coor[2] = surface - zt;
-	  entry->coor_utm[2] = surface - zt;
-	  vx_getcoord_private(entry, False);
-	  entry->coor[2] = elev;
-	  entry->coor_utm[2] = elev;
-	  
-	  // We are inside core CVM-H model. Apply GTL
-	  if (vx_apply_gtl_entry(entry, depth, topo_gap) != 0) {
-	    /* Restore original input coords */
-	    memcpy(entry->coor, incoor, sizeof(double) * 3);
-	    return(1);
-	  }
-	}
-      }
     }
   }
 
@@ -702,50 +639,6 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
   memcpy(entry->coor, incoor, sizeof(double) * 3);
   return(0);
 }
-
-
-/* Smooth the material properties contained in 'entry' with the GTL, at 
-   effective depth 'depth' and with a local topo gap of 'topo-gap'. */
-int vx_apply_gtl_entry(vx_entry_t *entry, double depth, double topo_gap) {
-  int i;
-  gtl_entry_t gtlentry;
-  int updated = False;
-
-  if (entry == NULL) {
-    return(1);
-  }
-
-  /* Fill in GTL request */
-  for (i = 0; i < 3; i++) {
-    gtlentry.coor_utm[i] = entry->coor_utm[i];
-  }
-  gtlentry.topo_gap = topo_gap;
-  gtlentry.depth = depth;
-  gtlentry.vp = entry->vp;
-  gtlentry.vs = entry->vs;
-  gtlentry.rho = entry->rho;
-
-  /* Query GTL and perform interpolation */
-  if (gtl_interp(&gtlentry, &updated) != 0) {
-    return(1);
-  }
-
-  if (updated) {
- 
-    /* Replace entry with GTL results */
-    for (i = 0; i < 3; i++) {
-      entry->vel_cell[i] = gtlentry.cell[i];
-    }
-    entry->data_src = VX_SRC_GT;
-    entry->provenance = (float)VX_PROV_GTL;
-    entry->vp = gtlentry.vp;
-    entry->vs = gtlentry.vs;
-    entry->rho = gtlentry.rho;
-  }
-
-  return(0);
-}
-
 
 /* Get raw voxel information at the supplied voxel volume coordinates */
 void vx_getvoxel(vx_voxel_t *voxel) {
@@ -834,15 +727,13 @@ void vx_getvoxel(vx_voxel_t *voxel) {
 /* Query elevation of free surface at point 'coor' */
 void vx_getsurface(double *coor, vx_coord_t coor_type, float *surface)
 {
-  vx_getsurface_private(coor, coor_type, surface, False);
+  vx_getsurface_private(coor, coor_type, surface);
   return;
 }
 
 
-/* Private function for querying elevation of free surface at point 'coor'.
-   Allows caller to exclude background model. */
-int vx_getsurface_private(double *coor, vx_coord_t coor_type, 
-			  float *surface, int exclude_bkg)
+/* Private function for querying elevation of free surface at point 'coor'.  */
+int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 {
   int gcoor[3];
   double SP[2],SPUTM[2];
@@ -900,23 +791,7 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type,
     // -118.5 36.8 0.0
     // 345500.000000  4059000.0 0.0
 
-    if (vx_use_gtl == True) {
-      if (entry.topo - p0.NO_DATA_VALUE > 0.1) {
-	*surface = entry.topo;
-	
-	/* Check that this point falls within a model */
-	entry.coor[2] = *surface;
-	vx_getcoord_private(&entry, False);
-	if (entry.data_src == VX_SRC_NR) {
-	  do_bkg = True;
-	}
-	
-      } else {
-	do_bkg = True;
-      }
-
-    } else {
-
+    {
       /* check for valid topo values */
       if ((entry.topo - p0.NO_DATA_VALUE > 0.1) && 
 	  (entry.mtop - p0.NO_DATA_VALUE > 0.1)) {
@@ -968,22 +843,15 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type,
   }
 
   if (do_bkg) {
-    if ((!exclude_bkg) && (callback_bkg != NULL)) {
-      callback_bkg(&entry, VX_REQUEST_TOPO);
-      *surface = entry.topo;
-    } else {
-      *surface = p0.NO_DATA_VALUE;
-    }
+    *surface = p0.NO_DATA_VALUE;
   }
 
   return(0);
 }
 
 
-/* Return mtop at coordinates 'coor' in 'surface'. Caller may disable use
-   of background. */
-void vx_model_top(double *coor, vx_coord_t coor_type, 
-		  float *surface, int exclude_bkg)
+/* Return mtop at coordinates 'coor' in 'surface' */
+void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
 {
   int gcoor[3];
   double SP[2],SPUTM[2];
@@ -1088,41 +956,10 @@ void vx_model_top(double *coor, vx_coord_t coor_type,
   }
 
   if (do_bkg) {
-    if ((!exclude_bkg) && (callback_bkg != NULL)) {
-      callback_bkg(&entry, VX_REQUEST_TOPO);
-      if (entry.topo > entry.mtop) {
-	*surface = entry.mtop - ELEV_EPSILON;
-      } else {
-	*surface = entry.topo - ELEV_EPSILON;
-      }
-    } else {
-	*surface = p0.NO_DATA_VALUE;
-    }
+    *surface = p0.NO_DATA_VALUE;
   }
 
   return;
-}
-
-
-/* Register user-defined background model as active background model */
-int vx_register_bkg( int (*backgrnd)(vx_entry_t *entry,
-				     vx_request_t req_type) )
-{
-  callback_bkg = backgrnd;
-  return(0);
-}
-
-
-/* Register the SCEC 1D model as the active background model */
-int vx_register_scec()
-{
-  /* Proceed only if setup has been performed */
-  if (is_setup != True) {
-    return(1);
-  }
-
-  callback_bkg = vx_scec_1d;
-  return(0);
 }
 
 
@@ -1137,7 +974,6 @@ int vx_get_closest_coords(vx_entry_t *entry,
 {
   double depth;
   float mtop;
-  double zt, zt_default;
 
   vx_entry_t to_entry;
   vx_voxel_t lr_voxel;
@@ -1164,24 +1000,20 @@ int vx_get_closest_coords(vx_entry_t *entry,
   to_entry.coor_utm[1]= lr_a.O[1]+lr_voxel.coor[1]*step_lr[1];
   to_entry.coor_utm[2] = 0.0;
   to_entry.data_src = VX_SRC_TO;
-  vx_getsurface_private(to_entry.coor_utm, VX_COORD_UTM, surface_elev, True);
+  vx_getsurface_private(to_entry.coor_utm, VX_COORD_UTM, surface_elev);
   if (*surface_elev - p0.NO_DATA_VALUE >= 0.1) {
     /* Find the lr/cm voxel that corresponds to desired depth/elev */
     /* This will be the closest voxel */
     memcpy(lr_entry, &(to_entry), sizeof(vx_entry_t));
 
     /* Compute gap between surface and mtop */
-    vx_model_top(to_entry.coor_utm, VX_COORD_UTM, &mtop, True);
+    vx_model_top(to_entry.coor_utm, VX_COORD_UTM, &mtop);
     if ((entry->topo - p0.NO_DATA_VALUE > 0.1) && 
 	(mtop - p0.NO_DATA_VALUE > 0.1)) {
       *topo_gap = *surface_elev - mtop;
     } else {
       *topo_gap = 0.0;
     }
-
-    /* Get GTL transition depth */
-    zt = gtl_get_adj_transition(*topo_gap);
-    zt_default = gtl_get_transition();
 
     switch (vx_zmode) {
     case VX_ZMODE_ELEV:
@@ -1190,16 +1022,7 @@ int vx_get_closest_coords(vx_entry_t *entry,
     case VX_ZMODE_DEPTH:
     case VX_ZMODE_ELEVOFF:
       lr_entry->coor_utm[2] = *surface_elev - depth;
-      if (zt > zt_default) {
-	lr_entry->coor_utm[2] = lr_entry->coor_utm[2] - (zt - zt_default);
-      }
       break;
-    //case VX_ZMODE_ELEVOFF:
-    //lr_entry->coor_utm[2] = *surface_elev - depth;
-    //if (zt > zt_default) {
-    //	lr_entry->coor_utm[2] = lr_entry->coor_utm[2] - (zt - zt_default);
-    //   }
-    //break;
     default:
       return(0);
       break;
@@ -1209,7 +1032,7 @@ int vx_get_closest_coords(vx_entry_t *entry,
     //	    lr_entry->coor_utm[2]);
 
     /* Compute gap between surface and mtop */
-    vx_model_top(to_entry.coor_utm, VX_COORD_UTM, &mtop, True);
+    vx_model_top(to_entry.coor_utm, VX_COORD_UTM, &mtop);
     if (mtop - p0.NO_DATA_VALUE > 0.1) {
       *topo_gap = *surface_elev - mtop;
     } else {
@@ -1276,495 +1099,6 @@ int vx_select_closest_voxel(vx_entry_t *lr_entry,
   
   return(0);
 }
-
-
-/* Return SCEC 1D background properties at point 'entry'. The 
-   request type 'req_type' denotes what info to return: topo, 
-   material properties, or both. The flag 'apply_gtl' determines if
-   the GTL is applied. */
-int vx_scec_1d_basic(vx_entry_t *entry, vx_request_t req_type, int apply_gtl)
-{
-  double depth, closest_depth;
-  double dist_ratio;
-  double vp, vs, rho;
-  double zt, topo_gap;
-  float surface_elev;
-  int do_gtl = False;
-
-  int found_closest, is_water_air;
-  vx_entry_t closest_entry;
-  vx_voxel_t closest_voxel;
-
-  vx_entry_t lr_entry, cm_entry;
-  float closest_dist_2d, closest_dist_3d;
-
-  /* Save basic SCEC topo info */
-  entry->topo = 0.0;
-  entry->mtop = 0.0;
-  entry->base = p0.NO_DATA_VALUE;
-  entry->moho = p0.NO_DATA_VALUE;  
-  if (req_type == VX_REQUEST_TOPO) {
-    return 0;
-  }
-
-  vx_init_voxel(&closest_voxel);
-  vx_init_entry(&closest_entry);
-
-  depth = (0.0 - entry->coor_utm[2]);
-  /* Check if point is in the air */
-  if (depth < 0.0) {
-    entry->data_src = VX_SRC_NR;
-    entry->provenance = (float)VX_PROV_AIR;
-    entry->vp = entry->vs = entry->rho = p0.NO_DATA_VALUE;
-    return 0;
-  }
-
-  vx_get_closest_coords(entry, &lr_entry, &cm_entry, 
-			&surface_elev, &topo_gap);
-
-  /* Get GTL transition depth */
-  zt = gtl_get_adj_transition(topo_gap);
-  
-  // Test points along border btw core and bkg
-  //581000.000000 3430500 0.0
-  //581000.000000 3430750 0.0
-  
-  closest_depth = surface_elev - lr_entry.coor_utm[2];
-  
-  if (apply_gtl == True) {
-    if ((lr_entry.coor_utm[2] > (double)surface_elev - zt) && 
-	(lr_entry.coor_utm[2] <= (double)surface_elev)) {
-      lr_entry.coor_utm[2] = (double)surface_elev - zt;
-      cm_entry.coor_utm[2] = (double)surface_elev - zt;
-      do_gtl = True;
-    }
-  }
-
-  /* Find the closest of the two */
-  vx_select_closest_voxel(&lr_entry, &cm_entry, 
-			  &found_closest, &is_water_air, 
-			  &closest_entry, &closest_voxel);
-
-  /* Acquire vp from depth with SCEC 1D model */
-  vp = scec_vp(depth);
-
-  /* Calculate rho */
-  rho = scec_rho(vp);
-
-  /* Calculate vs */
-  vs = scec_vs(vp, rho);
-
-  if ((found_closest == True) && (is_water_air == False)) {
-    closest_entry.vp = closest_voxel.vp;
-    closest_entry.vs = closest_voxel.vs;
-    closest_entry.rho = closest_voxel.rho;
-
-    if (do_gtl == True) {
-      /* Apply GTL to closest voxel */
-      vx_apply_gtl_entry(&closest_entry, closest_depth, topo_gap);
-    }
-
-    vx_dist_point_to_voxel(entry, &closest_voxel, 
-			   &closest_dist_2d, &closest_dist_3d);
-    dist_ratio = closest_dist_2d / (SCEC_SMOOTH_DIST * 1000.0);
-
-    /* Scale vp,vs,rho by distance from voxel w/ linear interpolation */
-    if (dist_ratio < 1.0) {
-      vp = vx_interpolate(closest_entry.vp, vp, dist_ratio);
-      rho = vx_interpolate(closest_entry.rho, rho, dist_ratio);
-      vs = vx_interpolate(closest_entry.vs, vs, dist_ratio);
-    }
-
-  } else if (is_water_air == True) {
-    vp = closest_voxel.vp;
-    vs = closest_voxel.vs;
-    rho = closest_voxel.rho;
-  }
-
-  /* Save values */
-  entry->data_src = VX_SRC_BK;
-  if (is_water_air == True) {
-    entry->provenance = closest_voxel.provenance;
-  }else {
-    entry->provenance = (float)VX_PROV_BACKGND;
-  }
-  entry->vp = vp;
-  entry->vs = vs;
-  entry->rho = rho;
-
-  return 0;
-}
-
-
-/* Return SCEC 1D background properties at point 'entry'. The 
-   request type 'req_type' denotes what info to return: topo, 
-   material properties, or both. The z coord in entry is assumed 
-   to be elevation. The GTL is applied if point falls within 
-   0-trans_depth meters of the surface. */
-int vx_scec_1d_gtl_elev(vx_entry_t *entry, vx_request_t req_type)
-{
-  int i;
-  double depth;
-  double vp, vs, rho;
-  double zt;
-  int updated;
-  double topo_gap;
-  float surface_elev;
-  int found_closest, is_water_air;
-
-  vx_entry_t lr_entry, cm_entry, closest_entry;
-  vx_voxel_t closest_voxel;
-  gtl_entry_t gtl;
-  double dist_ratio;
-
-  depth = (0.0 - entry->coor_utm[2]);
-  zt = gtl_get_transition();
-
-  /* Acquire vp,vs,rho at this point from depth with SCEC 1D model */
-  vp = scec_vp(depth);
-  
-  /* Calculate rho */
-  rho = scec_rho(vp);
-  
-  /* Calculate vs */
-  vs = scec_vs(vp, rho);
-  
-  entry->data_src = VX_SRC_BK;
-  entry->provenance = (float)VX_PROV_BACKGND;
-  entry->vp = vp;
-  entry->vs = vs;
-  entry->rho = rho;
-  
-  /* Find closest point in GTL */
-  
-  /* Find GTL/1D interpolated point at this elev */
-  /* Fill in GTL request */
-  for (i = 0; i < 2; i++) {
-    gtl.coor_utm[i] = entry->coor_utm[i];
-  }
-  gtl.coor_utm[2] = -zt;
-  gtl.topo_gap = 0.0;
-  gtl.depth = depth;
-  gtl.vp = vp;
-  gtl.vs = vs;
-  gtl.rho = rho;
-  
-  /* Interpolate this with vs30 */
-  if (gtl_interp(&gtl, &updated) != 0) {
-    return(1);
-  }
-  
-  if (updated) {
-    /* Replace entry with GTL results */
-    for (i = 0; i < 3; i++) {
-      entry->vel_cell[i] = gtl.cell[i];
-    }
-    entry->data_src = VX_SRC_GT;
-    entry->provenance = (float)VX_PROV_GTL;
-    entry->vp = gtl.vp;
-    entry->vs = gtl.vs;
-    entry->rho = gtl.rho;
-  }
-  
-  /* Find GTL/core interpolated closest point at this elev */
-  
-  /* Find closest point in core */
-  vx_get_closest_coords(entry, &lr_entry, &cm_entry, 
-			&surface_elev, &topo_gap);
-  
-  /* Find the closest of the two candidates */
-  vx_select_closest_voxel(&lr_entry, &cm_entry, 
-			  &found_closest, &is_water_air, 
-			  &closest_entry, &closest_voxel);
-  
-  if (found_closest == False) {
-    /* Return the GTL adjusted 1D values */
-    return(0);
-  }
-  
-  vx_scec_1d_basic(&closest_entry, req_type, True);
-  if ((closest_entry.provenance == VX_PROV_WATER) ||
-      (closest_entry.provenance == VX_PROV_AIR) ||
-      (closest_entry.provenance == VX_PROV_AIR_OUTER)) {
-    entry->data_src = VX_SRC_BK;
-    entry->provenance = closest_entry.provenance;
-    entry->vp = closest_entry.vp;
-    entry->vs = closest_entry.vs;
-    entry->rho = closest_entry.rho;
-    return(0);
-  }
-  
-  /* Interpolate between the two */
-  if ((closest_entry.vp > 0.0) && 
-      (closest_entry.vs > 0.0) && 
-      (closest_entry.rho > 0.0)) {
-    
-    /* Interpolate between nearest core point and this point */
-    dist_ratio = vx_dist_2d(entry->coor_utm[0], 
-			 entry->coor_utm[1],
-			 closest_entry.coor_utm[0],
-			 closest_entry.coor_utm[1]) / 
-      (SCEC_SMOOTH_DIST * 1000.0);
-    
-    /* Scale vp,vs,rho by distance from GTL w/ linear interpolation */
-    if (dist_ratio < 1.0) {
-      entry->vp = vx_interpolate(closest_entry.vp, entry->vp, dist_ratio);
-      entry->rho = vx_interpolate(closest_entry.rho, entry->rho, 
-			       dist_ratio);
-      entry->vs = vx_interpolate(closest_entry.vs, entry->vs, dist_ratio);
-    }
-    
-  } else {
-    /* Return the GTL adjusted 1D values */
-    return(0);
-  }
-  
-
-  return(0);
-}
-
-
-/* Apply SCEC 1D background at point 'entry'. The request type
-   'req_type' denotes what info to return: topo, material properties,
-   or both. */
-int vx_scec_1d(vx_entry_t *entry, vx_request_t req_type)
-{
-  int i;
-  double depth;
-  double vp, vs, rho;
-  double zt;
-  double tmpz;
-  int updated;
-
-  vx_entry_t tmp_entry;
-  gtl_entry_t gtl;
-  double dist_ratio, closest_dist_2d;
-
-  /* Save basic SCEC topo info */
-  entry->topo = 0.0;
-  entry->mtop = 0.0;
-  entry->base = p0.NO_DATA_VALUE;
-  entry->moho = p0.NO_DATA_VALUE;  
-  if (req_type == VX_REQUEST_TOPO) {
-    return 0;
-  }
-
-  depth = (0.0 - entry->coor_utm[2]);
-  zt = gtl_get_transition();
-
-  /* Check if point is in the air */
-  if (depth < 0.0) {
-    entry->data_src = VX_SRC_NR;
-    entry->provenance = (float)VX_PROV_AIR;
-    entry->vp = entry->vs = entry->rho = p0.NO_DATA_VALUE;
-    return 0;
-  }
-
-  /* Check if GTL disabled */
-  if (vx_use_gtl == False) {
-    /* Use SCEC 1D with interpolation with core model */
-    vx_scec_1d_basic(entry, req_type, False);
-    return 0;
-  }
-
-  if ((vx_zmode == VX_ZMODE_DEPTH) || 
-      ((vx_zmode == VX_ZMODE_ELEVOFF) && (depth >= 0.0))) {
-
-    if (depth >= zt) {
-      /* Use SCEC 1D with interpolation with core model */
-      vx_scec_1d_basic(entry, req_type, False);
-      return 0;
-    } else {
-      if (gtl_point_is_inside(entry->coor_utm) == True) {
-	tmpz = entry->coor_utm[2];
-	entry->coor_utm[2] = -zt;
-	
-	/* Get SCEC 1D / core model interpolated values */
-	vx_scec_1d_basic(entry, VX_REQUEST_ALL, False);
-
-	//fprintf(stderr, "coord=%lf,%lf, %lf\n", entry->coor_utm[0],
-	//	entry->coor_utm[1], entry->coor_utm[2]);
-	//fprintf(stderr, "vp=%lf, vs=%lf, rho=%f\n", entry->vp,
-	//	entry->vs, entry->rho);
-	
-	if ((entry->provenance == VX_PROV_WATER) || 
-	    (entry->provenance == VX_PROV_AIR) ||
-	    (entry->provenance == VX_PROV_AIR_OUTER)) {
-	  return(0);
-	}
-
-	/* Fill in GTL request */
-	for (i = 0; i < 2; i++) {
-	  gtl.coor_utm[i] = entry->coor_utm[i];
-	}
-	gtl.coor_utm[2] = -zt;
-	gtl.topo_gap = 0.0;
-	gtl.depth = depth;
-	gtl.vp = entry->vp;
-	gtl.vs = entry->vs;
-	gtl.rho = entry->rho;
-	
-	/* Interpolate this with vs30 */
-	if (gtl_interp(&gtl, &updated) != 0) {
-	  return(1);
-	}
-	
-	entry->coor_utm[2] = tmpz;
-	
-	if (updated) {
-	  /* Replace entry with GTL results */
-	  for (i = 0; i < 3; i++) {
-	    entry->vel_cell[i] = gtl.cell[i];
-	  }
-	  entry->data_src = VX_SRC_GT;
-	  entry->provenance = (float)VX_PROV_GTL;
-	  entry->vp = gtl.vp;
-	  entry->vs = gtl.vs;
-	  entry->rho = gtl.rho;
-	}
-	
-      } else {
-
-	/* Find closest point in GTL */
-	gtl_closest_point(entry->coor_utm, tmp_entry.coor_utm, 
-			  &closest_dist_2d);
-	tmp_entry.coor_utm[2] = -zt;
-	
-	/* Get SCEC 1D / core model interpolated values */
-	vx_scec_1d_basic(&tmp_entry, VX_REQUEST_ALL, False);
-	
-	if ((tmp_entry.provenance == VX_PROV_WATER) || 
-	    (tmp_entry.provenance == VX_PROV_AIR)) {
-	  entry->data_src = tmp_entry.data_src;
-	  entry->provenance = tmp_entry.provenance;
-	  entry->vp = tmp_entry.vp;
-	  entry->vs = tmp_entry.vs;
-	  entry->rho = tmp_entry.rho;
-	  return(0);
-	}
-
-	/* Fill in GTL request */
-	for (i = 0; i < 3; i++) {
-	  gtl.coor_utm[i] = tmp_entry.coor_utm[i];
-	}
-	gtl.topo_gap = 0.0;
-	gtl.depth = depth;
-	gtl.vp = tmp_entry.vp;
-	gtl.vs = tmp_entry.vs;
-	gtl.rho = tmp_entry.rho;
-	
-	/* Interpolate this with vs30 */
-	if (gtl_interp(&gtl, &updated) != 0) {
-	  return(1);
-	}
-	
-	if (updated) {
-	  /* Replace entry with GTL results */
-	  for (i = 0; i < 3; i++) {
-	    tmp_entry.vel_cell[i] = gtl.cell[i];
-	  }
-	  tmp_entry.data_src = VX_SRC_GT;
-	  tmp_entry.provenance = (float)VX_PROV_GTL;
-	  tmp_entry.vp = gtl.vp;
-	  tmp_entry.vs = gtl.vs;
-	  tmp_entry.rho = gtl.rho;
-	}
-	
-	/* Acquire vp,vs,rho at this point from depth with SCEC 1D model */
-	vp = scec_vp(depth);
-	
-	/* Calculate rho */
-	rho = scec_rho(vp);
-	
-	/* Calculate vs */
-	vs = scec_vs(vp, rho);
-	
-	/* Save values */
-	entry->data_src = VX_SRC_BK;
-	entry->provenance = (float)VX_PROV_BACKGND;
-	entry->vp = vp;
-	entry->vs = vs;
-	entry->rho = rho;
-	
-	/* Interpolate between nearest GTL point and this point */
-	dist_ratio = closest_dist_2d / (SCEC_SMOOTH_DIST * 1000.0);
-	
-	/* Scale vp,vs,rho by distance from GTL w/ linear interpolation */
-	if (dist_ratio < 1.0) {
-	  entry->vp = vx_interpolate(tmp_entry.vp, entry->vp, dist_ratio);
-	  entry->rho = vx_interpolate(tmp_entry.rho, entry->rho, dist_ratio);
-	  entry->vs = vx_interpolate(tmp_entry.vs, entry->vs, dist_ratio);
-	}
-      }
-    }
-
-  } else if ((vx_zmode == VX_ZMODE_ELEV) || 
-	     ((vx_zmode == VX_ZMODE_ELEVOFF) && (depth < 0.0))) {
-
-    if (depth >= zt) {
-      /* Use SCEC 1D with interpolation with core model */
-      /* GTL flag is passed because closest voxel at specified elevation 
-	 may be within GTL range */
-      vx_scec_1d_basic(entry, req_type, True);
-      return 0;
-
-    } else {
-
-      if (gtl_point_is_inside(entry->coor_utm) == True) {
-	return(vx_scec_1d_gtl_elev(entry, req_type));
-      } else {
-
-	/* Find closest point in GTL */
-	gtl_closest_point(entry->coor_utm, tmp_entry.coor_utm, 
-			  &closest_dist_2d);
-
-	/* Find properties at closest GTL point */
-	vx_scec_1d_gtl_elev(&tmp_entry, req_type);
-
-	/* Acquire vp,vs,rho at this point from depth with SCEC 1D model */
-	vp = scec_vp(depth);
-	
-	/* Calculate rho */
-	rho = scec_rho(vp);
-	
-	/* Calculate vs */
-	vs = scec_vs(vp, rho);
-	
-	/* Save values */
-	entry->data_src = VX_SRC_BK;
-	entry->provenance = (float)VX_PROV_BACKGND;
-	entry->vp = vp;
-	entry->vs = vs;
-	entry->rho = rho;
-
-	/* Interpolate between nearest GTL point and this point */
-	if ((tmp_entry.vp > 0.0) && 
-	    (tmp_entry.vs > 0.0) && 
-	    (tmp_entry.rho > 0.0)) {
-
-	  dist_ratio = vx_dist_2d(tmp_entry.coor_utm[0], 
-			       tmp_entry.coor_utm[1],
-			       entry->coor_utm[0],
-			       entry->coor_utm[1]) / 
-	    (SCEC_SMOOTH_DIST * 1000.0);
-
-	  /* Scale vp,vs,rho by distance from GTL w/ linear interpolation */
-	  if (dist_ratio < 1.0) {
-	    entry->vp = vx_interpolate(tmp_entry.vp, entry->vp, dist_ratio);
-	    entry->rho = vx_interpolate(tmp_entry.rho, entry->rho, dist_ratio);
-	    entry->vs = vx_interpolate(tmp_entry.vs, entry->vs, dist_ratio);
-	  }
-	}
-      }
-    }
-
-  } else {
-    return(1);
-  }
-
-  return 0;
-}
-
 
 /* Return the voxel 'voxel' that lies precisely at the coord/model
    specified in 'entry'. If point lies outside of volume, the returned

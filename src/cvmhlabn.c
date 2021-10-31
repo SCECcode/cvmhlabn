@@ -102,6 +102,11 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         printf("%9.2f\n", entry.rho);
       }
 
+      fprintf(stderr,">>> a point..(%d)",rc);
+      if(entry.data_src == VX_SRC_HR) {fprintf(stderr," Got HR\n");}
+      if(entry.data_src == VX_SRC_LR) {fprintf(stderr," Got LR\n");}
+      if(entry.data_src == VX_SRC_CM) {fprintf(stderr," Got CM\n");}
+
       if(rc) { // 1 is bad, 0 is good
         data[i].vp=-1;
         data[i].vs=-1;

@@ -78,20 +78,6 @@ typedef struct vx_voxel_t
 } vx_voxel_t;
 
 
-/*
-typedef struct vx_bkg_t
-{
-  vx_entry_t entry;
-  vx_voxel_t closest_topo;
-  float topo_dist;
-  vx_voxel_t closest_elev;
-  float elev_dist;
-  vx_voxel_t closest_depth;
-  float depth_dist;
-} vx_bkg_t;
-*/
-
-
 /* 
   Main API functions
 */
@@ -103,23 +89,11 @@ int vx_setup(const char* data_dir);
 /* Cleanup function to free resources and restore state */
 int vx_cleanup();
 
-/* Get version number */
-int vx_version(char *ver);
-
 /* Set Z mode to either elevation, depth, or elev offset */
 int vx_setzmode(vx_zmode_t m);
 
-/* Enable/disable GTL (default is enabled) */
-int vx_setgtl(int flag);
-
 /* Retrieve data point in LatLon or UTM */
 int vx_getcoord(vx_entry_t *entry);
-
-/* Register user-defined background model handler */
-int vx_register_bkg( int (*backgrnd)(vx_entry_t *entry, 
-				      vx_request_t req_type) );
-/* Register SCEC bkg/topo handlers */
-int vx_register_scec();
 
 /* Initialize data structures */
 void vx_init_entry(vx_entry_t *entry);
@@ -136,18 +110,12 @@ void vx_getvoxel(vx_voxel_t *voxel);
 /* Retrieve true surface elev at data point */
 void vx_getsurface(double *coor, vx_coord_t coor_type, float *surface);
 
-/* Predefined SCEC bkg/topo handler */
-int vx_scec_1d(vx_entry_t *entry, vx_request_t req_type);
-
-/* Apply GTL to data point */
-int vx_apply_gtl_entry(vx_entry_t *entry, double depth, double topo_gap);
-
 /* Retrieve data point in LatLon or UTM */
 int vx_getcoord_private(vx_entry_t *entry, int enhanced);
 int vx_getsurface_private(double *coor, vx_coord_t coor_type, 
-			  float *surface, int exclude_bkg);
+			  float *surface);
 void vx_model_top(double *coor, vx_coord_t coor_type, 
-		  float *surface, int exclude_bkg);
+		  float *surface);
 void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel);
 void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel);
 void vx_dist_point_to_voxel(vx_entry_t *entry, 

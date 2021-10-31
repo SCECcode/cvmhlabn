@@ -79,7 +79,7 @@ vx_sub.o: vx_sub.c \
  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h \
  params.h coor_para.h voxet.h proj.h cproj.h \
  /usr/local/Cellar/gcc/10.2.0_4/lib/gcc/10/gcc/x86_64-apple-darwin20/10.2.0/include-fixed/math.h \
- utils.h vx_io.h vx_sub.h
+ scec1d.h vs30_gtl.h utils.h vx_io.h vx_sub.h
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/string.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types.h:
@@ -164,6 +164,8 @@ voxet.h:
 proj.h:
 cproj.h:
 /usr/local/Cellar/gcc/10.2.0_4/lib/gcc/10/gcc/x86_64-apple-darwin20/10.2.0/include-fixed/math.h:
+scec1d.h:
+vs30_gtl.h:
 utils.h:
 vx_io.h:
 vx_sub.h:
