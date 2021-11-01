@@ -105,6 +105,8 @@ int model_finalize();
 int model_version(char *ver, int len);
 /** Queries the model */
 int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
+/** Setparam */
+int model_setparam(int, int , ...);
 
 #endif
 
@@ -118,6 +120,8 @@ int cvmhlabn_finalize();
 int cvmhlabn_version(char *ver, int len);
 /** Queries the model */
 int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
+/** Setparam*/
+int cvmhlabn_setparam(int, int, ...);
 
 // Non-UCVM Helper Functions
 /** Reads the configuration file. */

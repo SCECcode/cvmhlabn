@@ -51,9 +51,14 @@ int main(int argc, const char* argv[]) {
         printf("vp : %lf\n",ret.vp);
         printf("rho: %lf\n",ret.rho);
 
-	assert(ret.vs = 2722.399);
-	assert(ret.vp = 4907.421);
-	assert(ret.rho = 2520.679);
+// LABN as LR, LABN as LR&HR
+	assert(ret.vs == -1);
+	assert(ret.vp == -1);
+	assert(ret.rho == -1);
+// for CVM_LR.vo
+	//assert(ret.vs == 2722.399);
+	//assert(ret.vp == 4907.421);
+	//assert(ret.rho == 2520.679);
 
 	printf("Query was successful.\n");
 

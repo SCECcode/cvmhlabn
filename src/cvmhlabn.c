@@ -11,8 +11,12 @@
  */
 
 #include "cvmhlabn.h"
+#include "ucvm_dtypes.h"
 
 int debug=0;
+int cvmhlabn_force_depth = 0;
+vx_zmode_t cvmhlabn_zmode = VX_ZMODE_ELEVOFF;
+ucvm_ctype_t cvmhlabn_cmode = UCVM_COORD_GEO_DEPTH;
 
 /**
  * Initializes the CVMHLABN plugin model within the UCVM framework. In order to initialize
@@ -47,15 +51,48 @@ int cvmhlabn_init(const char *dir, const char *label) {
           return FAIL;
         }
 
-        // by this time cmode -> always set to depth by now
-        cvmhlabn_setzmode("dep");
-
-
 	// Let everyone know that we are initialized and ready for business.
 	cvmhlabn_is_initialized = 1;
 
 	return SUCCESS;
 }
+
+/**  
+  * 
+**/
+
+/* Setparam CVM-H */
+int cvmhlabn_setparam(int id, int param, ...)
+{
+  char bpstr, *pval;
+  va_list ap;
+
+  va_start(ap, param);
+  switch (param) {
+    case UCVM_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
+      cvmhlabn_force_depth = va_arg(ap, int);
+      break;
+    case UCVM_PARAM_QUERY_MODE:
+      cvmhlabn_cmode = va_arg(ap,int);
+      switch (cmode) {
+        case UCVM_COORD_GEO_DEPTH:
+          cvmhlabn_zmode = VX_ZMODE_DEPTH;
+          break;
+        case UCVM_COORD_GEO_ELEV:
+          cvmhlabn_zmode = VX_ZMODE_ELEV;
+          break;
+        default:
+          fprintf(stderr, "Unsupported coord type\n");
+          return FAIL;
+          break;
+       }
+       vx_setzmode(cvmhlabn_zmode);
+       break;
+  }
+  va_end(ap);
+  return SUCCESS;
+}
+
 
 /**
  * Queries CVMHLABN at the given points and returns the data that it finds.
@@ -69,11 +106,51 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
   // setup >> points -> entry
   // retrieve >> entry -> data
 
+
   for(int i=0; i<numpoints; i++) {
       vx_entry_t entry;
-      entry.coor[0]=points[i].longitude;
-      entry.coor[1]=points[i].latitude;
-      entry.coor[2]=points[i].depth;
+
+    /*
+       Conditions:
+       1) Point data has not been filled in by previous model
+       2) Point falls in crust or interpolation zone
+       3) Point falls within the configured model region
+     */
+    if ((data[i].crust.source == UCVM_SOURCE_NONE) &&
+        ((data[i].domain == UCVM_DOMAIN_INTERP) || (data[i].domain == UCVM_DOMAIN_CRUST))
+//??? always return 1,  && (region_contains_null(&(ucvm_cvmh_conf.region), cvmhlabn_cmode, &(pnt[i])))
+       ) {
+
+      /* Force depth mode if directed and point is above surface */
+      if ((cvmhlabn_force_depth) && (cvmhlabn_zmode == VX_ZMODE_ELEV) &&
+          (data[i].depth < 0.0)) {
+        /* Setup point to query */
+        entry.coor[0]=points[i].longitude;
+        entry.coor[1]=points[i].latitude;
+        vx_getsurface(&(entry.coor[0]), entry.coor_type, &vx_surf);
+        if (vx_surf - VX_NO_DATA < 0.01) {
+          /* Fallback to using UCVM topo */
+          entry.coor[2]=points[i].depth;
+        } else {
+          entry.coor[2]=vx_surf - points[i].depth;
+        }
+      } else {
+        /* Setup point to query */
+        entry.coor[0]=points[i].longitude;
+        entry.coor[1]=points[i].latitude;
+        switch (cvmhlabn_zmode) {
+        case VZ_ZMODE_DEPTH:
+          entry.coor[2] = points[i].depth + data[i].shift_cr;
+          break;
+        case VZ_ZMODE_ELEV:
+          entry.coor[2] = points[i].depth - data[i].shift_cr;
+          break;
+        default:
+          fprintf(stderr, "Unsupported coord type\n");
+          return(UCVM_CODE_ERROR);
+          break;
+        }
+      }
 
       /* In case we got anything like degrees */
       if ((entry.coor[0]<360.) && (fabs(entry.coor[1])<90)) {
@@ -102,10 +179,17 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         printf("%9.2f\n", entry.rho);
       }
 
-      fprintf(stderr,">>> a point..(%d)",rc);
-      if(entry.data_src == VX_SRC_HR) {fprintf(stderr," Got HR\n");}
-      if(entry.data_src == VX_SRC_LR) {fprintf(stderr," Got LR\n");}
-      if(entry.data_src == VX_SRC_CM) {fprintf(stderr," Got CM\n");}
+      fprintf(stderr,">>> a point..rc(%d)->",rc);
+      switch(entry.data_src) {
+        case VX_SRC_NR: {fprintf(stderr,"GOT VX_SRC_NR\n"); break; }
+        case VX_SRC_HR: {fprintf(stderr,"GOT VX_SRC_HR\n"); break; }
+        case VX_SRC_LR: {fprintf(stderr,"GOT VX_SRC_LR\n"); break; }
+        case VX_SRC_CM: {fprintf(stderr,"GOT VX_SRC_CM\n"); break; }
+        case VX_SRC_TO: {fprintf(stderr,"GOT VX_SRC_TO\n"); break; }
+        case VX_SRC_BK: {fprintf(stderr,"GOT VX_SRC_BK\n"); break; }
+        case VX_SRC_GT: {fprintf(stderr,"GOT VX_SRC_GT\n"); break; }
+        default: {fprintf(stderr,"???\n"); break; }
+      }
 
       if(rc) { // 1 is bad, 0 is good
         data[i].vp=-1;
@@ -150,28 +234,6 @@ int cvmhlabn_version(char *ver, int len)
   strncpy(ver, cvmhlabn_version_string, verlen);
   return 0;
 }
-
-/* Setparam CVMHLABN */
-int cvmhlabn_setzmode(char* z)
-{
-  vx_zmode_t zmode;
-  zmode = VX_ZMODE_ELEVOFF;
-
-  if(strcasecmp(z,"dep")==0) {
-       zmode = VX_ZMODE_DEPTH;
-     } else if (strcasecmp(z,"elev")==0) {
-       zmode = VX_ZMODE_ELEV;
-     } else if (strcasecmp(z,"off")==0) {
-       zmode = VX_ZMODE_ELEVOFF;
-     } else {
-       fprintf(stderr, "Invalid zmode type %s\n",z);
-       return FAIL;
-  }
-   
-  vx_setzmode(zmode);
-  return SUCCESS;
-}
-
 
 /**
  * Reads the configuration file describing the various properties of CVMHLABNand populates
@@ -256,6 +318,18 @@ int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpo
 }
 
 /**
+ * Setparam function loaded and called by the UCVM library. Calls cvmhlabn_setparam.
+ *
+ * @param id  don'care
+ * @param param 
+ * @param ... actual parameter list
+ * @return Success or fail.
+ */
+int model_setparam(int id, int param, ...) {
+	return cvmhlabn_setparam(id, param, ...);
+}
+
+/**
  * Finalize function loaded and called by the UCVM library. Calls cvmhlabn_finalize.
  *
  * @return Success
@@ -287,6 +361,10 @@ int (*get_model_finalize())() {
 int (*get_model_version())(char *, int) {
          return &cvmhlabn_version;
 }
+int (*get_model_setparam())(int, int, ...) {
+         return &cvmhlabn_setparam;
+}
+
 
 
 

@@ -81,8 +81,8 @@ int vx_setup(const char *data_dir)
   sprintf(LR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
   
   char HR_PAR[CMLEN];
-    sprintf(HR_PAR, "%s/CVM_HR.vo", data_dir);
-//  sprintf(HR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
+//  sprintf(HR_PAR, "%s/CVM_HR.vo", data_dir);
+  sprintf(HR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
   
   char CM_PAR[CMLEN];
   sprintf(CM_PAR, "%s/CVM_CM.vo", data_dir);
