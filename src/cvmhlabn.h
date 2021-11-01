@@ -14,6 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
+#include <stdarg.h>
 
 #include "vx_sub.h"
 
@@ -22,6 +23,13 @@
 	/** Defines pi */
 	#define M_PI 3.14159265358979323846
 #endif
+
+/* Picked up from ucvm_dtypes.h */
+#define VX_NO_DATA -99999.0
+#define CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF 0
+#define CVMHLABN_PARAM_QUERY_MODE 1
+#define CVMHLABN_COORD_GEO_DEPTH 0
+#define CVMHLABN_COORD_GEO_ELEV 1
 
 /** Defines a return value of success */
 #define SUCCESS 0
@@ -106,7 +114,7 @@ int model_version(char *ver, int len);
 /** Queries the model */
 int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
 /** Setparam */
-int model_setparam(int, int , ...);
+int model_setparam(int, int, int);
 
 #endif
 

@@ -11,12 +11,10 @@
  */
 
 #include "cvmhlabn.h"
-#include "ucvm_dtypes.h"
 
 int debug=0;
 int cvmhlabn_force_depth = 0;
 vx_zmode_t cvmhlabn_zmode = VX_ZMODE_ELEVOFF;
-ucvm_ctype_t cvmhlabn_cmode = UCVM_COORD_GEO_DEPTH;
 
 /**
  * Initializes the CVMHLABN plugin model within the UCVM framework. In order to initialize
@@ -64,21 +62,23 @@ int cvmhlabn_init(const char *dir, const char *label) {
 /* Setparam CVM-H */
 int cvmhlabn_setparam(int id, int param, ...)
 {
-  char bpstr, *pval;
   va_list ap;
+  int cvmhlabn_cmode;
+
+fprintf(stderr,"id being called in setparam..%d\n",id);
 
   va_start(ap, param);
   switch (param) {
-    case UCVM_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
+    case CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
       cvmhlabn_force_depth = va_arg(ap, int);
       break;
-    case UCVM_PARAM_QUERY_MODE:
+    case CVMHLABN_PARAM_QUERY_MODE:
       cvmhlabn_cmode = va_arg(ap,int);
-      switch (cmode) {
-        case UCVM_COORD_GEO_DEPTH:
+      switch (cvmhlabn_cmode) {
+        case CVMHLABN_COORD_GEO_DEPTH:
           cvmhlabn_zmode = VX_ZMODE_DEPTH;
           break;
-        case UCVM_COORD_GEO_ELEV:
+        case CVMHLABN_COORD_GEO_ELEV:
           cvmhlabn_zmode = VX_ZMODE_ELEV;
           break;
         default:
@@ -109,21 +109,20 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
 
   for(int i=0; i<numpoints; i++) {
       vx_entry_t entry;
+      float vx_surf;
 
     /*
-       Conditions:
-       1) Point data has not been filled in by previous model
-       2) Point falls in crust or interpolation zone
-       3) Point falls within the configured model region
+       By the time here, Conditions:
+
+       Following condition must have met,
+         1) Point data has not been filled in by previous model
+         2) Point falls in crust or interpolation zone
+         3) Point falls within the configured model region
      */
-    if ((data[i].crust.source == UCVM_SOURCE_NONE) &&
-        ((data[i].domain == UCVM_DOMAIN_INTERP) || (data[i].domain == UCVM_DOMAIN_CRUST))
-//??? always return 1,  && (region_contains_null(&(ucvm_cvmh_conf.region), cvmhlabn_cmode, &(pnt[i])))
-       ) {
 
       /* Force depth mode if directed and point is above surface */
       if ((cvmhlabn_force_depth) && (cvmhlabn_zmode == VX_ZMODE_ELEV) &&
-          (data[i].depth < 0.0)) {
+          (points[i].depth < 0.0)) {
         /* Setup point to query */
         entry.coor[0]=points[i].longitude;
         entry.coor[1]=points[i].latitude;
@@ -135,21 +134,10 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
           entry.coor[2]=vx_surf - points[i].depth;
         }
       } else {
-        /* Setup point to query */
+        /* Setup with direct point to query */
         entry.coor[0]=points[i].longitude;
         entry.coor[1]=points[i].latitude;
-        switch (cvmhlabn_zmode) {
-        case VZ_ZMODE_DEPTH:
-          entry.coor[2] = points[i].depth + data[i].shift_cr;
-          break;
-        case VZ_ZMODE_ELEV:
-          entry.coor[2] = points[i].depth - data[i].shift_cr;
-          break;
-        default:
-          fprintf(stderr, "Unsupported coord type\n");
-          return(UCVM_CODE_ERROR);
-          break;
-        }
+        entry.coor[2]=points[i].depth;
       }
 
       /* In case we got anything like degrees */
@@ -322,11 +310,11 @@ int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpo
  *
  * @param id  don'care
  * @param param 
- * @param ... actual parameter list
+ * @param val, it is actually just 1 int
  * @return Success or fail.
  */
-int model_setparam(int id, int param, ...) {
-	return cvmhlabn_setparam(id, param, ...);
+int model_setparam(int id, int param, int val) {
+	return cvmhlabn_setparam(id, param, val);
 }
 
 /**

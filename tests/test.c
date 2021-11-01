@@ -44,6 +44,8 @@ int main(int argc, const char* argv[]) {
 	pt.longitude = -118.0701;
 	pt.latitude = 34.155;
 	pt.depth = 2000;
+  
+        cvmhlabn_setparam(CVMHLABN_PARAM_QUERY_MODE,CVMHLABN_COORD_GEO_DEPTH);
 
 	cvmhlabn_query(&pt, &ret, 1);
 
