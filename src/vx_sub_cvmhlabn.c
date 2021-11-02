@@ -41,6 +41,8 @@ vx_zmode_t vx_zmode = VX_ZMODE_ELEV;
 struct axis lr_a, mr_a, hr_a, cm_a, to_a;
 struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
 float step_to[3], step_lr[3], step_hr[3], step_cm[3];
+float step0lr, step1lr, step2lr;
+float step0hr, step1hr, step2hr;
 
 /* Model buffers */
 static char *hrbuffer = NULL;
@@ -104,10 +106,45 @@ int vx_setup(const char *data_dir)
   vx_io_getvec("AXIS_MAX",lr_a.MAX);
   vx_io_getdim("AXIS_N",lr_a.N);
 
-  /** AP: AXIS_MIN and AXIS_MAX are currently not used and need to be 0
-      0 0 and 1 1 1, respectively, in the .vo file. The AXIS_UVW would
-      need to be adjusted accordingly in the .vo file.
-  **/
+
+  if( (lr_a.MIN[0] != 0) || (lr_a.MAX[0] != 1)) {
+ // adjust for 'translation'
+
+/* origin */
+      float origin0lr= lr_a.O[0] + lr_a.U[0] * lr_a.MIN[0];
+      float origin1lr= lr_a.O[1] + lr_a.V[1] * lr_a.MIN[1];
+      float origin2lr= lr_a.O[2] + lr_a.W[2] * lr_a.MIN[2];
+/* Umax */
+      float umax0lr=lr_a.O[0] + (lr_a.U[0] * lr_a.MAX[0]);
+      float umax1lr=origin1lr;
+      float umax2lr=origin2lr;
+/* Vmax */
+      float vmax0lr=origin0lr;
+      float vmax1lr=lr_a.O[1] + (lr_a.V[1] * lr_a.MAX[1]);
+      float vmax2lr=origin2lr;
+/* Wmax */
+      float wmax0lr=origin0lr;
+      float wmax1lr=origin1lr;
+      float wmax2lr=lr_a.O[2] + (lr_a.W[2] * lr_a.MAX[2]);
+/* cell size */
+      step0lr=((lr_a.MAX[0] - lr_a.MIN[0]) * lr_a.U[0]) / (lr_a.N[0]-1); 
+      step1lr=((lr_a.MAX[1] - lr_a.MIN[1]) * lr_a.V[1]) / (lr_a.N[1]-1); 
+      step2lr=((lr_a.MAX[2] - lr_a.MIN[2]) * lr_a.W[2]) / (lr_a.N[2]-1); 
+
+/*
+fprintf(stderr,"NEW LR------\n");
+fprintf(stderr,"new origin %f %f %f\n", origin0lr, origin1lr, origin2lr);
+fprintf(stderr,"new umax %f %f %f\n", umax0lr, umax1lr, umax2lr);
+fprintf(stderr,"new vmax %f %f %f\n", vmax0lr, vmax1lr, vmax2lr);
+fprintf(stderr,"new wmax %f %f %f\n", wmax0lr, wmax1lr, wmax2lr);
+fprintf(stderr,"new step %f %f %f\n\n", step0lr, step1lr, step2lr);
+*/
+
+      lr_a.O[0]=origin0lr; lr_a.O[1]=origin1lr; lr_a.O[2]=origin2lr;
+      lr_a.U[0]=umax0lr; lr_a.U[1]=umax1lr; lr_a.U[2]=umax2lr;
+      lr_a.V[0]=vmax0lr; lr_a.V[1]=vmax1lr; lr_a.V[2]=vmax2lr;
+      lr_a.W[0]=wmax0lr; lr_a.W[1]=wmax1lr; lr_a.W[2]=wmax2lr;
+  }
 
   NCells=lr_a.N[0]*lr_a.N[1]*lr_a.N[2];
   sprintf(p0.NAME,"vint");
@@ -174,6 +211,43 @@ int vx_setup(const char *data_dir)
   vx_io_getvec("AXIS_MIN",hr_a.MIN);
   vx_io_getvec("AXIS_MAX",hr_a.MAX);
   vx_io_getdim("AXIS_N ",hr_a.N);
+
+  if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
+/* origin */
+      float origin0hr= hr_a.O[0] + hr_a.U[0] * hr_a.MIN[0];
+      float origin1hr= hr_a.O[1] + hr_a.V[1] * hr_a.MIN[1];
+      float origin2hr= hr_a.O[2] + hr_a.W[2] * hr_a.MIN[2];
+/* Umax */
+      float umax0hr=hr_a.O[0] + (hr_a.U[0] * hr_a.MAX[0]);
+      float umax1hr=origin1hr;
+      float umax2hr=origin2hr;
+/* Vmax */
+      float vmax0hr=origin0hr;
+      float vmax1hr=hr_a.O[1] + (hr_a.V[1] * hr_a.MAX[1]);
+      float vmax2hr=origin2hr;
+/* Wmax */
+      float wmax0hr=origin0hr;
+      float wmax1hr=origin1hr;
+      float wmax2hr=hr_a.O[2] + (hr_a.W[2] * hr_a.MAX[2]);
+/* cell size */
+      step0hr=((hr_a.MAX[0] - hr_a.MIN[0]) * hr_a.U[0]) / (hr_a.N[0]-1); 
+      step1hr=((hr_a.MAX[1] - hr_a.MIN[1]) * hr_a.V[1]) / (hr_a.N[1]-1); 
+      step2hr=((hr_a.MAX[2] - hr_a.MIN[2]) * hr_a.W[2]) / (hr_a.N[2]-1); 
+
+      hr_a.O[0]=origin0hr; hr_a.O[1]=origin1hr; hr_a.O[2]=origin2hr;
+      hr_a.U[0]=umax0hr; hr_a.U[1]=umax1hr; lr_a.U[2]=umax2hr;
+      hr_a.V[0]=vmax0hr; hr_a.V[1]=vmax1hr; lr_a.V[2]=vmax2hr;
+      hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; lr_a.W[2]=wmax2hr;
+
+/*
+fprintf(stderr,"NEW HR------\n");
+fprintf(stderr,"new origin %f %f %f\n", origin0hr, origin1hr, origin2hr);
+fprintf(stderr,"new umax %f %f %f\n", umax0hr, umax1hr, umax2hr);
+fprintf(stderr,"new vmax %f %f %f\n", vmax0hr, vmax1hr, vmax2hr);
+fprintf(stderr,"new wmax %f %f %f\n", wmax0hr, wmax1hr, wmax2hr);
+fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
+*/
+  }
 
   NCells=hr_a.N[0]*hr_a.N[1]*hr_a.N[2];
 
@@ -387,13 +461,24 @@ int vx_setup(const char *data_dir)
   step_to[1]=to_a.V[1]/(to_a.N[1]-1);
   step_to[2]=0.0;
 
-  step_lr[0]=lr_a.U[0]/(lr_a.N[0]-1);
-  step_lr[1]=lr_a.V[1]/(lr_a.N[1]-1);
-  step_lr[2]=lr_a.W[2]/(lr_a.N[2]-1);
-  
-  step_hr[0]=hr_a.U[0]/(hr_a.N[0]-1);
-  step_hr[1]=hr_a.V[1]/(hr_a.N[1]-1);
-  step_hr[2]=hr_a.W[2]/(hr_a.N[2]-1);
+  if( (lr_a.MIN[0] != 0) || (lr_a.MAX[0] != 1)) {
+      step_lr[0]=step0lr;
+      step_lr[1]=step1lr;
+      step_lr[2]=step2lr;
+      } else {
+          step_lr[0]=lr_a.U[0]/(lr_a.N[0]-1);
+          step_lr[1]=lr_a.V[1]/(lr_a.N[1]-1);
+          step_lr[2]=lr_a.W[2]/(lr_a.N[2]-1);
+  }
+  if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
+      step_hr[0]=step0hr;
+      step_hr[1]=step1hr;
+      step_hr[2]=step2hr;
+      } else {
+          step_hr[0]=hr_a.U[0]/(hr_a.N[0]-1);
+          step_hr[1]=hr_a.V[1]/(hr_a.N[1]-1);
+          step_hr[2]=hr_a.W[2]/(hr_a.N[2]-1);
+  }
   
   step_cm[0]=cm_a.U[0]/(cm_a.N[0]-1);
   step_cm[1]=cm_a.V[1]/(cm_a.N[1]-1);
@@ -556,6 +641,9 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       depth = surface - entry->coor_utm[2];
     }
 
+fprintf(stderr," IN private query..\n");
+fprintf(stderr,"    entry : %lf %lf %lf\n", entry->coor[0], entry->coor[1], entry->coor[2]);
+
     if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
 	 the grid spacing. The -1 is necessary to do the counting 
@@ -570,21 +658,26 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
+fprintf(stderr,"    --- in HR area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
 //XXX  return from High Resolution Area
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
+fprintf(stderr,"HERE\n");
 	j=voxbytepos(gcoor,hr_a.N,p2.ESIZE);
+fprintf(stderr,"HERE2\n");
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0.ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p2.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
 	entry->data_src = VX_SRC_HR;
+fprintf(stderr," DONE  %lf %lf\n", entry->vp, entry->vs);
       } else {	  
 //XXX return from Low Resolution Area
 	gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
 	gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
 	gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
+fprintf(stderr,"    --- in LR area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
 	
 	if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	   gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2]) {
@@ -602,6 +695,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	  gcoor[0]=round((entry->coor_utm[0]-cm_a.O[0])/step_cm[0]);
 	  gcoor[1]=round((entry->coor_utm[1]-cm_a.O[1])/step_cm[1]);
 	  gcoor[2]=round((entry->coor_utm[2]-cm_a.O[2])/step_cm[2]);
+fprintf(stderr,"  ---- in LR olabp CM area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
 	  
 	  /** AP: check if inside CM voxet; the uppermost layer of 
 	      CM overlaps with the lowermost of LR, may need to be 

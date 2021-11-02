@@ -82,6 +82,7 @@ int vx_io_getvec(char *search, float *vec)
   i = 0;
   while (i < vx_num_prop) {
     if (strstr(vx_props[i], search)) {
+//fprintf(stderr,">>.. %s\n", vx_props[i]);
       sscanf(&vx_props[i][0]+strlen(search)+1,"%f %f %f",
 	     &vec[0], &vec[1], &vec[2]);
       return(0);
@@ -102,6 +103,7 @@ int vx_io_getdim(char *search, int *vec)
   i = 0;
   while (i < vx_num_prop) {
     if (strstr(vx_props[i], search)) {
+//fprintf(stderr,">>.. %s\n", vx_props[i]);
       sscanf(&vx_props[i][0]+strlen(search),"%d %d %d",
 	     &vec[0], &vec[1], &vec[2]);
       return(0);

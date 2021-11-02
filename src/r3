@@ -1,0 +1,4 @@
+echo "...cvmhlabn..."
+./vx_lite_cvmhlabn -m ../data/cvmhlabn < test3.in
+#echo "...cvmh..."
+#./vx_lite -m /Users/mei/scec/TARGET_UCVM/UCVM/work/model/cvmh/model/cvmh < test3.in
