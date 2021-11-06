@@ -180,7 +180,8 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         }
       }
 
-      if(rc) { // 1 is bad, 0 is good
+      // 1 is bad, 0 is good and anything not in HR region/ie cvmhlabn 
+      if(rc || entry.data_src != VX_SRC_HR) { 
         data[i].vp=-1;
         data[i].vs=-1;
         data[i].rho=-1;
