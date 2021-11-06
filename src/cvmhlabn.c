@@ -65,9 +65,8 @@ int cvmhlabn_setparam(int id, int param, ...)
   va_list ap;
   int cvmhlabn_cmode;
 
-fprintf(stderr,"id being called in setparam..%d\n",id);
-
   va_start(ap, param);
+
   switch (param) {
     case CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
       cvmhlabn_force_depth = va_arg(ap, int);
@@ -167,16 +166,18 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         printf("%9.2f\n", entry.rho);
       }
 
-      fprintf(stderr,">>> a point..rc(%d)->",rc);
-      switch(entry.data_src) {
-        case VX_SRC_NR: {fprintf(stderr,"GOT VX_SRC_NR\n"); break; }
-        case VX_SRC_HR: {fprintf(stderr,"GOT VX_SRC_HR\n"); break; }
-        case VX_SRC_LR: {fprintf(stderr,"GOT VX_SRC_LR\n"); break; }
-        case VX_SRC_CM: {fprintf(stderr,"GOT VX_SRC_CM\n"); break; }
-        case VX_SRC_TO: {fprintf(stderr,"GOT VX_SRC_TO\n"); break; }
-        case VX_SRC_BK: {fprintf(stderr,"GOT VX_SRC_BK\n"); break; }
-        case VX_SRC_GT: {fprintf(stderr,"GOT VX_SRC_GT\n"); break; }
-        default: {fprintf(stderr,"???\n"); break; }
+      if(debug) {
+        fprintf(stderr,">>> a point..rc(%d)->",rc);
+        switch(entry.data_src) {
+          case VX_SRC_NR: {fprintf(stderr,"GOT VX_SRC_NR\n"); break; }
+          case VX_SRC_HR: {fprintf(stderr,"GOT VX_SRC_HR\n"); break; }
+          case VX_SRC_LR: {fprintf(stderr,"GOT VX_SRC_LR\n"); break; }
+          case VX_SRC_CM: {fprintf(stderr,"GOT VX_SRC_CM\n"); break; }
+          case VX_SRC_TO: {fprintf(stderr,"GOT VX_SRC_TO\n"); break; }
+          case VX_SRC_BK: {fprintf(stderr,"GOT VX_SRC_BK\n"); break; }
+          case VX_SRC_GT: {fprintf(stderr,"GOT VX_SRC_GT\n"); break; }
+          default: {fprintf(stderr,"???\n"); break; }
+        }
       }
 
       if(rc) { // 1 is bad, 0 is good

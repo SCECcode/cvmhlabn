@@ -26,6 +26,8 @@
 #define ELEV_EPSILON 0.01
 #define MAX_ITER_ELEV 4
 
+int _debug=0;
+
 
 /* Function declarations */
 void gctp();
@@ -79,12 +81,10 @@ int vx_setup(const char *data_dir)
   cmvsbuffer = lrvsbuffer = hrvsbuffer = NULL;
 
   char LR_PAR[CMLEN];
-//  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
-  sprintf(LR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
+  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
   
   char HR_PAR[CMLEN];
-//  sprintf(HR_PAR, "%s/CVM_HR.vo", data_dir);
-  sprintf(HR_PAR, "%s/CVMH15-1-Los-Angeles-Basin.vo", data_dir);
+  sprintf(HR_PAR, "%s/CVMHB-Los-Angeles-Basin.vo", data_dir);
   
   char CM_PAR[CMLEN];
   sprintf(CM_PAR, "%s/CVM_CM.vo", data_dir);
@@ -131,14 +131,14 @@ int vx_setup(const char *data_dir)
       step1lr=((lr_a.MAX[1] - lr_a.MIN[1]) * lr_a.V[1]) / (lr_a.N[1]-1); 
       step2lr=((lr_a.MAX[2] - lr_a.MIN[2]) * lr_a.W[2]) / (lr_a.N[2]-1); 
 
-/*
-fprintf(stderr,"NEW LR------\n");
-fprintf(stderr,"new origin %f %f %f\n", origin0lr, origin1lr, origin2lr);
-fprintf(stderr,"new umax %f %f %f\n", umax0lr, umax1lr, umax2lr);
-fprintf(stderr,"new vmax %f %f %f\n", vmax0lr, vmax1lr, vmax2lr);
-fprintf(stderr,"new wmax %f %f %f\n", wmax0lr, wmax1lr, wmax2lr);
-fprintf(stderr,"new step %f %f %f\n\n", step0lr, step1lr, step2lr);
-*/
+      if(_debug) {
+         fprintf(stderr,"NEW LR------\n");
+         fprintf(stderr,"new origin %f %f %f\n", origin0lr, origin1lr, origin2lr);
+         fprintf(stderr,"new umax %f %f %f\n", umax0lr, umax1lr, umax2lr);
+         fprintf(stderr,"new vmax %f %f %f\n", vmax0lr, vmax1lr, vmax2lr);
+         fprintf(stderr,"new wmax %f %f %f\n", wmax0lr, wmax1lr, wmax2lr);
+         fprintf(stderr,"new step %f %f %f\n\n", step0lr, step1lr, step2lr);
+      }
 
       lr_a.O[0]=origin0lr; lr_a.O[1]=origin1lr; lr_a.O[2]=origin2lr;
       lr_a.U[0]=umax0lr; lr_a.U[1]=umax1lr; lr_a.U[2]=umax2lr;
@@ -147,6 +147,7 @@ fprintf(stderr,"new step %f %f %f\n\n", step0lr, step1lr, step2lr);
   }
 
   NCells=lr_a.N[0]*lr_a.N[1]*lr_a.N[2];
+// ??? not sure why vint
   sprintf(p0.NAME,"vint");
   vx_io_getpropname("PROP_FILE",1,p0.FN);
   vx_io_getpropsize("PROP_ESIZE",1,&p0.ESIZE);
@@ -238,23 +239,27 @@ fprintf(stderr,"new step %f %f %f\n\n", step0lr, step1lr, step2lr);
       hr_a.U[0]=umax0hr; hr_a.U[1]=umax1hr; lr_a.U[2]=umax2hr;
       hr_a.V[0]=vmax0hr; hr_a.V[1]=vmax1hr; lr_a.V[2]=vmax2hr;
       hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; lr_a.W[2]=wmax2hr;
+   
+      if(_debug) {
+        fprintf(stderr,"NEW HR------\n");
+        fprintf(stderr,"new origin %f %f %f\n", origin0hr, origin1hr, origin2hr);
+        fprintf(stderr,"new umax %f %f %f\n", umax0hr, umax1hr, umax2hr);
+        fprintf(stderr,"new vmax %f %f %f\n", vmax0hr, vmax1hr, vmax2hr);
+        fprintf(stderr,"new wmax %f %f %f\n", wmax0hr, wmax1hr, wmax2hr);
+        fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
+      }
 
-/*
-fprintf(stderr,"NEW HR------\n");
-fprintf(stderr,"new origin %f %f %f\n", origin0hr, origin1hr, origin2hr);
-fprintf(stderr,"new umax %f %f %f\n", umax0hr, umax1hr, umax2hr);
-fprintf(stderr,"new vmax %f %f %f\n", vmax0hr, vmax1hr, vmax2hr);
-fprintf(stderr,"new wmax %f %f %f\n", wmax0hr, wmax1hr, wmax2hr);
-fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
-*/
-  }
+     }
 
   NCells=hr_a.N[0]*hr_a.N[1]*hr_a.N[2];
 
-  sprintf(p1.NAME,"vint");
+ //???  why sprintf(p1.NAME,"vint");
+  sprintf(p2.NAME,"vp63_basin");
   vx_io_getpropname("PROP_FILE",1,p2.FN);
   vx_io_getpropsize("PROP_ESIZE",1,&p2.ESIZE);
   vx_io_getpropval("PROP_NO_DATA_VALUE",1,&p2.NO_DATA_VALUE);
+
+  if(_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p2.FN); }
 
   hrbuffer=(char *)malloc(NCells*p2.ESIZE);
   if (hrbuffer == NULL) {
@@ -268,10 +273,12 @@ fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
   }
 
   // and the tags
-  sprintf(p9.NAME,"tag");
-  vx_io_getpropname("PROP_FILE",2,p9.FN);
-  vx_io_getpropsize("PROP_ESIZE",2,&p9.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p9.NO_DATA_VALUE);
+  sprintf(p9.NAME,"tag61_basin");
+  vx_io_getpropname("PROP_FILE",3,p9.FN);
+  vx_io_getpropsize("PROP_ESIZE",3,&p9.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p9.NO_DATA_VALUE);
+
+if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p9.FN); }
 
   hrtbuffer=(char *)malloc(NCells*p9.ESIZE);
   if (hrtbuffer == NULL) {
@@ -285,10 +292,12 @@ fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
   }
 
   // and vs
-  sprintf(p12.NAME,"vs");
-  vx_io_getpropname("PROP_FILE",3,p12.FN);
-  vx_io_getpropsize("PROP_ESIZE",3,&p12.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p12.NO_DATA_VALUE);
+  sprintf(p12.NAME,"vs63_basin");
+  vx_io_getpropname("PROP_FILE",2,p12.FN);
+  vx_io_getpropsize("PROP_ESIZE",2,&p12.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p12.NO_DATA_VALUE);
+
+if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
 
   hrvsbuffer=(char *)malloc(NCells*p12.ESIZE);
   if (hrvsbuffer == NULL) {
@@ -319,9 +328,9 @@ fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
 
   NCells=cm_a.N[0]*cm_a.N[1]*cm_a.N[2];
   sprintf(p3.NAME,"cvp");
-  vx_io_getpropname("PROP_FILE",1,p3.FN);
-  vx_io_getpropsize("PROP_ESIZE",1,&p3.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",1,&p3.NO_DATA_VALUE);
+  vx_io_getpropname("PROP_FILE",VX_PNUMBER_VP,p3.FN);
+  vx_io_getpropsize("PROP_ESIZE",VX_PNUMBER_VP,&p3.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",VX_PNUMBER_VP,&p3.NO_DATA_VALUE);
 
   cmbuffer=(char *)malloc(NCells*p3.ESIZE);
   if (cmbuffer == NULL) {
@@ -336,9 +345,9 @@ fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
 
   // and the flags
   sprintf(p8.NAME,"tag");
-  vx_io_getpropname("PROP_FILE",2,p8.FN);
-  vx_io_getpropsize("PROP_ESIZE",2,&p8.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p8.NO_DATA_VALUE);
+  vx_io_getpropname("PROP_FILE",VX_PNUMBER_TAG,p8.FN);
+  vx_io_getpropsize("PROP_ESIZE",VX_PNUMBER_TAG,&p8.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",VX_PNUMBER_TAG,&p8.NO_DATA_VALUE);
 
   cmtbuffer=(char *)malloc(NCells*p8.ESIZE);
   if (cmtbuffer == NULL) {
@@ -353,9 +362,9 @@ fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
 
   // and vs
   sprintf(p10.NAME,"cvs");
-  vx_io_getpropname("PROP_FILE",3,p10.FN);
-  vx_io_getpropsize("PROP_ESIZE",3,&p10.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p10.NO_DATA_VALUE);
+  vx_io_getpropname("PROP_FILE",VX_PNUMBER_VS,p10.FN);
+  vx_io_getpropsize("PROP_ESIZE",VX_PNUMBER_VS,&p10.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",VX_PNUMBER_VS,&p10.NO_DATA_VALUE);
 
   cmvsbuffer=(char *)malloc(NCells*p10.ESIZE);
   if (cmvsbuffer == NULL) {
@@ -641,8 +650,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       depth = surface - entry->coor_utm[2];
     }
 
-fprintf(stderr," IN private query..\n");
-fprintf(stderr,"    entry : %lf %lf %lf\n", entry->coor[0], entry->coor[1], entry->coor[2]);
+//fprintf(stderr,"   IN private query..\n");
+//fprintf(stderr,"      entry : %lf %lf %lf\n", entry->coor[0], entry->coor[1], entry->coor[2]);
 
     if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
@@ -658,27 +667,25 @@ fprintf(stderr,"    entry : %lf %lf %lf\n", entry->coor[0], entry->coor[1], entr
       
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
-fprintf(stderr,"    --- in HR area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
-//XXX  return from High Resolution Area
+if(_debug) { fprintf(stderr,"    --- in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-fprintf(stderr,"HERE\n");
+if(_debug) { fprintf(stderr," entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
 	j=voxbytepos(gcoor,hr_a.N,p2.ESIZE);
-fprintf(stderr,"HERE2\n");
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0.ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p2.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
 	entry->data_src = VX_SRC_HR;
-fprintf(stderr," DONE  %lf %lf\n", entry->vp, entry->vs);
+if(_debug) { fprintf(stderr,"   DONE >>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+
       } else {	  
-//XXX return from Low Resolution Area
 	gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
 	gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
 	gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
-fprintf(stderr,"    --- in LR area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
-	
+
+if(_debug) { fprintf(stderr,"    --- in LR area.. gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
 	if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	   gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2]) {
 	  /* AP: And here are the cell centers*/
@@ -695,7 +702,7 @@ fprintf(stderr,"    --- in LR area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
 	  gcoor[0]=round((entry->coor_utm[0]-cm_a.O[0])/step_cm[0]);
 	  gcoor[1]=round((entry->coor_utm[1]-cm_a.O[1])/step_cm[1]);
 	  gcoor[2]=round((entry->coor_utm[2]-cm_a.O[2])/step_cm[2]);
-fprintf(stderr,"  ---- in LR olabp CM area.. %d %d %d\n", gcoor[0],gcoor[1],gcoor[2]);
+if(_debug) { fprintf(stderr,"  ---- in LR overlap CM area.. gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
 	  
 	  /** AP: check if inside CM voxet; the uppermost layer of 
 	      CM overlaps with the lowermost of LR, may need to be 
@@ -719,7 +726,7 @@ fprintf(stderr,"  ---- in LR olabp CM area.. %d %d %d\n", gcoor[0],gcoor[1],gcoo
       }
     }
 
-//XXX  if it turns out to be do_bkg, that means return NO DATA 
+//--  if it turns out to be do_bkg, that means return NO DATA 
     if ((enhanced == True) && (do_bkg == True)) {
       memcpy(entry->coor, incoor, sizeof(double) * 3);
       return(1);
@@ -1068,6 +1075,8 @@ int vx_get_closest_coords(vx_entry_t *entry,
 {
   double depth;
   float mtop;
+
+fprintf(stderr," calling get_closest_coords..\n");
 
   vx_entry_t to_entry;
   vx_voxel_t lr_voxel;

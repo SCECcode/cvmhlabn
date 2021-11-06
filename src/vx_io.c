@@ -82,7 +82,6 @@ int vx_io_getvec(char *search, float *vec)
   i = 0;
   while (i < vx_num_prop) {
     if (strstr(vx_props[i], search)) {
-//fprintf(stderr,">>.. %s\n", vx_props[i]);
       sscanf(&vx_props[i][0]+strlen(search)+1,"%f %f %f",
 	     &vec[0], &vec[1], &vec[2]);
       return(0);
@@ -103,7 +102,6 @@ int vx_io_getdim(char *search, int *vec)
   i = 0;
   while (i < vx_num_prop) {
     if (strstr(vx_props[i], search)) {
-//fprintf(stderr,">>.. %s\n", vx_props[i]);
       sscanf(&vx_props[i][0]+strlen(search),"%d %d %d",
 	     &vec[0], &vec[1], &vec[2]);
       return(0);
@@ -116,7 +114,7 @@ int vx_io_getdim(char *search, int *vec)
 
 
 /* Get property name from voxel property file */
-int vx_io_getpropname(char *search, int PNumber, char *name)
+int vx_io_getpropname(char *search, vx_pnumber_t PNumber, char *name)
 {
   int i, erg;
 
@@ -138,7 +136,7 @@ int vx_io_getpropname(char *search, int PNumber, char *name)
 
 
 /* Get property size from voxel property file */
-int vx_io_getpropsize(char *search, int PNumber, int *size)
+int vx_io_getpropsize(char *search, vx_pnumber_t PNumber, int *size)
 {
   int i, erg;
 
@@ -160,7 +158,7 @@ int vx_io_getpropsize(char *search, int PNumber, int *size)
 
 
 /* Get property value from voxel property file */
-int vx_io_getpropval(char *search, int PNumber, float *val)
+int vx_io_getpropval(char *search, vx_pnumber_t PNumber, float *val)
 {
   int i, erg;
 

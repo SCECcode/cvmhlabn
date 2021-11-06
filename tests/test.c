@@ -14,6 +14,15 @@
 #include <assert.h>
 #include "cvmhlabn.h"
 
+int compare_double(double f1, double f2) {
+  double precision = 0.00001;
+  if (((f1 - precision) < f2) && ((f1 + precision) > f2)) {
+    return 1;
+    } else {
+      return 0;
+  }
+}
+
 /**
  * Initializes and runs the test program. Tests link against the
  * static version of the library to prevent any dynamic loading
@@ -40,27 +49,40 @@ int main(int argc, const char* argv[]) {
 
 	printf("Loaded the model successfully.\n");
 
+        // id = 99, don't care 
+        cvmhlabn_setparam(99,CVMHLABN_PARAM_QUERY_MODE,CVMHLABN_COORD_GEO_DEPTH);
+
 	// Query a point.
 	pt.longitude = -118.0701;
 	pt.latitude = 34.155;
 	pt.depth = 2000;
-  
-        cvmhlabn_setparam(CVMHLABN_PARAM_QUERY_MODE,CVMHLABN_COORD_GEO_DEPTH);
 
 	cvmhlabn_query(&pt, &ret, 1);
 
-        printf("vs : %lf\n",ret.vs);
-        printf("vp : %lf\n",ret.vp);
-        printf("rho: %lf\n",ret.rho);
+        //printf("vs : %lf\n",ret.vs);
+        //printf("vp : %lf\n",ret.vp);
+        //printf("rho: %lf\n",ret.rho);
 
-// LABN as LR, LABN as LR&HR
 	assert(ret.vs == -1);
 	assert(ret.vp == -1);
 	assert(ret.rho == -1);
-// for CVM_LR.vo
-	//assert(ret.vs == 2722.399);
-	//assert(ret.vp == 4907.421);
-	//assert(ret.rho == 2520.679);
+
+ // next point
+
+	// Query a point.
+	pt.longitude = -118.1;
+	pt.latitude = 34.0;
+	pt.depth = 1500;
+
+	cvmhlabn_query(&pt, &ret, 1);
+
+        //printf("vs : %lf\n",ret.vs);
+        //printf("vp : %lf\n",ret.vp);
+        //printf("rho: %lf\n",ret.rho);
+ 
+        assert(compare_double(ret.vs, 1569.190063));
+        assert(compare_double(ret.vp, 3180.260498));
+        assert(compare_double(ret.rho, 2261.115808));
 
 	printf("Query was successful.\n");
 
