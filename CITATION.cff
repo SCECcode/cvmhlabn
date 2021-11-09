@@ -1,13 +1,46 @@
+abstract: "CVMHLABN, a Los Angeles Basin model"
 authors:
-  - family-names: Druskat
-    given-names: Stephan
+  - family-names: SCEC
+    given-names: USC
 cff-version: 1.2.0
+date-released: "2021-12-15"
+identifiers:
+- description: "The GitHub version 1.0."
+    type: doi
+    value: TBD
+- description: "The GitHub release URL of tag 1.1.0."
+    type: url
+    value: "https://github.com/SCECcode//cvmhlabn.git/releases/tag/1.0"
+keywords:
+  - "UCVM"
+  - research
+license: BSD-3-Clause
 message: "If you use this software, please cite it using these metadata."
-title: "My Research Software"
-
-Andreas Plesch <andreas_plesch@harvard.edu>
-Carl Tape <carltape@fas.harvard.edu>
-John Shaw <shaw@eps.harvard.edu>
-Patrick Small <patrices@usc.edu>
-David Gill <davidgil@usc.edu>
-
+repository-code: "https://github.com/SCECcode//cvmhlabn.git"
+title: "CVMH15-1-Los-Angeles-Basin (cvmhlabn)"
+version: 1.0
+contact:
+  - email: software@scec.org
+    name: "The SCEC Software project"
+references:
+  - authors:
+      - name: "CVMH"
+    date-released: "2021-07-26"
+    doi: TBD
+    repository-code: "https://github.com/SCECcode/cvmh.git"
+    title: "CVMH Model"
+    type: software
+    version: 15.1.0
+  - authors:
+      - family-names: Plesch
+        given-names: Andreas
+      - family-names: Shaw
+        given-names: John
+    doi: TBD
+    issue: TBD
+    journal: "something"
+    scope: "Cite this paper if you want to reference the general concepts of the model"
+    title: "something"
+    type: article
+    volume: TBD 
+    year: 2020
