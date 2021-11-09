@@ -71,22 +71,9 @@ int cvmhlabn_setparam(int id, int param, ...)
     case CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
       cvmhlabn_force_depth = va_arg(ap, int);
       break;
-    case CVMHLABN_PARAM_QUERY_MODE:
-      cvmhlabn_cmode = va_arg(ap,int);
-      switch (cvmhlabn_cmode) {
-        case CVMHLABN_COORD_GEO_DEPTH:
-          cvmhlabn_zmode = VX_ZMODE_DEPTH;
-          break;
-        case CVMHLABN_COORD_GEO_ELEV:
-          cvmhlabn_zmode = VX_ZMODE_ELEV;
-          break;
-        default:
-          fprintf(stderr, "Unsupported coord type\n");
-          return FAIL;
-          break;
-       }
-       vx_setzmode(cvmhlabn_zmode);
-       break;
+    default:
+      fprintf(stderr,"Unknown param for cvmhlabn_setparam()\n");
+      break;
   }
   va_end(ap);
   return SUCCESS;
@@ -99,12 +86,27 @@ int cvmhlabn_setparam(int id, int param, ...)
  * @param points The points at which the queries will be made.
  * @param data The data that will be returned (Vp, Vs, density, Qs, and/or Qp).
  * @param numpoints The total number of points to query.
+ * @param cmode The cmode.
  * @return SUCCESS or FAIL.
  */
-int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
+int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints, int cmode) {
   // setup >> points -> entry
   // retrieve >> entry -> data
 
+  switch(cmode) {
+      case CVMHLABN_COORD_GEO_DEPTH:
+          cvmhlabn_zmode = VX_ZMODE_DEPTH;
+          break;
+      case CVMHLABN_COORD_GEO_ELEV:
+          cvmhlabn_zmode = VX_ZMODE_ELEV;
+          break;
+      default:
+          fprintf(stderr, "Unsupported coord type\n");
+          return FAIL;
+          break;
+  }
+
+  vx_setzmode(cvmhlabn_zmode);
 
   for(int i=0; i<numpoints; i++) {
       vx_entry_t entry;
