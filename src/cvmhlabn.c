@@ -305,8 +305,8 @@ int model_init(const char *dir, const char *label) {
  * @param numpoints The number of points in the array.
  * @return Success or fail.
  */
-int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
-	return cvmhlabn_query(points, data, numpoints);
+int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints, int cmode) {
+	return cvmhlabn_query(points, data, numpoints, cmode);
 }
 
 /**
@@ -344,7 +344,7 @@ int model_version(char *ver, int len) {
 int (*get_model_init())(const char *, const char *) {
         return &cvmhlabn_init;
 }
-int (*get_model_query())(cvmhlabn_point_t *, cvmhlabn_properties_t *, int) {
+int (*get_model_query())(cvmhlabn_point_t *, cvmhlabn_properties_t *, int, int) {
          return &cvmhlabn_query;
 }
 int (*get_model_finalize())() {
