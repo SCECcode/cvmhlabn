@@ -1,0 +1,13 @@
+authors:
+  - family-names: Druskat
+    given-names: Stephan
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "My Research Software"
+
+Andreas Plesch <andreas_plesch@harvard.edu>
+Carl Tape <carltape@fas.harvard.edu>
+John Shaw <shaw@eps.harvard.edu>
+Patrick Small <patrices@usc.edu>
+David Gill <davidgil@usc.edu>
+

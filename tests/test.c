@@ -49,15 +49,12 @@ int main(int argc, const char* argv[]) {
 
 	printf("Loaded the model successfully.\n");
 
-        // id = 99, don't care 
-        cvmhlabn_setparam(99,CVMHLABN_PARAM_QUERY_MODE,CVMHLABN_COORD_GEO_DEPTH);
-
 	// Query a point.
 	pt.longitude = -118.0701;
 	pt.latitude = 34.155;
 	pt.depth = 2000;
 
-	cvmhlabn_query(&pt, &ret, 1);
+	cvmhlabn_query(&pt, &ret, 1, CVMHLABN_COORD_GEO_DEPTH);
 
         //printf("vs : %lf\n",ret.vs);
         //printf("vp : %lf\n",ret.vp);
@@ -74,7 +71,7 @@ int main(int argc, const char* argv[]) {
 	pt.latitude = 34.0;
 	pt.depth = 1500;
 
-	cvmhlabn_query(&pt, &ret, 1);
+	cvmhlabn_query(&pt, &ret, 1, CVMHLABN_COORD_GEO_DEPTH);
 
         //printf("vs : %lf\n",ret.vs);
         //printf("vp : %lf\n",ret.vp);
