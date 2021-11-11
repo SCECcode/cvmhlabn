@@ -1,6 +1,6 @@
 # Autoconf/automake file
 
-bin_PROGRAMS = test_cvmhlabn run_test_cvmhlabn.sh
+bin_PROGRAMS = test_cvmhlabn 
 
 # General compiler/linker flags
 AM_CFLAGS = ${CFLAGS} -I../src
@@ -9,7 +9,7 @@ AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhlabn
 objects = test.o
 TARGETS = $(bin_PROGRAMS)
 
-.PHONY = run_test
+.PHONY = run_api
 
 all: $(bin_PROGRAMS)
 
@@ -24,11 +24,9 @@ test_cvmhlabn: $(objects)
 $(objects): %.o: %.c
 	$(CC) -g -o $@ -c $^ $(AM_CFLAGS) -I${prefix}/include
 
-run_test_cvmhlabn.sh: 
-
 clean:
 	rm -rf *~ *.o test_cvmlabn 
 
-run_test : run_test_cvmhlabn.sh
+run_api: test_cvmhlabn
 	./run_test_cvmhlabn.sh
 
