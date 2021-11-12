@@ -203,7 +203,7 @@ int runVX(const char *bindir, const char *cvmdir,
 
   sprintf(runpath, "%s/run_vx.sh", bindir);
 
-  printf("Running cmd: vx %s %s\n", infile, outfile);
+//  printf("Running cmd: vx %s %s\n", infile, outfile);
 
   /* Save current directory */
   getcwd(currentdir, 128);
@@ -273,10 +273,11 @@ int runVXLite(const char *bindir, const char *cvmdir,
     }
   }
 
-  printf("Running cmd: vx_lite %s %s %s\n", flags, infile, outfile);
+//  printf("Running cmd: vx_lite %s %s %s\n", flags, infile, outfile);
 
   /* Save current directory */
   getcwd(currentdir, 128);
+
   
   /* Fork process */
   pid_t pid;
