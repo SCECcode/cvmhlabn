@@ -112,7 +112,7 @@ int model_finalize();
 /** Returns version information */
 int model_version(char *ver, int len);
 /** Queries the model */
-int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts, int cmode);
+int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
 /** Setparam */
 int model_setparam(int, int, int);
 
@@ -127,7 +127,7 @@ int cvmhlabn_finalize();
 /** Returns version information */
 int cvmhlabn_version(char *ver, int len);
 /** Queries the model */
-int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts, int cmode);
+int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
 /** Setparam*/
 int cvmhlabn_setparam(int, int, ...);
 

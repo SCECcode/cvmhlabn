@@ -21,7 +21,7 @@ title: "CVMH15-1-Los-Angeles-Basin (cvmhlabn)"
 version: 1.0
 contact:
   - email: software@scec.org
-    name: "The SCEC Software project"
+    name: "The SCEC Software project cvmhlabn"
 references:
   - authors:
       - name: "CVMH"
@@ -33,14 +33,16 @@ references:
     version: 15.1.0
   - authors:
       - family-names: Plesch
-        given-names: Andreas
+        given-names: A.
+      - family-names: Thurber
+        given-names: C.H.
+      - family-names: Tape
+        given-names: C.
       - family-names: Shaw
-        given-names: John
+        given-names: J.H.
     doi: TBD
-    issue: TBD
-    journal: "something"
-    scope: "Cite this paper if you want to reference the general concepts of the model"
-    title: "something"
-    type: article
-    volume: TBD 
-    year: 2020
+    keywords: CVM, UCVM, velocity models, tomography, web, basins
+    scope: "Cite this paper if you want to reference the model"
+    title: "The SCEC CVM effort: new basin models, enhanced access and tomographic updates"
+    type: conference
+    year: 2021
