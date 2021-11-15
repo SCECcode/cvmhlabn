@@ -26,6 +26,7 @@ OUT_FILE=$2
 
 echo "${SCRIPT_DIR}/vx_lite ${FLAGS} < ${IN_FILE} > ${OUT_FILE}" >> run.log
 ${SCRIPT_DIR}/vx_lite ${FLAGS} < ${IN_FILE} > ${OUT_FILE}
+
 if [ $? -ne 0 ]; then
     exit 1
 fi

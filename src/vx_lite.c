@@ -68,7 +68,6 @@ int main (int argc, char *argv[])
     case 'z':
       if (strcasecmp(optarg, "dep") == 0) {
 	zmode = VX_ZMODE_DEPTH;
-fprintf(stderr,"using depth..\n");
       } else if (strcasecmp(optarg, "elev") == 0) {
 	zmode = VX_ZMODE_ELEV;
       } else if (strcasecmp(optarg, "off") == 0) {

@@ -1,8 +1,14 @@
 # GNU Automake config
-SUBDIRS = data gctpc/source src tests
+SUBDIRS = data gctpc/source src test tests
 INCLUDES = $(default_includes)
 
-.PHONY = run_test
+.PHONY = run_api run_unit run_accept
 
-run_test:
-	cd tests;make run_test
+run_api:
+	cd tests;$(MAKE) run_api
+
+run_unit:
+	cd test;$(MAKE) run_unit
+
+run_accept:
+	cd test;$(MAKE) run_accept
