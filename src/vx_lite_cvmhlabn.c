@@ -1,12 +1,10 @@
 /** 
-    vx_lite - A command line program to extract velocity values
+    vx_lite_cvmhlabn - A command line program to extract velocity values
     from CVM-HLABN. Accepts Geographic Coordinates or UTM Zone 11 
     coordinates.
 
-    01/2011: PES: Initial implementation derived from vx.c
-    07/2011: PES: Added option for specifying model directory,
-                  reorganized options
-    10/2021: MHS: Simplify for cvmh basin models
+    10/2011: MHS: Initial implementation derived from cvmh vx_lite.c
+                  simplified  for cvmh basin models
 **/
 
 
@@ -22,11 +20,11 @@
 
 /* Usage function */
 void usage() {
-  printf("     vx_lite - (c) Harvard University, SCEC\n");
+  printf("     vx_lite_cvmhlabn - (c) Harvard University, SCEC\n");
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
   printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_lite [-g] [-s] [-m dir] [-z dep/elev/off] < file.in\n\n");
+  printf("\tusage: vx_lite_cvmhlabn [-g] [-s] [-m dir] [-z dep/elev/off] < file.in\n\n");
   printf("Flags:\n");
   printf("\t-m directory containing model files (default is '.').\n");
   printf("\t-z directs use of dep/elev/off for Z column (default is offset).\n\n");

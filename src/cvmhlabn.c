@@ -12,9 +12,25 @@
 
 #include "cvmhlabn.h"
 
+/************ Constants and Variables ********/
+/** The version of the model. */
+const char *cvmhlabn_version_string = "CVMHLABN";
+int cvmhlabn_is_initialized = 0;
+/** Location of the binary data files. */
+char cvmhlabn_data_directory[2000];
+/** Configuration parameters. */
+cvmhlabn_configuration_t *cvmhlabn_configuration;
+/** Holds pointers to the velocity model data OR indicates it can be read from file. */
+cvmhlabn_model_t *cvmhlabn_velocity_model;
+/** The height of this model's region, in meters. */
+double cvmhlabn_total_height_m = 0;
+/** The width of this model's region, in meters. */
+double cvmhlabn_total_width_m = 0;
+/*************************************/
+
 int debug=0;
 int cvmhlabn_force_depth = 0;
-vx_zmode_t cvmhlabn_zmode = VX_ZMODE_ELEVOFF;
+int cvmhlabn_zmode = VX_ZMODE_ELEVOFF;
 
 /**
  * Initializes the CVMHLABN plugin model within the UCVM framework. In order to initialize
@@ -59,11 +75,11 @@ int cvmhlabn_init(const char *dir, const char *label) {
   * 
 **/
 
-/* Setparam CVM-H */
+/* Setparam CVMHLABN */
 int cvmhlabn_setparam(int id, int param, ...)
 {
   va_list ap;
-  int cvmhlabn_cmode;
+  int zmode;
 
   va_start(ap, param);
 
@@ -72,8 +88,8 @@ int cvmhlabn_setparam(int id, int param, ...)
       cvmhlabn_force_depth = va_arg(ap, int);
       break;
     case CVMHLABN_PARAM_QUERY_MODE:
-      cvmhlabn_cmode = va_arg(ap,int);
-      switch (cvmhlabn_cmode) {
+      zmode = va_arg(ap,int);
+      switch (zmode) {
         case CVMHLABN_COORD_GEO_DEPTH:
           cvmhlabn_zmode = VX_ZMODE_DEPTH;
           break;
@@ -101,10 +117,23 @@ int cvmhlabn_setparam(int id, int param, ...)
  * @param numpoints The total number of points to query.
  * @return SUCCESS or FAIL.
  */
-int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
+int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints, int zmode) {
   // setup >> points -> entry
   // retrieve >> entry -> data
 
+  switch (zmode) {
+    case CVMHLABN_COORD_GEO_DEPTH:
+      cvmhlabn_zmode = VX_ZMODE_DEPTH;
+      break;
+    case CVMHLABN_COORD_GEO_ELEV:
+      cvmhlabn_zmode = VX_ZMODE_ELEV;
+      break;
+    default:
+      fprintf(stderr, "Unsupported coord type\n");
+      return FAIL;
+      break;
+  }
+  vx_setzmode(cvmhlabn_zmode);
 
   for(int i=0; i<numpoints; i++) {
       vx_entry_t entry;
@@ -303,8 +332,8 @@ int model_init(const char *dir, const char *label) {
  * @param numpoints The number of points in the array.
  * @return Success or fail.
  */
-int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
-	return cvmhlabn_query(points, data, numpoints);
+int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints, int cmode) {
+	return cvmhlabn_query(points, data, numpoints, cmode);
 }
 
 /**
@@ -342,7 +371,7 @@ int model_version(char *ver, int len) {
 int (*get_model_init())(const char *, const char *) {
         return &cvmhlabn_init;
 }
-int (*get_model_query())(cvmhlabn_point_t *, cvmhlabn_properties_t *, int) {
+int (*get_model_query())(cvmhlabn_point_t *, cvmhlabn_properties_t *, int, int) {
          return &cvmhlabn_query;
 }
 int (*get_model_finalize())() {

@@ -1,12 +1,12 @@
 # Autoconf/automake file
 
-bin_PROGRAMS = test_cvmhlabn 
+bin_PROGRAMS = test_cvmhlabn
 
 # General compiler/linker flags
 AM_CFLAGS = ${CFLAGS} -I../src
 AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhlabn
 
-objects = test.o
+objects = test_cvmhlabn.o
 TARGETS = $(bin_PROGRAMS)
 
 .PHONY = run_api
@@ -15,10 +15,10 @@ all: $(bin_PROGRAMS)
 
 install:
 	mkdir -p ${prefix}/tests
-	cp test_cvmhlabn ${prefix}/tests
+	cp apitest ${prefix}/tests
 	cp run_test_cvmhlabn.sh ${prefix}/tests
 
-test_cvmhlabn: $(objects)
+apitest: $(objects)
 	$(CC) -g -o $@ $^ $(AM_CFLAGS) $(AM_LDFLAGS) 
 
 $(objects): %.o: %.c

@@ -59,7 +59,7 @@ float step[3];
 //float start[3];
 //float dist;
 int gcoor[3];
-int Number,n;
+int n;
 double SP[2],SPUTM[2];
 //char file1[20]="tt";
 //char line[120];
@@ -350,8 +350,6 @@ if(coor[1]<10000000) printf("%14.6f %15.6f %9.2f ",coor[0],coor[1],coor[2]);
 if ((coor[0]<360.)&&(fabs(coor[1])<90))
 //if (coor[0]<360.)
 {
-Number=1;
-
 for(n=0;n>15;n++) inparm[n]=0;
 
 SP[0]=coor[0];
@@ -593,6 +591,7 @@ if (coor[1]<10000000) /*** Prevent all to obvious bad coordinates from being dis
   z=lr_a.O[0]-lr_a.U[0];
   sprintf(&lbuffer[0],"\n");
   i=0;
+  if(0) { fprintf(stderr,"KEEP warnings down: z(%f)\n", z);}
 }
 /* AP: in case somewhere completely unreasonable */
 else

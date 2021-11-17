@@ -1,0 +1,117 @@
+/*
+ * @file vx_cvmhlabn.c
+ * @brief Bootstraps the test framework for the CVMHLABN library.
+ * @author - SCEC
+ * @version 1.0
+ *
+ * Tests the CVMHLABN library by loading it and executing the code as
+ * UCVM would.
+ *
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include "cvmhlabn.h"
+
+int _compare_double(double f1, double f2) {
+  double precision = 0.00001;
+  if (((f1 - precision) < f2) && ((f1 + precision) > f2)) {
+    return 1;
+    } else {
+      return 0;
+  }
+}
+
+/* Usage function */
+void usage() {
+  printf("     vx_cvmhlabn - (c) SCEC\n");
+  printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
+  printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
+  printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
+  printf("\tusage: vx_lite [-z dep/elev/off] < file.in\n\n");
+  printf("Flags:\n");
+  printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
+  printf("Output format is:\n");
+  printf("\tvp vs rho\n\n");
+  exit (0);
+}
+
+extern char *optarg;
+extern int optind, opterr, optopt;
+
+/**
+ * Initializes and CVMHLABN in standalone mode with ucvm plugin 
+ * api.
+ *
+ * @param argc The number of arguments.
+ * @param argv The argument strings.
+ * @return A zero value indicating success.
+ */
+int main(int argc, char* const argv[]) {
+
+	// Declare the structures.
+	cvmhlabn_point_t pt;
+	cvmhlabn_properties_t ret;
+        int zmode=CVMHLABN_COORD_GEO_DEPTH;
+        int rc;
+        int opt;
+
+
+        /* Parse options */
+        while ((opt = getopt(argc, argv, "z:h")) != -1) {
+          switch (opt) {
+          case 'z':
+            if (strcasecmp(optarg, "dep") == 0) {
+              zmode = CVMHLABN_COORD_GEO_DEPTH;
+            } else if (strcasecmp(optarg, "elev") == 0) {
+              zmode = CVMHLABN_COORD_GEO_ELEV;
+            } else if (strcasecmp(optarg, "off") == 0) {
+              zmode = CVMHLABN_COORD_GEO_ELEVOFF;
+            } else {
+              fprintf(stderr, "Invalid coord type %s", optarg);
+              usage();
+              exit(0);
+            }
+            break;
+          case 'h':
+            usage();
+            exit(0);
+            break;
+          default: /* '?' */
+            usage();
+            exit(1);
+          }
+        }
+
+	// Initialize the model. 
+        // try to use Use UCVM_INSTALL_PATH
+        char *envstr=getenv("UCVM_INSTALL_PATH");
+        if(envstr != NULL) {
+	   assert(cvmhlabn_init(envstr, "cvmhlabn") == 0);
+           } else {
+	     assert(cvmhlabn_init("..", "cvmhlabn") == 0);
+        }
+	printf("Loaded the model successfully.\n");
+
+
+        while (!feof(stdin)) {
+           if (fscanf(stdin,"%lf %lf %lf",
+               &pt.longitude,&pt.latitude,&pt.depth) == 3) {
+
+	      rc=cvmhlabn_query(&pt, &ret, 1, zmode);
+              if(rc == 0) {
+                printf("vs : %lf vp: %lf rho: %lf\n",ret.vs, ret.vp, ret.rho);
+                } else {
+                 printf("BAD: %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
+              }
+              } else {
+                 break;
+           }
+        }
+
+	assert(cvmhlabn_finalize() == 0);
+	printf("Model closed successfully.\n");
+
+	return 0;
+}

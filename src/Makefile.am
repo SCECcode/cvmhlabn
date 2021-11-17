@@ -1,7 +1,7 @@
 # Autoconf/automake file
 
 lib_LIBRARIES = libvxapi.a libvxapi_cvmhlabn.a libcvmhlabn.a 
-bin_PROGRAMS = vx vx_lite vx_slice vx_lite_cvmhlabn run_vx.sh run_vx_lite.sh
+bin_PROGRAMS = vx vx_lite vx_slice vx_lite_cvmhlabn vx_cvmhlabn run_vx.sh run_vx_lite.sh
 include_HEADERS = vx_sub.h
 
 # General compiler/linker flags
@@ -13,6 +13,7 @@ AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgeo
 libcvmhlabn_a_SOURCES = vx_sub_cvmhlabn.c vx_io.c *.h
 libvxapi_a_SOURCES = vx_sub.c scec1d.c vs30_gtl.c vx_io.c utils.c *.h
 vx_lite_cvmhlabn_SOURCES = vx_lite_cvmhlabn.c
+vx_cvmhlabn_SOURCES = vx_cvmhlabn.c
 vx_slice_SOURCES = vx_slice.c
 vx_lite_SOURCES = vx_lite.c
 run_vx_sh_SOURCES = run_vx.sh
@@ -20,7 +21,7 @@ run_vx_lite_sh_SOURCES = run_vx_lite.sh
 
 all: $(lib_LIBRARIES) $(bin_PROGRAMS)
 
-TARGETS = vx_lite_cvmhlabn libvxapi.a libcvmhlabn.a libcvmhlabn.so
+TARGETS = vx_lite_cvmhlabn vx_cvmhlabn libvxapi.a libcvmhlabn.a libcvmhlabn.so
 
 all: $(TARGETS)
 
@@ -56,6 +57,12 @@ vx_lite_cvmhlabn.o : vx_lite_cvmhlabn.c
 vx_lite_cvmhlabn : vx_lite_cvmhlabn.o libvxapi_cvmhlabn.a
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
+vx_cvmhlabn.o : vx_cvmhlabn.c
+	$(CC) -o $@ -c $^ $(AM_CFLAGS)
+
+vx_cvmhlabn : vx_cvmhlabn.o libcvmhlabn.a
+	$(CC) -o $@ $^ $(AM_LDFLAGS)
+
 vx: vx.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
@@ -65,10 +72,7 @@ vx_lite: vx_lite.o libvxapi.a
 vx_slice: vx_slice.o libvxapi.a
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
-
-
 run_vx.sh:
-
 run_vx_lite.sh:
 
 

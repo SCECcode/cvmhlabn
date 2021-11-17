@@ -550,7 +550,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
   int gcoor[3];
   // fall into bkg
   int do_bkg = False;
-  float surface, mtop;
+  float surface;
   double elev, depth, zt, topo_gap;
   double incoor[3];
 
@@ -734,6 +734,10 @@ if(_debug) { fprintf(stderr,"  ---- in LR overlap CM area.. gcoor(%d %d %d)\n", 
       /* Compute rho */
       entry->rho = calc_rho(entry->vp, entry->data_src);
     }
+  }
+
+  if(0) {
+    fprintf(stderr,"KEEP warnings down: topo_gap(%lf) zt(%lf) depth(%lf)\n",topo_gap,zt,depth);
   }
 
   /* Restore original input coords */
@@ -1443,6 +1447,10 @@ void vx_dist_point_to_voxel(vx_entry_t *entry, vx_voxel_t *voxel,
 
   for (j = 0; j < 3; j++) {
     dxyz[j] = fabs(gcoor[j] - (double)voxel->coor[j]);
+  }
+
+  if(0) {
+      fprintf(stderr,"KEEP warnings down: esize(%d) model_max(%d,%d,%d)\n",esize,model_max[0],model_max[1],model_max[2]);
   }
 
   /* Calculate min distance from selected model */

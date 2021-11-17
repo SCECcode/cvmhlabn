@@ -1,3 +1,6 @@
+#ifndef CVMHLABN_H
+#define CVMHLABN_H
+
 /**
  * @file cvmhlabn.h
  * @brief Main header file for CVMHLABN library.
@@ -28,8 +31,10 @@
 #define VX_NO_DATA -99999.0
 #define CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF 0
 #define CVMHLABN_PARAM_QUERY_MODE 1
+// matching with VZ_ZMODE..
 #define CVMHLABN_COORD_GEO_DEPTH 0
 #define CVMHLABN_COORD_GEO_ELEV 1
+#define CVMHLABN_COORD_GEO_ELEVOFF 2
 
 /** Defines a return value of success */
 #define SUCCESS 0
@@ -82,24 +87,24 @@ typedef struct cvmhlabn_model_t {
 
 // Constants
 /** The version of the model. */
-const char *cvmhlabn_version_string = "CVMHLABN";
+extern const char *cvmhlabn_version_string;
 
 // Variables
 /** Set to 1 when the model is ready for query. */
-int cvmhlabn_is_initialized = 0;
+extern int cvmhlabn_is_initialized;
 
 /** Location of the binary data files. */
-char cvmhlabn_data_directory[128];
+extern char cvmhlabn_data_directory[2000];
 
 /** Configuration parameters. */
-cvmhlabn_configuration_t *cvmhlabn_configuration;
+extern cvmhlabn_configuration_t *cvmhlabn_configuration;
 /** Holds pointers to the velocity model data OR indicates it can be read from file. */
-cvmhlabn_model_t *cvmhlabn_velocity_model;
+extern cvmhlabn_model_t *cvmhlabn_velocity_model;
 
 /** The height of this model's region, in meters. */
-double cvmhlabn_total_height_m = 0;
+extern double cvmhlabn_total_height_m;
 /** The width of this model's region, in meters. */
-double cvmhlabn_total_width_m = 0;
+extern double cvmhlabn_total_width_m;
 
 // UCVM API Required Functions
 
@@ -112,7 +117,7 @@ int model_finalize();
 /** Returns version information */
 int model_version(char *ver, int len);
 /** Queries the model */
-int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
+int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts, int cmode);
 /** Setparam */
 int model_setparam(int, int, int);
 
@@ -127,7 +132,7 @@ int cvmhlabn_finalize();
 /** Returns version information */
 int cvmhlabn_version(char *ver, int len);
 /** Queries the model */
-int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
+int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts, int cmode);
 /** Setparam*/
 int cvmhlabn_setparam(int, int, ...);
 
@@ -137,3 +142,4 @@ int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config);
 void print_error(char *err);
 int cvmhlabn_setzmode(char* z);
 
+#endif

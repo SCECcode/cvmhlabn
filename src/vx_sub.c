@@ -2008,6 +2008,11 @@ void vx_dist_point_to_voxel(vx_entry_t *entry, vx_voxel_t *voxel,
     dxyz[j] = fabs(gcoor[j] - (double)voxel->coor[j]);
   }
 
+  if(0) {
+      fprintf(stderr,"KEEP warnings down: esize(%d) model_max(%d,%d,%d)\n",esize,model_max[0],model_max[1],model_max[2]);
+  }
+
+
   /* Calculate min distance from selected model */
   /* LR cell size is 1000x1000x100, CM is 10000x10000x1000 */
   *dist_2d = sqrt(pow(dxyz[0] * step[0], 2.0) + 
