@@ -201,16 +201,7 @@ int runVX(const char *bindir, const char *cvmdir,
   char runpath[1280];
   char flags[1280];
 
-  sprintf(runpath, "%s/run_vx_cvmhlabn.sh", bindir);
-
-  sprintf(flags, "-m %s ", cvmdir);
-  if ((mode & 0xFFFF) == MODE_EMUL) {
-    strcat(flags, "-z elev");
-  }
-  if ((mode & 0xFFFF) == MODE_DEPTH) {
-      strcat(flags, "-z dep");
-  }
-
+  sprintf(runpath, "%s/run_vx.sh", bindir);
 
   /* Save current directory */
   getcwd(currentdir, 1280);
@@ -224,7 +215,7 @@ int runVX(const char *bindir, const char *cvmdir,
   } else if (pid == 0) {
     /* Change dir to cvmdir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_cvmhlabn.sh\n");
+      printf("FAIL: Error changing dir in run_vx.sh\n");
       return(1);
     }
 
@@ -256,7 +247,7 @@ int runVXLite(const char *bindir, const char *cvmdir,
 
   char runpath[1280];
 
-  sprintf(runpath, "./run_vx_lite_cvmhlabn.sh");
+  sprintf(runpath, "./run_vx_lite.sh");
 
   sprintf(flags, "-m %s ", cvmdir);
   if ((mode & 0xFFFF) == MODE_EMUL) {
@@ -280,7 +271,7 @@ int runVXLite(const char *bindir, const char *cvmdir,
 
     /* Change dir to bindir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_lite_cvmhlabn.sh\n");
+      printf("FAIL: Error changing dir in run_vx_lite.sh\n");
       return(1);
     }
 

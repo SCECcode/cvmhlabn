@@ -102,7 +102,6 @@ int main (int argc, char *argv[])
 	entry.coor_type = VX_COORD_UTM;
       }
 
-fprintf(stderr,"\n");
       /* Query the point */
       vx_getcoord(&entry);
 

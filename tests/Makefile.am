@@ -1,6 +1,6 @@
 # Autoconf/automake file
 
-bin_PROGRAMS = test_cvmhlabn unittest
+bin_PROGRAMS = unittest
 
 # General compiler/linker flags
 AM_CFLAGS = -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
@@ -13,25 +13,21 @@ unittest_SOURCES = *.c *.h
 
 TARGETS = $(bin_PROGRAMS)
 
-.PHONY = run_api run_unit
+.PHONY = run_unit
 
 all: $(bin_PROGRAMS)
 
-unittest: unittest.o unittest_defs.o test_helper.o test_vx_sub.o \
-	test_vx_exec.o test_vx_lite_exec.o
+unittest: unittest.o unittest_defs.o test_helper.o \
+	test_vx_lite_cvmhlabn_exec.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
-test_cvmhlabn: test_cvmhlabn.o
-	$(CC) -g -o $@ $^ $(AM_CFLAGS) $(AM_LDFLAGS) 
-
-run_api: test_cvmhlabn
-	./run_test_cvmhlabn.sh
-
 run_unit : unittest
-	./unittest
+	./run_unit
 
 clean:
 	rm -rf *~ *.o $(bin_PROGRAMS) 
 
 install:
 	mkdir -p ${prefix}/tests
+	cp -R inputs ${prefix}/tests
+	cp -R ref ${prefix}/ref

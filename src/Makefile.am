@@ -10,8 +10,8 @@ AM_CFLAGS = ${CFLAGS} -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
 AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgeo
 
 # Dist sources
-libcvmhlabn_a_SOURCES = vx_sub_cvmhlabn.c vx_io.c *.h
-libvxapi_a_SOURCES = vx_sub.c scec1d.c vs30_gtl.c vx_io.c utils.c *.h
+libcvmhlabn_a_SOURCES = vx_sub_cvmhlabn.c vx_io.c 
+libvxapi_a_SOURCES = vx_sub.c scec1d.c vs30_gtl.c vx_io.c utils.c 
 vx_lite_cvmhlabn_SOURCES = vx_lite_cvmhlabn.c
 vx_cvmhlabn_SOURCES = vx_cvmhlabn.c
 vx_slice_SOURCES = vx_slice.c

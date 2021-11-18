@@ -20,8 +20,8 @@ int main (int argc, char *argv[])
   }
 
   /* Run test suites */
-  suite_vx_sub(xmldir);
-  suite_vx_exec(xmldir);
+//  suite_vx_sub(xmldir);
+//  suite_vx_exec(xmldir);
   suite_vx_lite_exec(xmldir);
 
   return 0;
