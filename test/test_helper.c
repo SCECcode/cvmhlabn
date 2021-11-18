@@ -256,6 +256,9 @@ int runVXLite(const char *bindir, const char *cvmdir,
   if ((mode & 0xFFFF) == MODE_DEPTH) {
       strcat(flags, "-z dep");
   }
+  if ((mode & 0xFFFF) == MODE_SCEC) {
+      strcat(flags, "-s");
+  }
 
   /* Save current directory */
   getcwd(currentdir, 1280);
