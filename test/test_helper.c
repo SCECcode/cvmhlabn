@@ -197,16 +197,23 @@ int vx_test_bkg(vx_entry_t *entry, vx_request_t req_type)
 int runVX(const char *bindir, const char *cvmdir, 
 	  const char *infile, const char *outfile)
 {
-  char currentdir[128];
-  char runpath[128];
+  char currentdir[1280];
+  char runpath[1280];
+  char flags[1280];
 
+  sprintf(runpath, "%s/run_vx_cvmhlabn.sh", bindir);
 
-  sprintf(runpath, "%s/run_vx.sh", bindir);
+  sprintf(flags, "-m %s ", cvmdir);
+  if ((mode & 0xFFFF) == MODE_EMUL) {
+    strcat(flags, "-z elev");
+  }
+  if ((mode & 0xFFFF) == MODE_DEPTH) {
+      strcat(flags, "-z dep");
+  }
 
-//  printf("Running cmd: vx %s %s\n", infile, outfile);
 
   /* Save current directory */
-  getcwd(currentdir, 128);
+  getcwd(currentdir, 1280);
   
   /* Fork process */
   pid_t pid;
@@ -217,7 +224,7 @@ int runVX(const char *bindir, const char *cvmdir,
   } else if (pid == 0) {
     /* Change dir to cvmdir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in runVX\n");
+      printf("FAIL: Error changing dir in run_vx_cvmhlabn.sh\n");
       return(1);
     }
 
@@ -244,12 +251,12 @@ int runVXLite(const char *bindir, const char *cvmdir,
 	      const char *infile, const char *outfile,
 	      int mode)
 {
-  char currentdir[128];
-  char flags[128];
+  char currentdir[1280];
+  char flags[1280];
 
-  char runpath[128];
+  char runpath[1280];
 
-  sprintf(runpath, "./run_vx_lite.sh");
+  sprintf(runpath, "./run_vx_lite_cvmhlabn.sh");
 
   sprintf(flags, "-m %s ", cvmdir);
   if ((mode & 0xFFFF) == MODE_EMUL) {
@@ -258,26 +265,9 @@ int runVXLite(const char *bindir, const char *cvmdir,
   if ((mode & 0xFFFF) == MODE_DEPTH) {
       strcat(flags, "-z dep");
   }
-  if ((mode & 0xFFFF) == MODE_SCEC) {
-    if (strlen(flags) > 0) {
-      strcat(flags, " -s");
-    } else {
-      strcat(flags, "-s");
-    }
-  }
-  if ((mode & 0xFFFF) == MODE_NOGTL) {
-    if (strlen(flags) > 0) {
-      strcat(flags, " -g");
-    } else {
-      strcat(flags, "-g");
-    }
-  }
-
-//  printf("Running cmd: vx_lite %s %s %s\n", flags, infile, outfile);
 
   /* Save current directory */
-  getcwd(currentdir, 128);
-
+  getcwd(currentdir, 1280);
   
   /* Fork process */
   pid_t pid;
@@ -290,7 +280,7 @@ int runVXLite(const char *bindir, const char *cvmdir,
 
     /* Change dir to bindir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in runfortran\n");
+      printf("FAIL: Error changing dir in run_vx_lite_cvmhlabn.sh\n");
       return(1);
     }
 
