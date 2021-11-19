@@ -92,13 +92,14 @@ int cvmhlabn_setparam(int id, int param, ...)
       switch (zmode) {
         case CVMHLABN_COORD_GEO_DEPTH:
           cvmhlabn_zmode = VX_ZMODE_DEPTH;
+          if(debug) fprintf(stderr,"cvmhlabn_setparam >>  depth\n");
           break;
         case CVMHLABN_COORD_GEO_ELEV:
           cvmhlabn_zmode = VX_ZMODE_ELEV;
+          if(debug) fprintf(stderr,"cvmhlabn_setparam >>  elevation\n");
           break;
         default:
-          fprintf(stderr, "Unsupported coord type\n");
-          return FAIL;
+          if(debug) fprintf(stderr,"cvmhlabn_setparam >>  use offset\n");
           break;
        }
        vx_setzmode(cvmhlabn_zmode);
@@ -117,27 +118,13 @@ int cvmhlabn_setparam(int id, int param, ...)
  * @param numpoints The total number of points to query.
  * @return SUCCESS or FAIL.
  */
-int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints, int zmode) {
+int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
   // setup >> points -> entry
   // retrieve >> entry -> data
 
-  switch (zmode) {
-    case CVMHLABN_COORD_GEO_DEPTH:
-      cvmhlabn_zmode = VX_ZMODE_DEPTH;
-      break;
-    case CVMHLABN_COORD_GEO_ELEV:
-      cvmhlabn_zmode = VX_ZMODE_ELEV;
-      break;
-    default:
-      fprintf(stderr, "Unsupported coord type\n");
-      return FAIL;
-      break;
-  }
-  vx_setzmode(cvmhlabn_zmode);
-
   for(int i=0; i<numpoints; i++) {
       vx_entry_t entry;
-      float vx_surf;
+      float vx_surf=0.0;
 
     /*
        By the time here, Conditions:
@@ -154,7 +141,11 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         /* Setup point to query */
         entry.coor[0]=points[i].longitude;
         entry.coor[1]=points[i].latitude;
+        entry.coor_type = cvmhlabn_zmode;
         vx_getsurface(&(entry.coor[0]), entry.coor_type, &vx_surf);
+        if(debug) {
+           fprintf(stderr, "cvmhlabn_query: surface is %f vs initial query depth %f\n", vx_surf, points[i].depth);
+        }
         if (vx_surf - VX_NO_DATA < 0.01) {
           /* Fallback to using UCVM topo */
           entry.coor[2]=points[i].depth;
@@ -332,8 +323,8 @@ int model_init(const char *dir, const char *label) {
  * @param numpoints The number of points in the array.
  * @return Success or fail.
  */
-int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints, int cmode) {
-	return cvmhlabn_query(points, data, numpoints, cmode);
+int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
+	return cvmhlabn_query(points, data, numpoints);
 }
 
 /**
@@ -371,7 +362,7 @@ int model_version(char *ver, int len) {
 int (*get_model_init())(const char *, const char *) {
         return &cvmhlabn_init;
 }
-int (*get_model_query())(cvmhlabn_point_t *, cvmhlabn_properties_t *, int, int) {
+int (*get_model_query())(cvmhlabn_point_t *, cvmhlabn_properties_t *, int) {
          return &cvmhlabn_query;
 }
 int (*get_model_finalize())() {

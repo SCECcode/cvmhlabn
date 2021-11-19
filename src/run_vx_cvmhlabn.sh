@@ -4,7 +4,7 @@
 FLAGS=""
 
 # Pass along any arguments to vx_cvmhlabn
-while getopts 'm:hz:' OPTION
+while getopts 'hz:' OPTION
 do
   if [ "$OPTARG" != "" ]; then
       FLAGS="${FLAGS} -$OPTION $OPTARG"

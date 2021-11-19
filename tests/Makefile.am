@@ -18,7 +18,7 @@ TARGETS = $(bin_PROGRAMS)
 all: $(bin_PROGRAMS)
 
 unittest: unittest.o unittest_defs.o test_helper.o \
-	test_vx_lite_cvmhlabn_exec.o
+	test_vx_lite_cvmhlabn_exec.o test_vx_cvmhlabn_exec.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
 run_unit : unittest

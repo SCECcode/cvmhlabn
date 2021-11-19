@@ -131,8 +131,8 @@ int test_vx_lite_points_scec()
     return(1);
   }
 
-//  unlink(infile);
-//  unlink(outfile);
+  unlink(infile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
