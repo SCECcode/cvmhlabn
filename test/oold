@@ -9,34 +9,33 @@
 #include "vx_sub.h"
 #include "unittest_defs.h"
 #include "test_helper.h"
-#include "test_vx_lite_cvmhlabn_exec.h"
+#include "test_vx_cvmhlabn_exec.h"
 
-int VX_LITE_TESTS=3;
 
-int test_vx_lite_cvhmlabn_points_elevation()
+int test_vx_cvhmlabn_points_elevation()
 {
-  char infile[2000];
-  char outfile[2000];
-  char reffile[2000];
-  char currentdir[1000];
+  char infile[128];
+  char outfile[128];
+  char reffile[128];
+  char currentdir[128];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ elevation option\n");
+  printf("Test: vx_cvmhlabn executable w/ elevation option\n");
 
   /* Save current directory */
-  getcwd(currentdir, 2000);
+  getcwd(currentdir, 128);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-8-point-vx-lite-cvmhlabn-extract-elev.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-8-point-vx-lite-cvmhlabn-extract-elev.ref");
+	  "./ref/test-8-point-extract-elev.ref");
 
   if (test_assert_int(save_test_points(infile), 0) != 0) {
     return(1);
   }
 
-  if (test_assert_int(runVXLiteCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
-				MODE_ELEVATION), 0) != 0) {
+  if (test_assert_int(runVXLite(BIN_DIR, MODEL_DIR, infile, outfile, 
+				MODE_EMUL), 0) != 0) {
     printf("vx_lite_cvmhlabn failure\n");
     return(1);
   }
@@ -57,28 +56,28 @@ int test_vx_lite_cvhmlabn_points_elevation()
 
 int test_vx_lite_cvhmlabn_points_depth()
 {
-  char infile[2000];
-  char outfile[2000];
-  char reffile[2000];
-  char currentdir[1000];
+  char infile[128];
+  char outfile[128];
+  char reffile[128];
+  char currentdir[128];
 
   printf("Test: vx_lite_cvmhlabn executable w/ depth option\n");
 
   /* Save current directory */
-  getcwd(currentdir, 1000);
+  getcwd(currentdir, 128);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-8-point-vx-lite-cvmhlabn-extract-depth.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-8-point-vx-lite-cvmhlabn-extract-depth.ref");
+	  "./ref/test-8-point-extract-depth.ref");
 
   if (test_assert_int(save_test_points(infile), 0) != 0) {
     printf("save test point failure\n");
     return(1);
   }
 
-  if (test_assert_int(runVXLiteCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
+  if (test_assert_int(runVXLite(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_DEPTH), 0) != 0) {
     printf("vx_lite_cvmhlabn failure\n");
     return(1);
@@ -97,57 +96,16 @@ int test_vx_lite_cvhmlabn_points_depth()
   return(0);
 }
 
-int test_vx_lite_cvhmlabn_points_offset()
-{
-  char infile[2000];
-  char outfile[2000];
-  char reffile[2000];
-  char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ offset(none) option\n");
-
-  /* Save current directory */
-  getcwd(currentdir, 2000);
-
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test.in");
-  sprintf(outfile, "%s/%s", currentdir, 
-	  "test-8-point-vx-lite-cvmhlabn-extract-offset.out");
-  sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-8-point-vx-lite-cvmhlabn-extract-offset.ref");
-
-  if (test_assert_int(save_test_points(infile), 0) != 0) {
-    return(1);
-  }
-
-  if (test_assert_int(runVXLiteCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
-				MODE_NONE), 0) != 0) {
-    printf("vx_lite_cvmhlabn failure\n");
-    return(1);
-  }
-
-  /* Perform diff btw outfile and ref */
-  if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
-  }
-
-  unlink(infile);
-  unlink(outfile);
-
-  printf("PASS\n");
-  return(0);
-}
-
-
-int suite_vx_lite_cvmhlabn_exec(const char *xmldir)
+int suite_vx_lite_cvhmlabn_exec(const char *xmldir)
 {
   suite_t suite;
-  char logfile[1000];
+  char logfile[256];
   FILE *lf = NULL;
 
   /* Setup test suite */
   strcpy(suite.suite_name, "suite_vx_lite_cvhmlabn_exec");
-
-  suite.num_tests = VX_LITE_TESTS;
+  suite.num_tests = 3;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
   if (suite.tests == NULL) {
     fprintf(stderr, "Failed to alloc test structure\n");
@@ -163,10 +121,6 @@ int suite_vx_lite_cvmhlabn_exec(const char *xmldir)
   strcpy(suite.tests[1].test_name, "test_vx_lite_cvhmlabn_points_depth");
   suite.tests[1].test_func = &test_vx_lite_cvhmlabn_points_depth;
   suite.tests[1].elapsed_time = 0.0;
-
-  strcpy(suite.tests[1].test_name, "test_vx_lite_cvhmlabn_points_offset");
-  suite.tests[2].test_func = &test_vx_lite_cvhmlabn_points_offset;
-  suite.tests[2].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");

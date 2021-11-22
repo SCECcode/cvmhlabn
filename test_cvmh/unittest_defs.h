@@ -8,7 +8,7 @@
 #define True 1
 #define False 0
 
-#define MAX_TEST_NAME 100 
+#define MAX_TEST_NAME 32
 
 /* Location of binaries */
 #define BIN_DIR "../src"

@@ -14,6 +14,8 @@
 #include <assert.h>
 #include "cvmhlabn.h"
 
+extern int cvmhlabn_debug;
+
 int _compare_double(double f1, double f2) {
   double precision = 0.00001;
   if (((f1 - precision) < f2) && ((f1 + precision) > f2)) {
@@ -29,8 +31,9 @@ void usage() {
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
   printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_cvmhlabn [-z dep/elev/off] < file.in\n\n");
+  printf("\tusage: vx_cvmhlabn [-d] [-z dep/elev/off] < file.in\n\n");
   printf("Flags:\n");
+  printf("\t-d enable debug/verbose mode\n\n");
   printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
   printf("Output format is:\n");
   printf("\tvp vs rho\n\n");

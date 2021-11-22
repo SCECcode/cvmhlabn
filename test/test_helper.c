@@ -7,8 +7,9 @@
 #include "unittest_defs.h"
 #include "test_helper.h"
 
+int debug_mode=0;
 
-/* Retrieve eight test points */
+/* Retrieve 10 test points */
 int get_test_points(double *x, double *y, double *z, 
                     vx_coord_t *coord_types)
 {
@@ -52,17 +53,47 @@ int get_test_points(double *x, double *y, double *z,
   z[7] = -3000.0;
   coord_types[7] = VX_COORD_UTM;
 
+// mt wilson
+  x[8] = -118.0642;
+  y[8] = 34.2264;
+  z[8] = -1000.0;
+  coord_types[8] = VX_COORD_GEO;
+
+// cvmhlabn
+  x[9] = 421000.0;
+  y[9] = 3712000.0;
+  z[9] = -2000.0;
+  coord_types[9] = VX_COORD_UTM;
+
+  return(0);
+}
+
+/* Retrieve expected surface elev at the test points */
+// 8th column
+int get_surf_values(double *surf_values)
+{
+  surf_values[0] = PLACEHOLDER;
+  surf_values[1] = -1114.907715;
+  surf_values[2] = -56.939297;
+  surf_values[3] = 491.459229;
+  surf_values[4] = 780.433289;
+  surf_values[5] = 99.369789;
+  surf_values[6] = 99.369789;
+  surf_values[7] = 93.892632;
+  surf_values[8] = 93.892632;
+  surf_values[9] = 93.892632;
+
   return(0);
 }
 
 
-int save_test_points(const char* filename)
+int save_elevation_test_points(const char* filename)
 {
   double x[MAX_TEST_POINTS], y[MAX_TEST_POINTS], z[MAX_TEST_POINTS];
   vx_coord_t coord_types[MAX_TEST_POINTS];
   FILE *fp;
   int i;
-  char line[128];
+  char line[128]; 
   size_t retval;
 
   get_test_points(x, y, z, coord_types);
@@ -72,6 +103,7 @@ int save_test_points(const char* filename)
     printf("FAIL: cannot open %s\n", filename);
     return(1);
   }
+
   for (i = 0; i < MAX_TEST_POINTS; i++) {
     sprintf(line, "%f %f %f\n", x[i], y[i], z[i]);
     retval = fwrite(line, strlen(line), 1, fp);
@@ -84,124 +116,61 @@ int save_test_points(const char* filename)
   return(0);
 }
 
-
-/* Retrieve expected surface elev at the test points */
-int get_surf_values(float *surf_values)
+int save_depth_test_points(const char* filename)
 {
-  surf_values[0] = PLACEHOLDER;
-  surf_values[1] = -1114.907715;
-  //surf_values[1] = -1150.010010;
-  surf_values[2] = -56.939297;
-  surf_values[3] = 491.459229;
-  //surf_values[3] = 449.989990;
-  surf_values[4] = 780.433289;
-  //surf_values[4] = 749.989990;
-  surf_values[5] = 99.369789;
-  surf_values[6] = 99.369789;
-  surf_values[7] = 93.892632;
-  //surf_values[7] = 49.990002;
+  double x[MAX_TEST_POINTS], y[MAX_TEST_POINTS], z[MAX_TEST_POINTS];
+  double surf[MAX_TEST_POINTS];
+  vx_coord_t coord_types[MAX_TEST_POINTS];
+  FILE *fp;
+  int i;
+  char line[128]; // 
+  size_t retval;
 
-  return(0);
-}
+  get_test_points(x, y, z, coord_types);
+  get_surf_values(surf);
 
-/* Retrieve expected mat props at the test points */
-int get_mat_props(float *vp, float *vs, double *rho, vx_test_dataset_t ds)
-{
-  switch (ds) {
-  case VX_TEST_DATASET_NOBKG:
-  case VX_TEST_DATASET_NOGTL:
-    vp[0] = PLACEHOLDER;
-    vp[1] = 5575.147461;
-    vp[2] = 4554.516113;
-    vp[3] = 5066.605469;
-    vp[4] = 5372.791992;
-    vp[5] = 4184.089355;
-    vp[6] = 6533.309082;
-    vp[7] = 4997.064453;
-
-    vs[0] = PLACEHOLDER;
-    vs[1] = 3132.099854;
-    vs[2] = 2313.560547;
-    vs[3] = 2916.298340;
-    vs[4] = 3024.300049;
-    vs[5] = 2434.559814;
-    vs[6] = 3776.399902;
-    vs[7] = 2889.031982;
-    
-    rho[0] = PLACEHOLDER;
-    rho[1] = 2631.810447;
-    rho[2] = 2469.775216;
-    rho[3] = 2545.103296;
-    rho[4] = 2595.547455;
-    rho[5] = 2418.822011;
-    rho[6] = 2841.465796;
-    rho[7] = 2534.298282;
-    break;
-  case VX_TEST_DATASET_BKG:
-    vp[0] = 6300.0;
-    vp[1] = 5575.147461;
-    vp[2] = 4554.516113;
-    vp[3] = 5066.605469;
-    vp[4] = 5372.791992;
-    vp[5] = 4184.089355;
-    vp[6] = 6533.309082;
-    vp[7] = 4997.064453;
-
-    vs[0] = 3637.306641;
-    vs[1] = 3132.099854;
-    vs[2] = 2313.560547;
-    vs[3] = 2916.298340;
-    vs[4] = 3024.300049;
-    vs[5] = 2434.559814;
-    vs[6] = 3776.399902;
-    vs[7] = 2889.031982;
-    
-    rho[0] = 2859.770000;
-    rho[1] = 2631.810447;
-    rho[2] = 2469.775216;
-    rho[3] = 2545.103296;
-    rho[4] = 2595.547455;
-    rho[5] = 2418.822011;
-    rho[6] = 2841.465796;
-    rho[7] = 2534.298282;
-    break;
-  default:
+  fp = fopen(filename, "w");
+  if (fp == NULL) {
+    printf("FAIL: cannot open %s\n", filename);
     return(1);
-    break;
   }
 
+  for (i = 0; i < MAX_TEST_POINTS; i++) {
+    sprintf(line, "%f %f %f\n", x[i], y[i], z[i]+surf[i]);
+    retval = fwrite(line, strlen(line), 1, fp);
+    if (retval != 1) {
+      printf("FAIL: write failed\n");
+      return(1);
+    }
+  }
+  fclose(fp);
   return(0);
 }
 
-/* Test bkg/topo handler */
-int vx_test_bkg(vx_entry_t *entry, vx_request_t req_type)
-{
-  if ((req_type == VX_REQUEST_ALL) || (req_type == VX_REQUEST_TOPO)) {
-    entry->topo = 0.0;
-    entry->mtop = 0.0;
-    entry->base = PLACEHOLDER;
-    entry->moho = PLACEHOLDER;
-  }
+/*************************************************************************/
 
-  if ((req_type == VX_REQUEST_ALL) || (req_type == VX_REQUEST_VSVPRHO)) {
-    entry->data_src = VX_SRC_BK;
-    entry->provenance = (float)VX_PROV_BACKGND;
-    entry->vp = 1234.5;
-    entry->vs = 2345.6;
-    entry->rho = 3456.7;
-  }
-  return(0);
-}
-
-
-int runVX(const char *bindir, const char *cvmdir, 
-	  const char *infile, const char *outfile)
+int runVXCVMHLABN(const char *bindir, const char *cvmdir, 
+	  const char *infile, const char *outfile, int mode)
 {
   char currentdir[1280];
   char runpath[1280];
   char flags[1280];
 
-  sprintf(runpath, "%s/run_vx.sh", bindir);
+  sprintf(runpath, "%s/run_vx_cvmhlabn.sh", bindir);
+
+  switch (mode) {
+    case MODE_ELEVATION:
+      sprintf(flags, "-z elev ");
+      break;
+    case MODE_DEPTH:
+      sprintf(flags, "-z dep ");
+      break;
+    case MODE_NONE:
+      sprintf(flags, "-z off ");
+      break;
+  }
+
+  if(debug_mode) { strcat(flags, "-g "); }
 
   /* Save current directory */
   getcwd(currentdir, 1280);
@@ -215,11 +184,16 @@ int runVX(const char *bindir, const char *cvmdir,
   } else if (pid == 0) {
     /* Change dir to cvmdir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx.sh\n");
+      printf("FAIL: Error changing dir in run_vx_cvmhlabn.sh\n");
       return(1);
     }
 
-    execl(runpath, runpath, infile, outfile, (char *)0);
+    if (strlen(flags) == 0) {
+      execl(runpath, runpath, infile, outfile, (char *)0);
+    } else {
+      execl(runpath, runpath, flags, infile, outfile, (char *)0);
+    }
+
     perror("execl"); /* shall never get to here */
     printf("FAIL: CVM exited abnormally\n");
     return(1);
@@ -238,7 +212,7 @@ int runVX(const char *bindir, const char *cvmdir,
 }
 
 
-int runVXLite(const char *bindir, const char *cvmdir, 
+int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir, 
 	      const char *infile, const char *outfile,
 	      int mode)
 {
@@ -247,18 +221,20 @@ int runVXLite(const char *bindir, const char *cvmdir,
 
   char runpath[1280];
 
-  sprintf(runpath, "./run_vx_lite.sh");
+  sprintf(runpath, "./run_vx_lite_cvmhlabn.sh");
 
   sprintf(flags, "-m %s ", cvmdir);
-  if ((mode & 0xFFFF) == MODE_EMUL) {
-    strcat(flags, "-z elev");
+
+  switch (mode) {
+     case MODE_ELEVATION:
+       strcat(flags, "-z elev ");
+       break;
+     case MODE_DEPTH:
+       strcat(flags, "-z dep ");
+       break;
   }
-  if ((mode & 0xFFFF) == MODE_DEPTH) {
-      strcat(flags, "-z dep");
-  }
-  if ((mode & 0xFFFF) == MODE_SCEC) {
-      strcat(flags, "-s");
-  }
+
+  if(debug_mode) { strcat(flags, "-g "); }
 
   /* Save current directory */
   getcwd(currentdir, 1280);
@@ -274,7 +250,7 @@ int runVXLite(const char *bindir, const char *cvmdir,
 
     /* Change dir to bindir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_lite.sh\n");
+      printf("FAIL: Error changing dir in run_vx_lite_cvmhlabn.sh\n");
       return(1);
     }
 

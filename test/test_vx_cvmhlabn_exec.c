@@ -25,13 +25,13 @@ int test_vx_cvhmlabn_points_elevation()
   /* Save current directory */
   getcwd(currentdir, 2000);
 
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test.in");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-8-point-vx-cvmhlabn-extract-elev.out");
   sprintf(reffile, "%s/%s", currentdir, 
 	  "./ref/test-8-point-vx-cvmhlabn-extract-elev.ref");
 
-  if (test_assert_int(save_test_points(infile), 0) != 0) {
+  if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
     return(1);
   }
 
@@ -46,8 +46,8 @@ int test_vx_cvhmlabn_points_elevation()
     return(1);
   }
 
-  unlink(infile);
-  unlink(outfile);
+//  unlink(infile);
+//  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -67,13 +67,13 @@ int test_vx_cvhmlabn_points_depth()
   /* Save current directory */
   getcwd(currentdir, 1000);
 
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test.in");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_d.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-8-point-vx-cvmhlabn-extract-depth.out");
   sprintf(reffile, "%s/%s", currentdir, 
 	  "./ref/test-8-point-vx-cvmhlabn-extract-depth.ref");
 
-  if (test_assert_int(save_test_points(infile), 0) != 0) {
+  if (test_assert_int(save_depth_test_points(infile), 0) != 0) {
     printf("save test point failure\n");
     return(1);
   }
@@ -90,8 +90,8 @@ int test_vx_cvhmlabn_points_depth()
     return(1);
   }
 
-  unlink(infile);
-  unlink(outfile);
+//  unlink(infile);
+//  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -109,13 +109,13 @@ int test_vx_cvhmlabn_points_offset()
   /* Save current directory */
   getcwd(currentdir, 2000);
 
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test.in");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-8-point-vx-cvmhlabn-extract-offset.out");
   sprintf(reffile, "%s/%s", currentdir, 
 	  "./ref/test-8-point-vx-cvmhlabn-extract-offset.ref");
 
-  if (test_assert_int(save_test_points(infile), 0) != 0) {
+  if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
     return(1);
   }
 
@@ -130,8 +130,8 @@ int test_vx_cvhmlabn_points_offset()
     return(1);
   }
 
-  unlink(infile);
-  unlink(outfile);
+//  unlink(infile);
+//  unlink(outfile);
 
   printf("PASS\n");
   return(0);

@@ -24,8 +24,9 @@ void usage() {
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
   printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_lite_cvmhlabn [-g] [-s] [-m dir] [-z dep/elev/off] < file.in\n\n");
+  printf("\tusage: vx_lite_cvmhlabn [-d] [-m dir] [-z dep/elev/off] < file.in\n\n");
   printf("Flags:\n");
+  printf("\t-d enable debug/verbose mode.\n");
   printf("\t-m directory containing model files (default is '.').\n");
   printf("\t-z directs use of dep/elev/off for Z column (default is offset).\n\n");
   printf("Output format is:\n");

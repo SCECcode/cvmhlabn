@@ -131,7 +131,7 @@ int write_log(FILE *lf, suite_t *suite)
 {
   char hostname[256];
   char datestr[256];
-  char line[256];
+  char line[1000];
   int i;
   int num_fail = 0;
   double suite_elapsed = 0.0;

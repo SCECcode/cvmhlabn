@@ -7,10 +7,12 @@
 #define MAX_TEST_POINTS 8
 #define PLACEHOLDER -99999.0
 
-/* modes of operation */
+/* vx_lite modes of operation */
 #define MODE_NONE 0
-#define MODE_ELEVATION 2
+#define MODE_EMUL 2
 #define MODE_DEPTH 4
+#define MODE_SCEC 8
+#define MODE_NOGTL 16
 
 /* Test data sets */
 typedef enum { VX_TEST_DATASET_NOBKG = 0, 
@@ -31,13 +33,15 @@ int get_mat_props(float *vp, float *vs, double *rho, vx_test_dataset_t ds);
 /* Save eight test points to file */
 int save_test_points(const char* filename);
 
-/* Execute vx_cvmhlabn as a child process */
-int runVXCVMHLABN(const char *bindir, const char *cvmdir, 
-	  const char *infile, const char *outfile,
-          int mode);
+/* Test bkg/topo handler */
+int vx_test_bkg(vx_entry_t *entry, vx_request_t req_type);
 
-/* Execute vx_lite_cvmhlabn as a child process */
-int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir, 
+/* Execute vx as a child process */
+int runVX(const char *bindir, const char *cvmdir, 
+	  const char *infile, const char *outfile);
+
+/* Execute vx_lite as a child process */
+int runVXLite(const char *bindir, const char *cvmdir, 
 	      const char *infile, const char *outfile,
 	      int mode);
 

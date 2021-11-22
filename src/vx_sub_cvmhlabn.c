@@ -27,6 +27,7 @@
 #define MAX_ITER_ELEV 4
 
 int _debug=0;
+int cvmhlabn_debug=0;
 
 
 /* Function declarations */
@@ -678,7 +679,7 @@ if(_debug) { fprintf(stderr," entry_vel_cell, %f %f %f\n", entry->vel_cell[0], e
 	memcpy(&(entry->vp), &hrbuffer[j], p2.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
 	entry->data_src = VX_SRC_HR;
-if(_debug) { fprintf(stderr,"   DONE >>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
 	gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
@@ -697,6 +698,7 @@ if(_debug) { fprintf(stderr,"    --- in LR area.. gcoor(%d %d %d)\n", gcoor[0],g
 	  memcpy(&(entry->vp), &lrbuffer[j], p0.ESIZE);
 	  memcpy(&(entry->vs), &lrvsbuffer[j], p0.ESIZE);
 	  entry->data_src = VX_SRC_LR;
+if(cvmhlabn_debug) { fprintf(stderr,"   DONE(LR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 	} else {   
 // HUM HUM.. since LR got overlap with CM
 	  gcoor[0]=round((entry->coor_utm[0]-cm_a.O[0])/step_cm[0]);
