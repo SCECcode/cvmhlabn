@@ -27,9 +27,9 @@ int test_vx_cvhmlabn_points_elevation()
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
   sprintf(outfile, "%s/%s", currentdir, 
-	  "test-8-point-vx-cvmhlabn-extract-elev.out");
+	  "test-10-point-vx-cvmhlabn-extract-elev.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-8-point-vx-cvmhlabn-extract-elev.ref");
+	  "./ref/test-10-point-vx-cvmhlabn-extract-elev.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
     return(1);
@@ -69,9 +69,9 @@ int test_vx_cvhmlabn_points_depth()
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_d.in");
   sprintf(outfile, "%s/%s", currentdir, 
-	  "test-8-point-vx-cvmhlabn-extract-depth.out");
+	  "test-10-point-vx-cvmhlabn-extract-depth.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-8-point-vx-cvmhlabn-extract-depth.ref");
+	  "./ref/test-10-point-vx-cvmhlabn-extract-depth.ref");
 
   if (test_assert_int(save_depth_test_points(infile), 0) != 0) {
     printf("save test point failure\n");
@@ -111,9 +111,9 @@ int test_vx_cvhmlabn_points_offset()
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
   sprintf(outfile, "%s/%s", currentdir, 
-	  "test-8-point-vx-cvmhlabn-extract-offset.out");
+	  "test-10-point-vx-cvmhlabn-extract-offset.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-8-point-vx-cvmhlabn-extract-offset.ref");
+	  "./ref/test-10-point-vx-cvmhlabn-extract-offset.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
     return(1);

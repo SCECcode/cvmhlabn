@@ -1,5 +1,5 @@
 # GNU Automake config
-SUBDIRS = data gctpc/source src test cvmh_test
+SUBDIRS = data gctpc/source src test test_cvmh
 INCLUDES = $(default_includes)
 
 .PHONY = run_api run_unit run_accept

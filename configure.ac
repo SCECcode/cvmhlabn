@@ -26,6 +26,6 @@ CFLAGS="$CHECK_CFLAGS $ETREE_INCL $PROJ4_INCL"
 LDFLAGS="$CHECK_LDFLAGS $ETREE_LIB $PROJ4_LIB"
 LDFLAGS="$LDFLAGS -lm"
 
-AC_CONFIG_FILES([Makefile data/Makefile gctpc/source/Makefile src/Makefile test/Makefile tests/Makefile])
+AC_CONFIG_FILES([Makefile data/Makefile gctpc/source/Makefile src/Makefile test/Makefile test_cvmh/Makefile])
 
 AC_OUTPUT

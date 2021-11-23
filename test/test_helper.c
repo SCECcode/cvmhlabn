@@ -65,6 +65,16 @@ int get_test_points(double *x, double *y, double *z,
   z[9] = -2000.0;
   coord_types[9] = VX_COORD_UTM;
 
+/* depth ..
+  pt.longitude = -118.1;
+  pt.latitude = 34.0;
+  pt.depth = 1500;
+
+  (ret.vs, 1569.190063)
+  (ret.vp, 3180.260498)
+  (ret.rho, 2261.115808)
+*/
+
   return(0);
 }
 

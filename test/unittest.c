@@ -5,6 +5,7 @@
 #include "unittest_defs.h"
 #include "test_vx_lite_cvmhlabn_exec.h"
 #include "test_vx_cvmhlabn_exec.h"
+#include "test_cvmhlabn_exec.h"
 
 
 int main (int argc, char *argv[])
@@ -18,8 +19,9 @@ int main (int argc, char *argv[])
   }
 
   /* Run test suites */
-//  suite_vx_lite_cvmhlabn_exec(xmldir);
+  suite_cvmhlabn_exec(xmldir);
   suite_vx_cvmhlabn_exec(xmldir);
+  suite_vx_lite_cvmhlabn_exec(xmldir);
 
   return 0;
 }
