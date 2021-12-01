@@ -33,7 +33,7 @@ int test_vx_lite_cvhmlabn_points_elevation()
   /* Save current directory */
   getcwd(currentdir, 1000);
 
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_elev.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-10-point-vx-lite-cvmhlabn-extract-elev.out");
   sprintf(reffile, "%s/%s", currentdir, 
@@ -75,7 +75,7 @@ int test_vx_lite_cvhmlabn_points_depth()
   /* Save current directory */
   getcwd(currentdir, 1000);
 
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test_d.in");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_depth.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-10-point-vx-lite-cvmhlabn-extract-depth.out");
   sprintf(reffile, "%s/%s", currentdir, 
@@ -117,7 +117,7 @@ int test_vx_lite_cvhmlabn_points_offset()
   /* Save current directory */
   getcwd(currentdir, 1000);
 
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_offset.in");
   sprintf(outfile, "%s/%s", currentdir, 
 	  "test-10-point-vx-lite-cvmhlabn-extract-offset.out");
   sprintf(reffile, "%s/%s", currentdir, 
