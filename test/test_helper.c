@@ -196,7 +196,7 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
     printf("FAIL: cannot open %s\n", infile);
     return(1);
   }
-  outfp = fopen(outfile, "r");
+  outfp = fopen(outfile, "w");
   if (outfp == NULL) {
     printf("FAIL: cannot open %s\n", outfile);
     return(1);
@@ -218,7 +218,6 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
       return(1);
   }
 
-  printf("PASS\n");
   return(0);
 }
 

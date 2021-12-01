@@ -20,7 +20,7 @@
 
 int test_setup()
 {
-  printf("Test: model_init() and model_finalize()\n");
+  printf("Test: model_init and model_finalize\n");
 
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {

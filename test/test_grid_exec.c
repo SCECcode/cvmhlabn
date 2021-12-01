@@ -25,7 +25,7 @@ int test_cvmhlabn_grid_elev()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test:  model w/ large grid in elevation mode\n");
+  printf("Test: model w/ large grid in elevation mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -36,6 +36,74 @@ int test_cvmhlabn_grid_elev()
 
   if (test_assert_int(runCVMHLABN(BIN_DIR, MODEL_DIR,infile, outfile,
 				MODE_ELEVATION), 0) != 0) {
+    printf("cvmhlabn failure\n");
+    return(1);
+  }
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    return(1);
+  }
+
+//  unlink(outfile);
+
+  printf("PASS\n");
+
+  return(0);
+}
+
+int test_cvmhlabn_grid_depth()
+{
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  printf("Test: model w/ large grid in depth mode\n");
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test-grid-depth.in");
+  sprintf(outfile, "%s/%s", currentdir, "test-cvmhlabn-grid-extract-depth.out");
+  sprintf(reffile, "%s/%s", currentdir, "./ref/test-extract-cvmhlabn-depth.ref");
+
+  if (test_assert_int(runCVMHLABN(BIN_DIR, MODEL_DIR,infile, outfile,
+				MODE_DEPTH), 0) != 0) {
+    printf("cvmhlabn failure\n");
+    return(1);
+  }
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    return(1);
+  }
+
+//  unlink(outfile);
+
+  printf("PASS\n");
+
+  return(0);
+}
+
+int test_cvmhlabn_grid_offset()
+{
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  printf("Test: model w/ large grid in offset mode\n");
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test-grid-offset.in");
+  sprintf(outfile, "%s/%s", currentdir, "test-cvmhlabn-grid-extract-offset.out");
+  sprintf(reffile, "%s/%s", currentdir, "./ref/test-extract-cvmhlabn-offset.ref");
+
+  if (test_assert_int(runCVMHLABN(BIN_DIR, MODEL_DIR,infile, outfile,
+				MODE_NONE), 0) != 0) {
     printf("cvmhlabn failure\n");
     return(1);
   }
@@ -165,7 +233,7 @@ int suite_grid_exec(const char *xmldir)
 
   /* Setup test suite */
   strcpy(suite.suite_name, "suite_grid_exec");
-  suite.num_tests = 4;
+  suite.num_tests = 6;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
   if (suite.tests == NULL) {
     fprintf(stderr, "Failed to alloc test structure\n");
@@ -178,17 +246,25 @@ int suite_grid_exec(const char *xmldir)
   suite.tests[0].test_func = &test_cvmhlabn_grid_elev;
   suite.tests[0].elapsed_time = 0.0;
 
-  strcpy(suite.tests[1].test_name, "test_vx_lite_cvmhlabn_grid_elev");
-  suite.tests[1].test_func = &test_vx_lite_cvmhlabn_grid_elev;
+  strcpy(suite.tests[1].test_name, "test_cvmhlabn_grid_depth");
+  suite.tests[1].test_func = &test_cvmhlabn_grid_depth;
   suite.tests[1].elapsed_time = 0.0;
 
-  strcpy(suite.tests[2].test_name, "test_vx_lite_cvmhlabn_grid_depth");
-  suite.tests[2].test_func = &test_vx_lite_cvmhlabn_grid_depth;
+  strcpy(suite.tests[2].test_name, "test_cvmhlabn_grid_offset");
+  suite.tests[2].test_func = &test_cvmhlabn_grid_offset;
   suite.tests[2].elapsed_time = 0.0;
 
-  strcpy(suite.tests[3].test_name, "test_vx_lite_cvmhlabn_grid_offset");
-  suite.tests[3].test_func = &test_vx_lite_cvmhlabn_grid_offset;
+  strcpy(suite.tests[3].test_name, "test_vx_lite_cvmhlabn_grid_elev");
+  suite.tests[3].test_func = &test_vx_lite_cvmhlabn_grid_elev;
   suite.tests[3].elapsed_time = 0.0;
+
+  strcpy(suite.tests[4].test_name, "test_vx_lite_cvmhlabn_grid_depth");
+  suite.tests[4].test_func = &test_vx_lite_cvmhlabn_grid_depth;
+  suite.tests[4].elapsed_time = 0.0;
+
+  strcpy(suite.tests[5].test_name, "test_vx_lite_cvmhlabn_grid_offset");
+  suite.tests[5].test_func = &test_vx_lite_cvmhlabn_grid_offset;
+  suite.tests[5].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");
