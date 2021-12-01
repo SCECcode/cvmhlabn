@@ -88,7 +88,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = unittest$(EXEEXT)
+bin_PROGRAMS = unittest$(EXEEXT) accepttest$(EXEEXT)
 subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -100,6 +100,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
+am_accepttest_OBJECTS = *.$(OBJEXT)
+accepttest_OBJECTS = $(am_accepttest_OBJECTS)
+accepttest_LDADD = $(LDADD)
 am_unittest_OBJECTS = *.$(OBJEXT)
 unittest_OBJECTS = $(am_unittest_OBJECTS)
 unittest_LDADD = $(LDADD)
@@ -132,8 +135,8 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(unittest_SOURCES)
-DIST_SOURCES = $(unittest_SOURCES)
+SOURCES = $(accepttest_SOURCES) $(unittest_SOURCES)
+DIST_SOURCES = $(accepttest_SOURCES) $(unittest_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -258,8 +261,9 @@ AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhlabn -L../gctpc/source -lgeo -lm
 
 # Dist sources
 unittest_SOURCES = *.c *.h
+accepttest_SOURCES = *.c *.h
 TARGETS = $(bin_PROGRAMS)
-.PHONY = run_unit
+.PHONY = run_unit run_accept
 all: all-am
 
 .SUFFIXES:
@@ -573,6 +577,10 @@ uninstall-am: uninstall-binPROGRAMS
 
 all: $(bin_PROGRAMS)
 
+############################################
+# Executables
+############################################
+
 unittest: unittest.o unittest_defs.o test_helper.o \
 	test_vx_lite_cvmhlabn_exec.o test_vx_cvmhlabn_exec.o test_cvmhlabn_exec.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
@@ -580,8 +588,14 @@ unittest: unittest.o unittest_defs.o test_helper.o \
 run_unit : unittest
 	./run_unit
 
+accepttest: accepttest.o unittest_defs.o test_helper.o test_grid_exec.o
+	$(CC) -o $@ $^ $(AM_LDFLAGS)
+
+run_accept: accepttest
+	./run_accept
+
 clean:
-	rm -rf *~ *.o $(bin_PROGRAMS) 
+	rm -rf *~ *.o *.out $(bin_PROGRAMS) 
 
 install:
 	mkdir -p ${prefix}/tests

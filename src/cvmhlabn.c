@@ -48,17 +48,25 @@ int cvmhlabn_init(const char *dir, const char *label) {
 	cvmhlabn_configuration = calloc(1, sizeof(cvmhlabn_configuration_t));
 	cvmhlabn_velocity_model = calloc(1, sizeof(cvmhlabn_model_t));
 
-	// Configuration file location.
+	// Configuration file location when built with UCVM
 	sprintf(configbuf, "%s/model/%s/data/config", dir, label);
 
 	// Read the configuration file.
 	if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != SUCCESS) {
-                print_error("No configuration file was found to read from.");
-                return FAIL;
-        }
 
-	// Set up the data directory.
-	sprintf(cvmhlabn_data_directory, "%s/model/%s/data/%s", dir, label, cvmhlabn_configuration->model_dir);
+           // Try another, when is running in standalone mode..
+	   sprintf(configbuf, "%s/data/config", dir);
+	   if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != SUCCESS) {
+               print_error("No configuration file was found to read from.");
+               return FAIL;
+               } else {
+	       // Set up the data directory.
+	       sprintf(cvmhlabn_data_directory, "%s/data/%s", dir, cvmhlabn_configuration->model_dir);
+           }
+           } else {
+	   // Set up the data directory.
+	   sprintf(cvmhlabn_data_directory, "%s/model/%s/data/%s", dir, label, cvmhlabn_configuration->model_dir);
+        }
 
         /* Init vx */
         if (vx_setup(cvmhlabn_data_directory) != 0) {
@@ -262,7 +270,6 @@ int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config) {
 
 	// If our file pointer is null, an error has occurred. Return fail.
 	if (fp == NULL) {
-		print_error("Could not open the configuration file.");
 		return FAIL;
 	}
 

@@ -2,6 +2,7 @@
 #define TEST_HELPER_H
 
 #include "vx_sub.h"
+#include "cvmhlabn.h"
 
 /* Constants */
 #define MAX_TEST_POINTS 10
@@ -31,6 +32,11 @@ int get_mat_props(float *vp, float *vs, double *rho, vx_test_dataset_t ds);
 /* Save test points to file */
 int save_depth_test_points(const char* filename);
 int save_elevation_test_points(const char* filename);
+
+/* run with cvmhlabn model api */
+int runCVMHLABN(const char *bindir, const char *cvmdir, 
+	  const char *infile, const char *outfile,
+          int mode);
 
 /* Execute vx_cvmhlabn as a child process */
 int runVXCVMHLABN(const char *bindir, const char *cvmdir, 

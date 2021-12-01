@@ -1,3 +1,10 @@
+/**
+   test_cvmhlabn_exec.c
+
+   uses cvmhlabn's model api,
+       model_init, model_setparam, model_query, model_finalize
+**/
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,10 +27,8 @@ int test_setup()
     if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
       return(1);
     }
-    } else {
-      if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
-        return(1);
-      }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return(1);
   }
 
   if (test_assert_int(model_finalize(), 0) != 0) {
@@ -41,9 +46,11 @@ int test_setparam()
 // Initialize the model, try to use Use UCVM_INSTALL_PATH
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    assert(model_init(envstr, "cvmhlabn") == 0);
-    } else {
-      assert(model_init("..", "cvmhlabn") == 0);
+    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+      return(1);
+    }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return(1);
   }
 
   int zmode = CVMHLABN_COORD_GEO_DEPTH;
@@ -69,9 +76,11 @@ int test_query_by_depth()
 // Initialize the model, try to use Use UCVM_INSTALL_PATH
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    assert(model_init(envstr, "cvmhlabn") == 0);
-    } else {
-      assert(model_init("..", "cvmhlabn") == 0);
+    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+      return(1);
+    }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return(1);
   }
 
   int zmode = CVMHLABN_COORD_GEO_DEPTH;
@@ -116,9 +125,11 @@ int test_query_by_elevation()
 // Initialize the model, try to use Use UCVM_INSTALL_PATH
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    assert(model_init(envstr, "cvmhlabn") == 0);
-    } else {
-      assert(model_init("..", "cvmhlabn") == 0);
+    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+      return(1);
+    }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return(1);
   }
 
   int zmode = CVMHLABN_COORD_GEO_ELEV;

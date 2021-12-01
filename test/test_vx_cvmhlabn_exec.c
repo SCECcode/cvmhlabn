@@ -1,3 +1,11 @@
+/**  
+   test_vx_cvmhlabn_exec.c
+
+   invokes src/run_vx_cvmhlabn.sh/vx_cvmhlabn
+     which uses cvmhlabn api,
+       cvmhlabn_init, cvmhlabn_setparam, cvmhlabn_query, cvmhlabn_finalize
+**/
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,15 +23,15 @@ int VX_TESTS=3;
 
 int test_vx_cvhmlabn_points_elevation()
 {
-  char infile[2000];
-  char outfile[2000];
-  char reffile[2000];
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
   char currentdir[1000];
 
   printf("Test: vx_cvmhlabn executable w/ elevation option\n");
 
   /* Save current directory */
-  getcwd(currentdir, 2000);
+  getcwd(currentdir, 1280);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
   sprintf(outfile, "%s/%s", currentdir, 
@@ -57,9 +65,9 @@ int test_vx_cvhmlabn_points_elevation()
 
 int test_vx_cvhmlabn_points_depth()
 {
-  char infile[2000];
-  char outfile[2000];
-  char reffile[2000];
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
   char currentdir[1000];
 
   printf("Test: vx_cvmhlabn executable w/ depth option\n");
@@ -99,15 +107,15 @@ int test_vx_cvhmlabn_points_depth()
 
 int test_vx_cvhmlabn_points_offset()
 {
-  char infile[2000];
-  char outfile[2000];
-  char reffile[2000];
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
   char currentdir[1000];
 
   printf("Test: vx_cvmhlabn executable w/ offset(none) option\n");
 
   /* Save current directory */
-  getcwd(currentdir, 2000);
+  getcwd(currentdir, 1280);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_e.in");
   sprintf(outfile, "%s/%s", currentdir, 
@@ -143,13 +151,6 @@ int suite_vx_cvmhlabn_exec(const char *xmldir)
   suite_t suite;
   char logfile[1000];
   FILE *lf = NULL;
-
-  /* this suite require setting of UCVM_INSTALL_PATH */
-  char *eval=getenv("UCVM_INSTALL_PATH");
-  if(eval == NULL) {
-    fprintf(stderr, "Need to set UCVM_INSTALL_PATH to run suite_vx_cvmhlabn_exec\n");
-    return(1);
-  }
 
   /* Setup test suite */
   strcpy(suite.suite_name, "suite_vx_cvhmlabn_exec");

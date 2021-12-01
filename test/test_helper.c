@@ -158,6 +158,69 @@ int save_depth_test_points(const char* filename)
 }
 
 /*************************************************************************/
+int runCVMHLABN(const char *bindir, const char *cvmdir, 
+	  const char *infile, const char *outfile, int mode)
+{
+  cvmhlabn_point_t pt;
+  cvmhlabn_properties_t ret;
+
+  FILE *infp, *outfp;
+  char line[1000];
+
+  char *envstr=getenv("UCVM_INSTALL_PATH");
+  if(envstr != NULL) {
+    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+      return(1);
+    }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return(1);
+  }
+
+  int zmode = CVMHLABN_COORD_GEO_ELEVOFF;
+  switch (mode) {
+    case MODE_ELEVATION:
+      zmode = CVMHLABN_COORD_GEO_ELEV;
+      break;
+    case MODE_DEPTH:
+      zmode = CVMHLABN_COORD_GEO_DEPTH;
+      break;
+  }
+
+  if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
+      return(1);
+  }
+
+  /* open infile, outfile */
+  infp = fopen(infile, "r");
+  if (infp == NULL) {
+    printf("FAIL: cannot open %s\n", infile);
+    return(1);
+  }
+  outfp = fopen(outfile, "r");
+  if (outfp == NULL) {
+    printf("FAIL: cannot open %s\n", outfile);
+    return(1);
+  }
+
+/* process one term at a time */
+  while(fgets(line, 1000, infp) != NULL) {
+    if (sscanf(line,"%lf %lf %lf",
+         &pt.longitude,&pt.latitude,&pt.depth) == 3) {
+      if (test_assert_int(model_query(&pt, &ret, 1), 0) != 0) {
+         fprintf(outfp,"%lf %lf %lf\n",ret.vs, ret.vp, ret.rho);
+      }
+    }
+  }
+  fclose(infp);
+  fclose(outfp);
+                
+  if (test_assert_int(model_finalize(),0) != 0) {
+      return(1);
+  }
+
+  printf("PASS\n");
+  return(0);
+}
 
 int runVXCVMHLABN(const char *bindir, const char *cvmdir, 
 	  const char *infile, const char *outfile, int mode)
