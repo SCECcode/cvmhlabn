@@ -1459,6 +1459,7 @@ int vx_scec_1d_gtl_elev(vx_entry_t *entry, vx_request_t req_type)
     for (i = 0; i < 3; i++) {
       entry->vel_cell[i] = gtl.cell[i];
     }
+fprintf(stderr,"XXX here2..");
     entry->data_src = VX_SRC_GT;
     entry->provenance = (float)VX_PROV_GTL;
     entry->vp = gtl.vp;
@@ -1616,6 +1617,7 @@ int vx_scec_1d(vx_entry_t *entry, vx_request_t req_type)
 	  for (i = 0; i < 3; i++) {
 	    entry->vel_cell[i] = gtl.cell[i];
 	  }
+fprintf(stderr,"XXX here3..");
 	  entry->data_src = VX_SRC_GT;
 	  entry->provenance = (float)VX_PROV_GTL;
 	  entry->vp = gtl.vp;
@@ -1663,6 +1665,7 @@ int vx_scec_1d(vx_entry_t *entry, vx_request_t req_type)
 	  for (i = 0; i < 3; i++) {
 	    tmp_entry.vel_cell[i] = gtl.cell[i];
 	  }
+fprintf(stderr,"XXX here4..");
 	  tmp_entry.data_src = VX_SRC_GT;
 	  tmp_entry.provenance = (float)VX_PROV_GTL;
 	  tmp_entry.vp = gtl.vp;

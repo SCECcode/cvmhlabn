@@ -34,6 +34,7 @@ int test_vx_grid()
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
+    printf("unmatched result\n"); 
     return(1);
   }
 
@@ -69,6 +70,7 @@ int test_vx_lite_grid_emul()
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
+    printf("unmatched result\n"); 
     return(1);
   }
 
@@ -103,6 +105,7 @@ int test_vx_lite_grid_depth()
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
+    printf("unmatched result\n"); 
     return(1);
   }
 
@@ -140,6 +143,7 @@ int test_vx_lite_grid_offset()
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
+    printf("unmatched result\n"); 
     return(1);
   }
 

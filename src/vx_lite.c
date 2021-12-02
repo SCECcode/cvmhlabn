@@ -127,8 +127,9 @@ int main (int argc, char *argv[])
 
       /*** Prevent all to obvious bad coordinates from being displayed */
       if (entry.coor[1]<10000000) {
-	//printf("%14.6f %15.6f %9.2f ", 
-	//       entry.coor[0], entry.coor[1], entry.coor[2]);
+
+//  fprintf(stderr,"%14.6f %15.6f %9.2f ",entry.coor[0], entry.coor[1], entry.coor[2]);
+
 	/* AP: Let's provide the computed UTM coordinates as well */
 	printf("%10.2f %11.2f ", entry.coor_utm[0], entry.coor_utm[1]);
 	

@@ -184,6 +184,8 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
     case MODE_DEPTH:
       zmode = CVMHLABN_COORD_GEO_DEPTH;
       break;
+    case MODE_NONE:
+      break; // default
   }
 
   if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
@@ -303,6 +305,9 @@ int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir,
        break;
      case MODE_DEPTH:
        strcat(flags, "-z dep ");
+       break;
+    case MODE_NONE:
+       strcat(flags, "-z off ");
        break;
   }
 
