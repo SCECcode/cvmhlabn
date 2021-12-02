@@ -208,7 +208,7 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
   while(fgets(line, 1000, infp) != NULL) {
     if (sscanf(line,"%lf %lf %lf",
          &pt.longitude,&pt.latitude,&pt.depth) == 3) {
-      if (test_assert_int(model_query(&pt, &ret, 1), 0) != 0) {
+      if (test_assert_int(model_query(&pt, &ret, 1), 0) == 0) {
          fprintf(outfp,"%lf %lf %lf\n",ret.vs, ret.vp, ret.rho);
       }
     }
