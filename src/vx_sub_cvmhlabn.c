@@ -41,25 +41,18 @@ int (*callback_bkg)(vx_entry_t *entry, vx_request_t req_type) = NULL;
 /* Model state variables */
 static int is_setup = False;
 vx_zmode_t vx_zmode = VX_ZMODE_ELEV;
-struct axis lr_a, mr_a, hr_a, cm_a, to_a;
+struct axis mr_a, hr_a, to_a;
 struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
-float step_to[3], step_lr[3], step_hr[3], step_cm[3];
-float step0lr, step1lr, step2lr;
+float step_to[3], step_hr[3];
 float step0hr, step1hr, step2hr;
 
 /* Model buffers */
 static char *hrbuffer = NULL;
-static char *lrbuffer = NULL;
-static char *cmbuffer = NULL;
 static char *tobuffer = NULL;
 static char *mobuffer = NULL;
 static char *babuffer = NULL;
 static char *mtopbuffer = NULL;
-static char *lrtbuffer = NULL;
-static char *cmtbuffer = NULL;
-static char *cmvsbuffer = NULL;
 static char *hrtbuffer = NULL;
-static char *lrvsbuffer = NULL;
 static char *hrvsbuffer = NULL;
 
 /* Data source labels */
@@ -76,10 +69,10 @@ int vx_setup(const char *data_dir)
   for(n=0;n>15;n++) inparm[n]=0;
 
   /* Initialize buffer pointers to NULL */
-  hrbuffer = lrbuffer = cmbuffer = NULL;
+  hrbuffer = NULL;
   tobuffer = mobuffer = babuffer = mtopbuffer = NULL;
-  lrtbuffer = cmtbuffer = hrtbuffer = NULL;
-  cmvsbuffer = lrvsbuffer = hrvsbuffer = NULL;
+  hrtbuffer = NULL;
+  hrvsbuffer = NULL;
 
   char LR_PAR[CMLEN];
   sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
@@ -94,113 +87,7 @@ int vx_setup(const char *data_dir)
   sprintf(TO_PAR, "%s/interfaces.vo", data_dir);
 
 
-  /**** First we load the LowRes File****/
-  if (vx_io_init(LR_PAR) != 0) {
-    fprintf(stderr, "Failed to load LR param file %s. Check that the model path is correct.\n", LR_PAR);
-    return(1);
-  }
-  vx_io_getvec("AXIS_O",lr_a.O);
-  vx_io_getvec("AXIS_U",lr_a.U);
-  vx_io_getvec("AXIS_V",lr_a.V);
-  vx_io_getvec("AXIS_W",lr_a.W);
-  vx_io_getvec("AXIS_MIN",lr_a.MIN);
-  vx_io_getvec("AXIS_MAX",lr_a.MAX);
-  vx_io_getdim("AXIS_N",lr_a.N);
-
-
-  if( (lr_a.MIN[0] != 0) || (lr_a.MAX[0] != 1)) {
- // adjust for 'translation'
-
-/* origin */
-      float origin0lr= lr_a.O[0] + lr_a.U[0] * lr_a.MIN[0];
-      float origin1lr= lr_a.O[1] + lr_a.V[1] * lr_a.MIN[1];
-      float origin2lr= lr_a.O[2] + lr_a.W[2] * lr_a.MIN[2];
-/* Umax */
-      float umax0lr=lr_a.O[0] + (lr_a.U[0] * lr_a.MAX[0]);
-      float umax1lr=origin1lr;
-      float umax2lr=origin2lr;
-/* Vmax */
-      float vmax0lr=origin0lr;
-      float vmax1lr=lr_a.O[1] + (lr_a.V[1] * lr_a.MAX[1]);
-      float vmax2lr=origin2lr;
-/* Wmax */
-      float wmax0lr=origin0lr;
-      float wmax1lr=origin1lr;
-      float wmax2lr=lr_a.O[2] + (lr_a.W[2] * lr_a.MAX[2]);
-/* cell size */
-      step0lr=((lr_a.MAX[0] - lr_a.MIN[0]) * lr_a.U[0]) / (lr_a.N[0]-1); 
-      step1lr=((lr_a.MAX[1] - lr_a.MIN[1]) * lr_a.V[1]) / (lr_a.N[1]-1); 
-      step2lr=((lr_a.MAX[2] - lr_a.MIN[2]) * lr_a.W[2]) / (lr_a.N[2]-1); 
-
-      if(_debug) {
-         fprintf(stderr,"NEW LR------\n");
-         fprintf(stderr,"new origin %f %f %f\n", origin0lr, origin1lr, origin2lr);
-         fprintf(stderr,"new umax %f %f %f\n", umax0lr, umax1lr, umax2lr);
-         fprintf(stderr,"new vmax %f %f %f\n", vmax0lr, vmax1lr, vmax2lr);
-         fprintf(stderr,"new wmax %f %f %f\n", wmax0lr, wmax1lr, wmax2lr);
-         fprintf(stderr,"new step %f %f %f\n\n", step0lr, step1lr, step2lr);
-      }
-
-      lr_a.O[0]=origin0lr; lr_a.O[1]=origin1lr; lr_a.O[2]=origin2lr;
-      lr_a.U[0]=umax0lr; lr_a.U[1]=umax1lr; lr_a.U[2]=umax2lr;
-      lr_a.V[0]=vmax0lr; lr_a.V[1]=vmax1lr; lr_a.V[2]=vmax2lr;
-      lr_a.W[0]=wmax0lr; lr_a.W[1]=wmax1lr; lr_a.W[2]=wmax2lr;
-  }
-
-  NCells=lr_a.N[0]*lr_a.N[1]*lr_a.N[2];
-// ??? not sure why vint
-  sprintf(p0.NAME,"vint");
-  vx_io_getpropname("PROP_FILE",1,p0.FN);
-  vx_io_getpropsize("PROP_ESIZE",1,&p0.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",1,&p0.NO_DATA_VALUE);
-
-  lrbuffer=(char *)malloc(NCells*p0.ESIZE);
-  if (lrbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate LR Vp buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p0.FN,
-		       p0.ESIZE,NCells,lrbuffer) != 0) {
-    fprintf(stderr, "Failed to load LR Vp volume\n");
-    return(1);
-  }
-
-  // and the tags
-  sprintf(p7.NAME,"tag");
-  vx_io_getpropname("PROP_FILE",2,p7.FN);
-  vx_io_getpropsize("PROP_ESIZE",2,&p7.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p7.NO_DATA_VALUE);
-
-  lrtbuffer=(char *)malloc(NCells*p7.ESIZE);
-  if (lrtbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate LR tag buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p7.FN,
-		       p7.ESIZE,NCells,lrtbuffer) != 0) {
-    fprintf(stderr, "Failed to load LR tag volume\n");
-    return(1);
-  }
-
-  // and vs
-  sprintf(p11.NAME,"vs");
-  vx_io_getpropname("PROP_FILE",3,p11.FN);
-  vx_io_getpropsize("PROP_ESIZE",3,&p11.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p11.NO_DATA_VALUE);
-
-  lrvsbuffer=(char *)malloc(NCells*p11.ESIZE);
-  if (lrvsbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate LR Vs buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p11.FN,
-		       p11.ESIZE,NCells,lrvsbuffer) != 0) {
-    fprintf(stderr, "Failed to load LR Vs volume\n");
-    return(1);
-  }
-  vx_io_finalize();
-
-  /**** Now we load the HighRes File *****/
+  /**** First we load the HighRes File *****/
   if (vx_io_init(HR_PAR) != 0) {
     fprintf(stderr, "Failed to load HR param file %s\n", HR_PAR);
     return(1);
@@ -237,9 +124,9 @@ int vx_setup(const char *data_dir)
       step2hr=((hr_a.MAX[2] - hr_a.MIN[2]) * hr_a.W[2]) / (hr_a.N[2]-1); 
 
       hr_a.O[0]=origin0hr; hr_a.O[1]=origin1hr; hr_a.O[2]=origin2hr;
-      hr_a.U[0]=umax0hr; hr_a.U[1]=umax1hr; lr_a.U[2]=umax2hr;
-      hr_a.V[0]=vmax0hr; hr_a.V[1]=vmax1hr; lr_a.V[2]=vmax2hr;
-      hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; lr_a.W[2]=wmax2hr;
+      hr_a.U[0]=umax0hr; hr_a.U[1]=umax1hr; hr_a.U[2]=umax2hr;
+      hr_a.V[0]=vmax0hr; hr_a.V[1]=vmax1hr; hr_a.V[2]=vmax2hr;
+      hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; hr_a.W[2]=wmax2hr;
    
       if(_debug) {
         fprintf(stderr,"NEW HR------\n");
@@ -308,73 +195,6 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
   if (vx_io_loadvolume(data_dir, p12.FN,
 		       p12.ESIZE,NCells,hrvsbuffer) != 0) {
     fprintf(stderr, "Failed to load HR Vs volume\n");
-    return(1);
-  }
-
-  vx_io_finalize();
-
-  /**** Now we load the CrustMantle File *****/
-  if (vx_io_init(CM_PAR) != 0) {
-    fprintf(stderr, "Failed to load CM param file %s\n", CM_PAR);
-    return(1);
-  }
-
-  vx_io_getvec("AXIS_O",cm_a.O);
-  vx_io_getvec("AXIS_U",cm_a.U);
-  vx_io_getvec("AXIS_V",cm_a.V);
-  vx_io_getvec("AXIS_W",cm_a.W);
-  vx_io_getvec("AXIS_MIN",cm_a.MIN);
-  vx_io_getvec("AXIS_MAX",cm_a.MAX);
-  vx_io_getdim("AXIS_N ",cm_a.N);
-
-  NCells=cm_a.N[0]*cm_a.N[1]*cm_a.N[2];
-  sprintf(p3.NAME,"cvp");
-  vx_io_getpropname("PROP_FILE",VX_PNUMBER_VP,p3.FN);
-  vx_io_getpropsize("PROP_ESIZE",VX_PNUMBER_VP,&p3.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",VX_PNUMBER_VP,&p3.NO_DATA_VALUE);
-
-  cmbuffer=(char *)malloc(NCells*p3.ESIZE);
-  if (cmbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate CM Vp buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p3.FN, 
-		       p3.ESIZE, NCells, cmbuffer) != 0) {
-    fprintf(stderr, "Failed to load CM Vp volume\n");
-    return(1);
-  }
-
-  // and the flags
-  sprintf(p8.NAME,"tag");
-  vx_io_getpropname("PROP_FILE",VX_PNUMBER_TAG,p8.FN);
-  vx_io_getpropsize("PROP_ESIZE",VX_PNUMBER_TAG,&p8.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",VX_PNUMBER_TAG,&p8.NO_DATA_VALUE);
-
-  cmtbuffer=(char *)malloc(NCells*p8.ESIZE);
-  if (cmtbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate CM tag buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p8.FN, 
-		       p8.ESIZE, NCells, cmtbuffer) != 0) {
-    fprintf(stderr, "Failed to load CM tag volume\n");
-    return(1);
-  }
-
-  // and vs
-  sprintf(p10.NAME,"cvs");
-  vx_io_getpropname("PROP_FILE",VX_PNUMBER_VS,p10.FN);
-  vx_io_getpropsize("PROP_ESIZE",VX_PNUMBER_VS,&p10.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",VX_PNUMBER_VS,&p10.NO_DATA_VALUE);
-
-  cmvsbuffer=(char *)malloc(NCells*p10.ESIZE);
-  if (cmvsbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate CM Vs buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p10.FN, 
-		       p10.ESIZE, NCells, cmvsbuffer) != 0) {
-    fprintf(stderr, "Failed to load CM Vs volume\n");
     return(1);
   }
 
@@ -471,15 +291,6 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
   step_to[1]=to_a.V[1]/(to_a.N[1]-1);
   step_to[2]=0.0;
 
-  if( (lr_a.MIN[0] != 0) || (lr_a.MAX[0] != 1)) {
-      step_lr[0]=step0lr;
-      step_lr[1]=step1lr;
-      step_lr[2]=step2lr;
-      } else {
-          step_lr[0]=lr_a.U[0]/(lr_a.N[0]-1);
-          step_lr[1]=lr_a.V[1]/(lr_a.N[1]-1);
-          step_lr[2]=lr_a.W[2]/(lr_a.N[2]-1);
-  }
   if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
       step_hr[0]=step0hr;
       step_hr[1]=step1hr;
@@ -490,10 +301,6 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
           step_hr[2]=hr_a.W[2]/(hr_a.N[2]-1);
   }
   
-  step_cm[0]=cm_a.U[0]/(cm_a.N[0]-1);
-  step_cm[1]=cm_a.V[1]/(cm_a.N[1]-1);
-  step_cm[2]=cm_a.W[2]/(cm_a.N[2]-1);
-
   is_setup = True;
 
   return(0);
@@ -508,18 +315,12 @@ int vx_cleanup()
   }
 
   free(hrbuffer);
-  free(lrbuffer);
-  free(cmbuffer);
   free(tobuffer);
   free(mobuffer);
   free(babuffer);
   free(mtopbuffer);
 
-  free(lrtbuffer);
-  free(cmtbuffer);
-  free(cmvsbuffer);
   free(hrtbuffer);
-  free(lrvsbuffer);
   free(hrvsbuffer);
 
   vx_zmode = VX_ZMODE_ELEV;
@@ -682,49 +483,7 @@ if(_debug) { fprintf(stderr," entry_vel_cell, %f %f %f\n", entry->vel_cell[0], e
 if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
-	gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
-	gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
-	gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
-
-if(_debug) { fprintf(stderr,"    --- in LR area.. gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
-	if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
-	   gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2]) {
-	  /* AP: And here are the cell centers*/
-	  entry->vel_cell[0]= lr_a.O[0]+gcoor[0]*step_lr[0];
-	  entry->vel_cell[1]= lr_a.O[1]+gcoor[1]*step_lr[1];
-	  entry->vel_cell[2]= lr_a.O[2]+gcoor[2]*step_lr[2];
-	  j=voxbytepos(gcoor,lr_a.N,p0.ESIZE);
-	  memcpy(&(entry->provenance), &lrtbuffer[j], p0.ESIZE);
-	  memcpy(&(entry->vp), &lrbuffer[j], p0.ESIZE);
-	  memcpy(&(entry->vs), &lrvsbuffer[j], p0.ESIZE);
-	  entry->data_src = VX_SRC_LR;
-if(cvmhlabn_debug) { fprintf(stderr,"   DONE(LR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
-	} else {   
-// HUM HUM.. since LR got overlap with CM
-	  gcoor[0]=round((entry->coor_utm[0]-cm_a.O[0])/step_cm[0]);
-	  gcoor[1]=round((entry->coor_utm[1]-cm_a.O[1])/step_cm[1]);
-	  gcoor[2]=round((entry->coor_utm[2]-cm_a.O[2])/step_cm[2]);
-if(_debug) { fprintf(stderr,"  ---- in LR overlap CM area.. gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
-	  
-	  /** AP: check if inside CM voxet; the uppermost layer of 
-	      CM overlaps with the lowermost of LR, may need to be 
-	      ignored but is not.
-	  **/
-	  if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
-	     gcoor[0]<cm_a.N[0]&&gcoor[1]<cm_a.N[1]&&gcoor[2]<(cm_a.N[2])) {
-	    //**** lower crust and mantle voxet *****//
-	    entry->vel_cell[0]= cm_a.O[0]+gcoor[0]*step_cm[0];
-	    entry->vel_cell[1]= cm_a.O[1]+gcoor[1]*step_cm[1];
-	    entry->vel_cell[2]= cm_a.O[2]+gcoor[2]*step_cm[2];
-	    j=voxbytepos(gcoor,cm_a.N,p3.ESIZE);
-	    memcpy(&(entry->provenance), &cmtbuffer[j], p0.ESIZE);
-	    memcpy(&(entry->vp), &cmbuffer[j], p3.ESIZE);
-	    memcpy(&(entry->vs), &cmvsbuffer[j], p3.ESIZE);
-	    entry->data_src = VX_SRC_CM;
-	  } else {
-	    do_bkg = True;
-	  }
-	}
+        do_bkg = True;
       }
     }
 
@@ -790,36 +549,6 @@ void vx_getvoxel(vx_voxel_t *voxel) {
 	memcpy(&(voxel->provenance), &hrtbuffer[j], p0.ESIZE);
 	memcpy(&(voxel->vp), &hrbuffer[j], p2.ESIZE);
 	memcpy(&(voxel->vs), &hrvsbuffer[j], p2.ESIZE);	
-      }
-
-    break;
-  case VX_SRC_LR:
-
-    if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
-       gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2])
-      {
-	voxel->vel_cell[0]= lr_a.O[0]+gcoor[0]*step_lr[0];
-	voxel->vel_cell[1]= lr_a.O[1]+gcoor[1]*step_lr[1];
-	voxel->vel_cell[2]= lr_a.O[2]+gcoor[2]*step_lr[2];
-	j=voxbytepos(gcoor,lr_a.N,p2.ESIZE);
-	memcpy(&(voxel->provenance), &lrtbuffer[j], p0.ESIZE);
-	memcpy(&(voxel->vp), &lrbuffer[j], p2.ESIZE);
-	memcpy(&(voxel->vs), &lrvsbuffer[j], p2.ESIZE);	
-      }
-
-    break;
-  case VX_SRC_CM:
-
-    if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
-       gcoor[0]<cm_a.N[0]&&gcoor[1]<cm_a.N[1]&&gcoor[2]<cm_a.N[2])
-      {
-	voxel->vel_cell[0]= cm_a.O[0]+gcoor[0]*step_cm[0];
-	voxel->vel_cell[1]= cm_a.O[1]+gcoor[1]*step_cm[1];
-	voxel->vel_cell[2]= cm_a.O[2]+gcoor[2]*step_cm[2];
-	j=voxbytepos(gcoor,cm_a.N,p2.ESIZE);
-	memcpy(&(voxel->provenance), &cmtbuffer[j], p0.ESIZE);
-	memcpy(&(voxel->vp), &cmbuffer[j], p2.ESIZE);
-	memcpy(&(voxel->vs), &cmvsbuffer[j], p2.ESIZE);	
       }
 
     break;
@@ -921,14 +650,8 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	  vx_getcoord_private(&entry, False);
 	  if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
 	    switch (entry.data_src) {
-	    case VX_SRC_CM:
-	      entry.coor[2] -= fabs(step_cm[2]);
-	      break;
 	    case VX_SRC_HR:
 	      entry.coor[2] -= fabs(step_hr[2]);
-	      break;
-	    case VX_SRC_LR:
-	      entry.coor[2] -= fabs(step_lr[2]);
 	      break;
 	    default:
 	      do_bkg = True;
@@ -1037,14 +760,8 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
 	vx_getcoord_private(&entry, False);
 	if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
 	  switch (entry.data_src) {
-	  case VX_SRC_CM:
-	    entry.coor[2] -= fabs(step_cm[2]);
-	    break;
 	  case VX_SRC_HR:
 	    entry.coor[2] -= fabs(step_hr[2]);
-	    break;
-	  case VX_SRC_LR:
-	    entry.coor[2] -= fabs(step_lr[2]);
 	    break;
 	  default:
 	    do_bkg = True;
@@ -1067,146 +784,6 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
   }
 
   return;
-}
-
-
-/* Return the closest UTM coordinates in the lr and cm models to point 
-   'entry'. The arg 'surface_elev' contains the surface elevation at the
-   point and 'topo_gap' is (mtop-topo). */
-int vx_get_closest_coords(vx_entry_t *entry, 
-			  vx_entry_t *lr_entry,
-			  vx_entry_t *cm_entry,
-			  float *surface_elev,
-			  double *topo_gap)
-{
-  double depth;
-  float mtop;
-
-fprintf(stderr," calling get_closest_coords..\n");
-
-  vx_entry_t to_entry;
-  vx_voxel_t lr_voxel;
-
-  vx_init_entry(lr_entry);
-  vx_init_entry(cm_entry);
-  *surface_elev = -99999.0;
-  *topo_gap = 0.0;
-
-  depth = (0.0 - entry->coor_utm[2]);
-
-  /* Check if point is in the air */
-  if (depth < 0.0) {
-    return(0);
-  }
-
-  /* Get closest lr voxel to POI */
-  memcpy(lr_entry, entry, sizeof(vx_entry_t));
-  lr_entry->data_src = VX_SRC_LR;
-  vx_closest_voxel_to_coord(lr_entry, &lr_voxel);
-
-  /* Get surface elev at this point */
-  to_entry.coor_utm[0]= lr_a.O[0]+lr_voxel.coor[0]*step_lr[0];
-  to_entry.coor_utm[1]= lr_a.O[1]+lr_voxel.coor[1]*step_lr[1];
-  to_entry.coor_utm[2] = 0.0;
-  to_entry.data_src = VX_SRC_TO;
-  vx_getsurface_private(to_entry.coor_utm, VX_COORD_UTM, surface_elev);
-  if (*surface_elev - p0.NO_DATA_VALUE >= 0.1) {
-    /* Find the lr/cm voxel that corresponds to desired depth/elev */
-    /* This will be the closest voxel */
-    memcpy(lr_entry, &(to_entry), sizeof(vx_entry_t));
-
-    /* Compute gap between surface and mtop */
-    vx_model_top(to_entry.coor_utm, VX_COORD_UTM, &mtop);
-    if ((entry->topo - p0.NO_DATA_VALUE > 0.1) && 
-	(mtop - p0.NO_DATA_VALUE > 0.1)) {
-      *topo_gap = *surface_elev - mtop;
-    } else {
-      *topo_gap = 0.0;
-    }
-
-    switch (vx_zmode) {
-    case VX_ZMODE_ELEV:
-      lr_entry->coor_utm[2] = entry->coor_utm[2];
-      break;
-    case VX_ZMODE_DEPTH:
-    case VX_ZMODE_ELEVOFF:
-      lr_entry->coor_utm[2] = *surface_elev - depth;
-      break;
-    default:
-      return(0);
-      break;
-    }
-
-    //fprintf(stderr, "vx_closest_coords lr_entry->coor[2]=%lf\n",
-    //	    lr_entry->coor_utm[2]);
-
-    /* Compute gap between surface and mtop */
-    vx_model_top(to_entry.coor_utm, VX_COORD_UTM, &mtop);
-    if (mtop - p0.NO_DATA_VALUE > 0.1) {
-      *topo_gap = *surface_elev - mtop;
-    } else {
-      *topo_gap = 0.0;
-    }
-
-    lr_entry->data_src = VX_SRC_LR;
-    memcpy(cm_entry, lr_entry, sizeof(vx_entry_t));
-    cm_entry->data_src = VX_SRC_CM;
-  }
-
-  return(0);
-}
-
-
-/* Find closest voxel among LR and CM candidate voxels */
-int vx_select_closest_voxel(vx_entry_t *lr_entry,
-			    vx_entry_t *cm_entry,
-			    int *found_closest,
-			    int *is_water_air,
-			    vx_entry_t *closest_entry,
-			    vx_voxel_t *closest_voxel)
-{
-  vx_voxel_t lr_voxel, cm_voxel;
-
-  vx_init_entry(closest_entry);
-  vx_init_voxel(closest_voxel);
-  *found_closest = False;
-  *is_water_air = False;
-
-  vx_voxel_at_coord(lr_entry, &lr_voxel);
-  vx_voxel_at_coord(cm_entry, &cm_voxel);
-
-  /* Give preference to LR results */
-  if ((lr_voxel.vp > 0.0) && (lr_voxel.vs > 0.0) && (lr_voxel.rho > 0.0)) {
-    memcpy(closest_entry, lr_entry, sizeof(vx_entry_t));
-    memcpy(closest_voxel, &lr_voxel, sizeof(vx_voxel_t));
-    *found_closest = True;
-  } else if ((cm_voxel.vp > 0.0) && (cm_voxel.vs > 0.0) && 
-	     (cm_voxel.rho > 0.0)) {
-    memcpy(closest_entry, cm_entry, sizeof(vx_entry_t));
-    memcpy(closest_voxel, &cm_voxel, sizeof(vx_voxel_t));
-    *found_closest = True;
-  }
-
-  if (*found_closest == False) {
-    /* Consider case of closest voxel being in water, where vs = NO_DATA */
-    if ((lr_voxel.provenance == VX_PROV_WATER) || 
-	(lr_voxel.provenance == VX_PROV_AIR) ||
-	(lr_voxel.provenance == VX_PROV_AIR_OUTER)) {
-      memcpy(closest_entry, lr_entry, sizeof(vx_entry_t));
-      memcpy(closest_voxel, &lr_voxel, sizeof(vx_voxel_t));
-      *is_water_air = True;
-      *found_closest = True;
-    } else if ((cm_voxel.provenance == VX_PROV_WATER) || 
-	       (cm_voxel.provenance == VX_PROV_AIR) ||
-	       (cm_voxel.provenance == VX_PROV_AIR_OUTER)) {
-      memcpy(closest_entry, cm_entry, sizeof(vx_entry_t));
-      memcpy(closest_voxel, &cm_voxel, sizeof(vx_voxel_t));
-      *is_water_air = True;
-      *found_closest = True;
-    }
-  }
-  
-  return(0);
 }
 
 /* Return the voxel 'voxel' that lies precisely at the coord/model
@@ -1232,18 +809,6 @@ void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel)
       model_max[j] = to_a.N[j];
       step[j] = step_to[j];
       esize = p4.ESIZE;
-    case VX_SRC_LR:
-      gcoor_min[j] = lr_a.O[j];
-      model_max[j] = lr_a.N[j];
-      step[j] = step_lr[j];
-      esize = p0.ESIZE;
-      break;
-    case VX_SRC_CM:
-      gcoor_min[j] = cm_a.O[j];
-      model_max[j] = cm_a.N[j];
-      step[j] = step_cm[j];
-      esize = p3.ESIZE;
-      break;
     default:
       return;
       break;
@@ -1278,17 +843,6 @@ void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel)
     memcpy(&(voxel->mtop), &mtopbuffer[j], p4.ESIZE);
     memcpy(&(voxel->base), &babuffer[j], p4.ESIZE);
     memcpy(&(voxel->moho), &mobuffer[j], p4.ESIZE);
-  case VX_SRC_LR:
-    memcpy(&(voxel->vp), &lrbuffer[j], p0.ESIZE);
-    memcpy(&(voxel->vs), &lrvsbuffer[j], p0.ESIZE);
-    memcpy(&(voxel->provenance), &lrtbuffer[j], p0.ESIZE);
-    voxel->rho = calc_rho(voxel->vp, entry->data_src);
-    break;
-  case VX_SRC_CM:
-    memcpy(&(voxel->vp), &cmbuffer[j], p3.ESIZE);
-    memcpy(&(voxel->vs), &cmvsbuffer[j], p3.ESIZE);
-    memcpy(&(voxel->provenance), &cmtbuffer[j], p3.ESIZE);
-    voxel->rho = calc_rho(voxel->vp, entry->data_src);
     break;
   default:
     return;
@@ -1326,17 +880,6 @@ void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel)
       model_max[j] = to_a.N[j];
       step[j] = step_to[j];
       esize = p4.ESIZE;
-    case VX_SRC_LR:
-      gcoor_min[j] = lr_a.O[j];
-      model_max[j] = lr_a.N[j];
-      step[j] = step_lr[j];
-      esize = p0.ESIZE;
-      break;
-    case VX_SRC_CM:
-      gcoor_min[j] = cm_a.O[j];
-      model_max[j] = cm_a.N[j];
-      step[j] = step_cm[j];
-      esize = p3.ESIZE;
       break;
     default:
       return;
@@ -1374,17 +917,6 @@ void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel)
     memcpy(&(voxel->mtop), &mtopbuffer[j], p4.ESIZE);
     memcpy(&(voxel->base), &babuffer[j], p4.ESIZE);
     memcpy(&(voxel->moho), &mobuffer[j], p4.ESIZE);
-  case VX_SRC_LR:
-    memcpy(&(voxel->vp), &lrbuffer[j], p0.ESIZE);
-    memcpy(&(voxel->vs), &lrvsbuffer[j], p0.ESIZE);
-    memcpy(&(voxel->provenance), &lrtbuffer[j], p0.ESIZE);
-    voxel->rho = calc_rho(voxel->vp, entry->data_src);
-    break;
-  case VX_SRC_CM:
-    memcpy(&(voxel->vp), &cmbuffer[j], p3.ESIZE);
-    memcpy(&(voxel->vs), &cmvsbuffer[j], p3.ESIZE);
-    memcpy(&(voxel->provenance), &cmtbuffer[j], p3.ESIZE);
-    voxel->rho = calc_rho(voxel->vp, entry->data_src);
     break;
   default:
     return;
@@ -1420,17 +952,6 @@ void vx_dist_point_to_voxel(vx_entry_t *entry, vx_voxel_t *voxel,
       model_max[j] = to_a.N[j];
       step[j] = step_to[j];
       esize = p4.ESIZE;
-    case VX_SRC_LR:
-      gcoor_min[j] = lr_a.O[j];
-      model_max[j] = lr_a.N[j];
-      step[j] = step_lr[j];
-      esize = p0.ESIZE;
-      break;
-    case VX_SRC_CM:
-      gcoor_min[j] = cm_a.O[j];
-      model_max[j] = cm_a.N[j];
-      step[j] = step_cm[j];
-      esize = p3.ESIZE;
       break;
     default:
       return;
