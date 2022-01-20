@@ -1,7 +1,7 @@
 # CVMH15-1-Los-Angeles-Basin (cvmhlabn)
 Description of CVMHLABN
 
-## Table of Contents:
+## Table of Content
 1. [Software Documentation](https://github.com/SCECcode/cvmhlabn/wiki)
 2. [Installation](#installation)
 3. [Usage](#usage)
@@ -27,21 +27,21 @@ make install
 make run_test
 </pre>
 
-### Usage:
+### Usage
 
 
-### Support:
+### Support
 Support for CVMHLABN is provided by the Southern California Earthquake Center
 (SCEC) Research Computing Group.  Users can report issues and feature requests 
 using CVMHLABN's github-based issue tracking link below. Developers will also 
 respond to emails sent to the SCEC software contact listed below.
-1. [CVMHLABN Github Issue Tracker:](https://github.com/SCECcode/cvmhlabn/issues)
+1. [CVMHLABN Github Issue Tracker](https://github.com/SCECcode/cvmhlabn/issues)
 2. Email Contact: software@scec.usc.edu
 
-### Contributing:
+### Contributing
 We welcome contributions to the CVMHLABN, please contact us at software@scec.usc.edu.
 
-### Credit:
-*Andreas Plesch <andreas_plesch@harvard.edu>
-*John Shaw <shaw@eps.harvard.edu>
+### Credit
+1. Andreas Plesch <andreas_plesch@harvard.edu>
+2. John Shaw <shaw@eps.harvard.edu>
 
