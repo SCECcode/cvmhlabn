@@ -41,7 +41,7 @@ respond to emails sent to the SCEC software contact listed below.
 ### Contributing
 We welcome contributions to the CVMHLABN, please contact us at software@scec.usc.edu.
 
-### Credit
+### Credits
 * Andreas Plesch <andreas_plesch@harvard.edu>
 * John Shaw <shaw@eps.harvard.edu>
 
