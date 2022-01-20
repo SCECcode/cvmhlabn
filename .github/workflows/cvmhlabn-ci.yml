@@ -22,9 +22,9 @@ jobs:
     - name: build cvmhlabn standalone 
       run: ./.github/scripts/cvmhlabn-build-standalone.sh 
       shell: bash
-#    - name: test cvmhlabn standalone
-#      run: ./.github/scripts/cvmhlabn-test.sh
-#      shell: bash
+    - name: test cvmhlabn standalone
+      run: ./.github/scripts/cvmhlabn-test-standalone.sh
+      shell: bash
 
   cvmhlabn-build-standalone-linux:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
     - name: build cvmhlabn standalone
       run: ./.github/scripts/cvmhlabn-build-standalone.sh
       shell: bash
-#    - name: test cvmhlabn standalone
-#      run: ./.github/scripts/ucvm-test.sh
-#      shell: bash
+    - name: test cvmhlabn standalone
+      run: ./.github/scripts/cvmhlabn-test-standalone.sh
+      shell: bash
 

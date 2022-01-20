@@ -14,4 +14,6 @@ cd data
 ./make_data_files.py
 cd ..
 ./configure --prefix=$UCVM_INSTALL_PATH/model/cvmhlabn
+make
+make install
 
