@@ -15,7 +15,7 @@ version 21.10.0 or higher.
 
 This package can also be tested in standalone mode by,
 
-<pre>
+```
 aclocal
 automake --add-missing
 autoconf
@@ -25,7 +25,7 @@ cd data; ./make_data_files.py
 make
 make install
 make run_test
-</pre>
+```
 
 ### Usage
 
