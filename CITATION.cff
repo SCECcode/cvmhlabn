@@ -1,20 +1,20 @@
 cff-version: 1.2.0
 authors:
-  - family-names: SCEC
-    given-names: USC
-date-released: "2021-12-15"
+  - family-names: "SCEC"
+    given-names: "USC"
+date-released: 2021-12-15
 identifiers:
-- description: "The GitHub version 1.0."
+- description: "The GitHub version 1.0"
     type: doi
     value: TBD
-- description: "The GitHub release URL of tag 1.1.0."
+- description: "The GitHub release URL of tag 1.1.0"
     type: url
     value: "https://github.com/SCECcode//cvmhlabn.git/releases/tag/1.0"
 keywords:
   - "UCVM"
   - research
 license: BSD-3-Clause
-message: "If you use this software, please cite it using these metadata."
+message: "If you use this software, please cite it using these metadata"
 repository-code: "https://github.com/SCECcode//cvmhlabn.git"
 title: "CVMH15-1-Los-Angeles-Basin (cvmhlabn)"
 version: 1.0
@@ -24,21 +24,21 @@ contact:
 references:
   - authors:
       - name: "CVMH"
-    date-released: "2021-07-26"
+    date-released: 2021-07-26
     doi: TBD
     repository-code: "https://github.com/SCECcode/cvmh.git"
     title: "CVMH Model"
     type: software
     version: 15.1.0
   - authors:
-      - family-names: Plesch
-        given-names: A.
-      - family-names: Thurber
-        given-names: C.H.
-      - family-names: Tape
-        given-names: C.
-      - family-names: Shaw
-        given-names: J.H.
+      - family-names: "Plesch"
+        given-names: "A."
+      - family-names: "Thurber"
+        given-names: "C.H."
+      - family-names: "Tape"
+        given-names: "C."
+      - family-names: "Shaw"
+        given-names: "J.H."
     doi: TBD
     keywords: CVM, UCVM, velocity models, tomography, web, basins
     scope: "Cite this paper if you want to reference the model"
