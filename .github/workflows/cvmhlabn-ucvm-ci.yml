@@ -17,7 +17,7 @@ jobs:
       run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/target" >> $GITHUB_ENV
 ### build ucvm(basin) first 
     - id: build-ucvm 
-      uses: SCECcode/UCVM/.github/actions/action_ucvm_basin
+      uses: SCECcode/UCVM/.github/actions/action_ucvm_basin@main
     - run: echo build-log ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
 ### build cvmhlabn at the ucvm's model location  
