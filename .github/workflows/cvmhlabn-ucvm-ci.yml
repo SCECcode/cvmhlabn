@@ -1,0 +1,33 @@
+name: cvmhlabn2-ci
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  cvmhlabn-build-ucvm-mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+    - name: set UCVM_SRC_PATH 
+      run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/ucvm" >> $GITHUB_ENV
+    - name: set UCVM_INSTALL_PATH 
+      run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/target" >> $GITHUB_ENV
+### build ucvm(basin) first 
+    - id: build-ucvm 
+      uses: SCECcode/UCVMC/.github/actions@action_ucvm
+    - run: echo build-log ${{ steps.build-ucvm.outputs.build-log }}
+      shell: bash
+###
+    - name: checkout cvmhlabn main
+      uses: actions/checkout@v2
+      with: 
+        ref: main
+    - name: build cvmhlabn with ucvm
+      run: ./.github/scripts/cvmhlabn-build-ucvm.sh 
+      shell: bash
+#    - name: test cvmhlabn with ucvm
+#      run: ./.github/scripts/cvmhlabn-test-ucvm.sh
+#      shell: bash
