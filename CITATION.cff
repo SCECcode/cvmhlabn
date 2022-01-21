@@ -1,8 +1,7 @@
-abstract: "CVMHLABN, a Los Angeles Basin model"
+cff-version: 1.2.0
 authors:
   - family-names: SCEC
     given-names: USC
-cff-version: 1.2.0
 date-released: "2021-12-15"
 identifiers:
 - description: "The GitHub version 1.0."
