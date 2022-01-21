@@ -18,6 +18,8 @@ jobs:
 ### build ucvm(basin) first 
     - id: build-ucvm 
       uses: SCECcode/UCVM/.github/actions@action_ucvm
+      with:
+        ref: basin
     - run: echo build-log ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
 ### build cvmhlabn at the ucvm's model location  
