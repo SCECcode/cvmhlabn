@@ -28,7 +28,8 @@ jobs:
              echo " github.action_path =>"${{ github.action_path }};)
       shell: bash
     - id: build-ucvm
-      run: (cd $UCVM_SRC_PATH; .github/actions/action_ucvm.yml)
+    - run: cd $UCVM_SRC_PATH
+    - run: .github/actions/action_ucvm.yml
       with:
         target-models: 'cvmh'
 ### build cvmhlabn at the ucvm's model location  
