@@ -34,7 +34,7 @@ jobs:
 #    - id: bulid-ucvm
 #       run: $UCVM_SRC_PATH/.github/actions/action_ucvm.yml
 #       with:
-#         target-models: 'cvmh'
+#         target-model: 'cvmh'
 ### build cvmhlabn at the ucvm's model location  
 #    - name: move to the model location
 #      run: (cd $UCVM_SRC_PATH/work/model)
