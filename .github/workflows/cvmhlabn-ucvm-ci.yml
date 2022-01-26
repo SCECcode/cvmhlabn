@@ -30,10 +30,12 @@ jobs:
              echo " github.action_path =>"${{ github.action_path }};)
       shell: bash
     - id: build-ucvm
-      uses: $UCVM_SRC_PATH/.github/actions/action_ucvm.yml
+      uses: $UCVM_SRC_PATH/.github/actions
+      run: action_ucvm.yml
       with:
         target-model: 'cvmh'
-    - run: echo ${{ steps.build-ucvm.outputs.build-log }}
+    - id: get-result
+      run: echo ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
 ### build cvmhlabn at the ucvm's model location  
 #    - name: move to the model location
