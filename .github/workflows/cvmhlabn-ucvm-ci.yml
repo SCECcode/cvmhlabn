@@ -32,6 +32,8 @@ jobs:
     - id: build-ucvm
       uses: actions/UCVM@v1
       with:
+         repository: 'SCECcode/UCVM'
+         ref: basin
          initiating-model: 'cvmhlabn'
 
 #      run: more $UCVM_SRC_PATH/.github/actions/action_ucvm.yml
