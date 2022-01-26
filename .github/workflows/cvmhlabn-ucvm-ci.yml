@@ -30,9 +30,8 @@ jobs:
              echo " github.action_path =>"${{ github.action_path }};)
       shell: bash
     - id: build-ucvm
-      uses: actions/UCVM@v1
+      uses: SCECcode/UCVM/.github/actions/action@v1
       with:
-         repository: 'SCECcode/UCVM'
          ref: basin
          initiating-model: 'cvmhlabn'
 
