@@ -30,7 +30,7 @@ jobs:
              echo " github.action_path =>"${{ github.action_path }};)
       shell: bash
     - id: build-ucvm
-      uses: $UCVM_SRC_PATH/.github/actions/action_ucvm
+      uses: $UCVM_SRC_PATH/.github/actions
       with:
         target-model: 'cvmh'
     - id: get-result
