@@ -33,7 +33,7 @@ jobs:
       uses: SCECcode/UCVM/.github/actions@v1
       with:
          initiating-repo: 'cvmhlabn'
-         target-nodel: 'cvmhlabn'
+         target-model: 'cvmhlabn'
 
 #    - id: get-result
 #      run: echo ${{ steps.build-ucvm.outputs.build-log }}
