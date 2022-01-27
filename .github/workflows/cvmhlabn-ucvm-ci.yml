@@ -23,8 +23,8 @@ jobs:
         ref: basin
         path: ucvm
     - id: look-around
-      run: ( echo " pwd =>"pwd;
-             echo " ls =>"ls;
+      run: ( echo " pwd =>";pwd;
+             echo " ls =>";ls;
              echo " RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
              echo " UCVM_SRC_PATH =>"$UCVM_SRC_PATH;
              echo " github.action_path =>"${{ github.action_path }};)
@@ -33,13 +33,8 @@ jobs:
       uses: SCECcode/UCVM/.github/actions@v1
       with:
          initiating-repo: 'cvmhlabn'
+         target-nodel: 'cvmhlabn'
 
-#      run: more $UCVM_SRC_PATH/.github/actions/action_ucvm.yml
-#      shell: bash
-#    - id: build-ucvm
-#      uses: $UCVM_SRC_PATH/.github/actions
-#      with:
-#        target-model: 'cvmh'
 #    - id: get-result
 #      run: echo ${{ steps.build-ucvm.outputs.build-log }}
 #      shell: bash
