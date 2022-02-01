@@ -342,7 +342,7 @@ int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpo
  * @param val, it is actually just 1 int
  * @return Success or fail.
  */
-int model_setparam(int id, int param, val) {
+int model_setparam(int id, int param, int val) {
 	return cvmhlabn_setparam(id, param, val);
 }
 
