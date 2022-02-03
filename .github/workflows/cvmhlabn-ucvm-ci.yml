@@ -38,7 +38,7 @@ jobs:
     - id: get-result
       run: echo ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
-### build cvmhlabn at the ucvm's model location  
+### build cvmhlabn 
     - name: move to the model location
       run: (cd $UCVM_SRC_PATH/work/model)
       shell: bash
@@ -46,13 +46,19 @@ jobs:
       uses: actions/checkout@v2
       with: 
         path: $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn
-    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
-             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
-             echo " cvmhlabn-ucvm-ci2:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
-             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
+    - name: build cvmhlabn 
+      run: ./.github/scripts/cvmhlabn-build.sh
       shell: bash
-#    - name: build cvmhlabn with ucvm
-#      run: ./.github/scripts/cvmhlabn-build-ucvm.sh 
+
+### check ucvm is still valid
+    - name: check on ucvm
+      run: (more $UCVM_INSTALL_PATH/install/conf/ucvm_env.sh)
+      shell: bash
+
+#    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
+#             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
+#             echo " cvmhlabn-ucvm-ci2:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
+#             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
 #      shell: bash
 #    - name: test cvmhlabn with ucvm
 #      run: ./.github/scripts/cvmhlabn-test-ucvm.sh

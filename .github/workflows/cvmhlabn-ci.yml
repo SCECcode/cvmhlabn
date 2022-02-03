@@ -19,8 +19,8 @@ jobs:
       uses: actions/checkout@v2
       with: 
         ref: main
-    - name: build cvmhlabn standalone 
-      run: ./.github/scripts/cvmhlabn-build-standalone.sh 
+    - name: build cvmhlabn 
+      run: ./.github/scripts/cvmhlabn-build.sh 
       shell: bash
     - name: test cvmhlabn standalone
       run: ./.github/scripts/cvmhlabn-test-standalone.sh
