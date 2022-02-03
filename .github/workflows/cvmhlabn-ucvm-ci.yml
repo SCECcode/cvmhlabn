@@ -39,13 +39,13 @@ jobs:
       run: echo ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
 ### build cvmhlabn 
-    - name: move to the model location
-      run: (cd $UCVM_SRC_PATH/work/model)
-      shell: bash
     - name: checkout cvmhlabn main
       uses: actions/checkout@v2
       with: 
         path: $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn
+    - name: move to the cvmhlabn location
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
+      shell: bash
     - name: build cvmhlabn 
       run: ./.github/scripts/cvmhlabn-build.sh
       shell: bash
