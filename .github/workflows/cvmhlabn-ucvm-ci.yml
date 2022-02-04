@@ -63,7 +63,7 @@ jobs:
       shell: bash
 
     - name: test cvmhlabn standalone
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-standalone.sh)
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; more ./.github/scripts/cvmhlabn-test-standalone.sh; ./.github/scripts/cvmhlabn-test-standalone.sh)
       shell: bash
 
 #    - name: test cvmhlabn with ucvm
