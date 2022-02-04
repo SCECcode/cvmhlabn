@@ -47,9 +47,9 @@ jobs:
 ### build cvmhlabn from github 
     - name: checkout cvmhlabn main
       uses: actions/checkout@v2
-      with: 
-        path: $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model
-
+    - name: move it to the right location
+      run: (ls; mv cvmh $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
+      shell: bash
     - name: check model dir again
       run: (ls $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
       shell: bash
