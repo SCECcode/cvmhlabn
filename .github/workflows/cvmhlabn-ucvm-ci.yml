@@ -48,13 +48,14 @@ jobs:
     - name: checkout cvmhlabn main
       uses: actions/checkout@v2
       with: 
-        path: $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn
-    - name: move to the cvmhlabn location
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
-      shell: bash
+        path: $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model
 
     - name: check model dir again
       run: (ls $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
+      shell: bash
+
+    - name: move to the cvmhlabn location
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
       shell: bash
 
     - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
