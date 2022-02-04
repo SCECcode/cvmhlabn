@@ -38,13 +38,23 @@ jobs:
     - id: get-result
       run: echo ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
-### build cvmhlabn 
+    - name: move default cvmhlabn away
+      run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
+      shell: bash
+    - name: check model dir
+      run: (ls $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
+      shell: bash
+### build cvmhlabn from github 
     - name: checkout cvmhlabn main
       uses: actions/checkout@v2
       with: 
         path: $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn
     - name: move to the cvmhlabn location
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
+      shell: bash
+
+    - name: check model dir again
+      run: (ls $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
       shell: bash
 
     - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
