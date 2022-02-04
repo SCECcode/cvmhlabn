@@ -59,7 +59,7 @@ jobs:
 
 ### check ucvm is still valid
     - name: check on ucvm
-      run: (more $UCVM_INSTALL_PATH/install/conf/ucvm_env.sh)
+      run: (more $UCVM_INSTALL_PATH/conf/ucvm_env.sh)
       shell: bash
 
 #    - name: test cvmhlabn with ucvm
