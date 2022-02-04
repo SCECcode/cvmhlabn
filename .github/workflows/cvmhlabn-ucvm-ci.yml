@@ -38,11 +38,8 @@ jobs:
     - id: get-result
       run: echo ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
-    - name: move default cvmhlabn away
+    - name: move stock cvmhlabn away
       run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
-      shell: bash
-    - name: check model dir
-      run: (ls $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
       shell: bash
 ### build cvmhlabn from github 
     - name: checkout cvmhlabn main
@@ -50,29 +47,27 @@ jobs:
       with: 
         path: cvmhlabn
     - name: move it to the right location
-      run: (pwd;ls; mv cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
+      run: (pwd; ls; mv cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
       shell: bash
-    - name: check model dir again
-      run: (ls $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model)
-      shell: bash
-
     - name: move to the cvmhlabn location
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
       shell: bash
-
-    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
-             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
-             echo " cvmhlabn-ucvm-ci2:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
-             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
-      shell: bash
-
-#    - name: build cvmhlabn 
-#      run: ./.github/scripts/cvmhlabn-build.sh
+#    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
+#             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
+#             echo " cvmhlabn-ucvm-ci2:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
+#             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
 #      shell: bash
+    - name: build cvmhlabn as part of ucvm 
+      run: ./.github/scripts/cvmhlabn-build.sh
+      shell: bash
 
 ### check ucvm is still valid
     - name: check on ucvm
-      run: (more $UCVM_INSTALL_PATH/conf/ucvm_env.sh)
+      run: (more $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ucvm_query -H)
+      shell: bash
+
+    - name: test cvmhlabn standalone
+      run: ./.github/scripts/cvmhlabn-test-standalone.sh
       shell: bash
 
 #    - name: test cvmhlabn with ucvm
