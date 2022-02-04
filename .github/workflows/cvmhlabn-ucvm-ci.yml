@@ -50,7 +50,7 @@ jobs:
       run: (mv cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model; pwd; ls)
       shell: bash
     - name: move to the cvmhlabn location
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; pwd)
       shell: bash
 #    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
 #             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
@@ -58,7 +58,7 @@ jobs:
 #             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
 #      shell: bash
     - name: build cvmhlabn as part of ucvm 
-      run: (ls; .github/scripts/cvmhlabn-build.sh)
+      run: (pwd;ls; .github/scripts/cvmhlabn-build.sh)
       shell: bash
 
 ### check ucvm is still valid
