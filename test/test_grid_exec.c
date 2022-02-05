@@ -46,6 +46,8 @@ int test_cvmhlabn_grid_elev()
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
     printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
     return(1);
   }
 
@@ -81,6 +83,8 @@ int test_cvmhlabn_grid_depth()
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
     printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
     return(1);
   }
 
@@ -116,6 +120,8 @@ int test_cvmhlabn_grid_offset()
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
     printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
     return(1);
   }
 
@@ -155,6 +161,8 @@ int test_vx_lite_cvmhlabn_grid_elev()
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
     printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
     return(1);
   }
 
@@ -190,6 +198,8 @@ int test_vx_lite_cvmhlabn_grid_depth()
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
     printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
     return(1);
   }
 
@@ -228,6 +238,8 @@ int test_vx_lite_cvmhlabn_grid_offset()
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
     printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
     return(1);
   }
 
