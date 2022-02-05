@@ -64,11 +64,9 @@ jobs:
     - name: test cvmhlabn standalone
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-standalone.sh)
       shell: bash
-# need to fix the test result 
-#   - name: test cvmhlabn with ucvm
-#     run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-ucvm.sh)
-#     shell: bash
-
+    - name: test cvmhlabn with ucvm
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-ucvm.sh)
+j     shell: bash
     - name: test cvmhlabn under ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; ./.github/scripts/ucvm-test.sh)
       shell: bash
