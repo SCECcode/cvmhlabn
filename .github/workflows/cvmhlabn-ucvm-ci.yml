@@ -36,7 +36,7 @@ jobs:
          target-model: 'cvmhlabn'
 
     - id: get-result
-      run: echo ${{ steps.build-ucvm.outputs.build-log }}
+      run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
     - name: move stock cvmhlabn away
       run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
@@ -102,7 +102,7 @@ jobs:
          target-model: 'cvmhlabn'
 
     - id: get-result
-      run: echo ${{ steps.build-ucvm.outputs.build-log }}
+      run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
     - name: move stock cvmhlabn away
       run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
