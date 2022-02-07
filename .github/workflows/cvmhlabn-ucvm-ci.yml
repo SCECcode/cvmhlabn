@@ -62,13 +62,13 @@ jobs:
       run: (source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ucvm_query -H)
       shell: bash
     - name: test cvmhlabn standalone
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-standalone.sh)
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/cvmhlabn-test-standalone.sh)
       shell: bash
     - name: test cvmhlabn with ucvm
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-ucvm.sh)
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/cvmhlabn-test-ucvm.sh)
       shell: bash
     - name: test cvmhlabn under ucvm
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; ./.github/scripts/ucvm-test.sh)
+      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/ucvm-test.sh)
       shell: bash
 
   cvmhlabn-build-ucvm-linux:
