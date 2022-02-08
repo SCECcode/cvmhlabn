@@ -1,5 +1,9 @@
 name: test-ci
 
+on:
+  push:
+    branches: [ main ]
+
 jobs:
   cvmhlabn-test-linux:
     runs-on: ubuntu-latest
