@@ -1,5 +1,6 @@
 name: test-ci
 
+jobs:
   cvmhlabn-test-linux:
     runs-on: ubuntu-latest
     strategy:
