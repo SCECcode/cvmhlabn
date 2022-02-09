@@ -66,9 +66,10 @@ jobs:
 #       env:
 #           NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
 #           USER_PASS: ${{ secrets.NGROK_SECRET }}
-#     - name: Don't kill instace
-#       if: ${{ failure() }}
+    - name: Don't kill instace
+       if: ${{ failure() }}
 #       run: sleep 1h # Prevent to killing instance after failure
+       run: (echo "HELLO")
     - name: test cvmhlabn under ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/ucvm-test.sh)
       shell: bash
