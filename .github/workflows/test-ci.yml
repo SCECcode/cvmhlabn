@@ -56,23 +56,19 @@ jobs:
     - name: check on ucvm
       run: (source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ucvm_query -H)
       shell: bash
-#    - name: test cvmhlabn standalone
-#      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-test-standalone.sh)
-#      shell: bash
     - name: test cvmhlabn with ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/cvmhlabn-test-ucvm.sh)
       shell: bash
 
-     - name: Start SSH via Ngrok
-       if: ${{ failure() }}
-       run: curl -sL https://gist.githubusercontent.com/retyui/7115bb6acf151351a143ec8f96a7c561/raw/7099b9db76729dc5761da72aa8525f632d8875c9/debug-github-actions.sh | bash
-       env:
-           NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
-           USER_PASS: ${{ secrets.NGROK_SECRET }}
+#     - name: Start SSH via Ngrok
+#       if: ${{ failure() }}
+#       run: curl -sL https://gist.githubusercontent.com/retyui/7115bb6acf151351a143ec8f96a7c561/raw/7099b9db76729dc5761da72aa8525f632d8875c9/debug-github-actions.sh | bash
+#       env:
+#           NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
+#           USER_PASS: ${{ secrets.NGROK_SECRET }}
 #     - name: Don't kill instace
 #       if: ${{ failure() }}
 #       run: sleep 1h # Prevent to killing instance after failure
-
     - name: test cvmhlabn under ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/ucvm-test.sh)
       shell: bash
