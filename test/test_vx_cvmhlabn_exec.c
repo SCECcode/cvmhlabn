@@ -31,7 +31,7 @@ int test_vx_cvhmlabn_points_elevation()
   printf("Test: vx_cvmhlabn executable w/ elevation option\n");
 
   /* Save current directory */
-  getcwd(currentdir, 1280);
+  getcwd(currentdir, 1000);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_elev.in");
   sprintf(outfile, "%s/%s", currentdir, 
@@ -115,7 +115,7 @@ int test_vx_cvhmlabn_points_offset()
   printf("Test: vx_cvmhlabn executable w/ offset(none) option\n");
 
   /* Save current directory */
-  getcwd(currentdir, 1280);
+  getcwd(currentdir, 1000);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_offset.in");
   sprintf(outfile, "%s/%s", currentdir, 
@@ -149,7 +149,7 @@ int test_vx_cvhmlabn_points_offset()
 int suite_vx_cvmhlabn_exec(const char *xmldir)
 {
   suite_t suite;
-  char logfile[1000];
+  char logfile[1280];
   FILE *lf = NULL;
 
   /* Setup test suite */

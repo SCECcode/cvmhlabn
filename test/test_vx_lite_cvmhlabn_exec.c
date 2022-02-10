@@ -149,7 +149,7 @@ int test_vx_lite_cvhmlabn_points_offset()
 int suite_vx_lite_cvmhlabn_exec(const char *xmldir)
 {
   suite_t suite;
-  char logfile[1000];
+  char logfile[1280];
   FILE *lf = NULL;
 
   /* Setup test suite */
