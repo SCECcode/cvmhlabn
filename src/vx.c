@@ -74,9 +74,6 @@ FILE *LALR;
 char HR_PAR[CMLEN]="CVM_HR.vo";
 FILE *LAHR;
 
-//char MR_PAR[CMLEN]="HUSCV.vo";
-//FILE *LAMR;
-
 char CM_PAR[CMLEN]="CVM_CM.vo";
 FILE *LACM;
 

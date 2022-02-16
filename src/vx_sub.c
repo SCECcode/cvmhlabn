@@ -491,11 +491,14 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
   int gcoor[3];
   int do_bkg = False;
   float surface, mtop;
-  double elev, depth, zt, topo_gap;
+  double zmode_val, depth, zt, topo_gap;
   double incoor[3];
 
-  /* Initialize variables */
-  elev = 0.0;
+  /* Initialize variables,
+           zmode_val = elev, in cvmh default data mode 
+           depth = surface - coord_utm[2], which is offset from surface, 
+                which is use to check if it is within the 'GTL' roi */
+  zmode_val = 0.0;
   depth = 0.0;
   zt = 0.0;
   topo_gap = 0.0;
@@ -567,20 +570,21 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 
     /* Convert depth/offset Z coordinate to elevation */
     if (enhanced == True) {
-      elev = entry->coor_utm[2];
+      zmode_value = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
       if (surface < -90000.0) {
 	return(1);
       }
       switch (vx_zmode) {
       case VX_ZMODE_ELEV:
+	entry->coor[2] = zmode_value;
 	break;
       case VX_ZMODE_DEPTH:
-	entry->coor[2] = surface - elev;
+	entry->coor[2] = surface - zmode_value;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
       case VX_ZMODE_ELEVOFF:
-	entry->coor[2] = surface + elev;
+	entry->coor[2] = surface + zmode_value;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
       default:
@@ -684,8 +688,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	  entry->coor[2] = surface - zt;
 	  entry->coor_utm[2] = surface - zt;
 	  vx_getcoord_private(entry, False);
-	  entry->coor[2] = elev;
-	  entry->coor_utm[2] = elev;
+	  entry->coor[2] = zmode_val;
+	  entry->coor_utm[2] = zmode_val;
 	  
 	  // We are inside core CVM-H model. Apply GTL
 	  if (vx_apply_gtl_entry(entry, depth, topo_gap) != 0) {
