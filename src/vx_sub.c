@@ -570,21 +570,21 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 
     /* Convert depth/offset Z coordinate to elevation */
     if (enhanced == True) {
-      zmode_value = entry->coor_utm[2];
+      zmode_val = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
       if (surface < -90000.0) {
 	return(1);
       }
       switch (vx_zmode) {
       case VX_ZMODE_ELEV:
-	entry->coor[2] = zmode_value;
+	entry->coor[2] = zmode_val;
 	break;
       case VX_ZMODE_DEPTH:
-	entry->coor[2] = surface - zmode_value;
+	entry->coor[2] = surface - zmode_val;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
       case VX_ZMODE_ELEVOFF:
-	entry->coor[2] = surface + zmode_value;
+	entry->coor[2] = surface + zmode_val;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
       default:
