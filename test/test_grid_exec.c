@@ -25,10 +25,7 @@ int test_cvmhlabn_grid_elev()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: model w/ large grid in elevation mode\n");
-
-  printf("TODO\n");
-  return(0);
+  printf("Test: model with large grid in elevation mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -65,7 +62,7 @@ int test_cvmhlabn_grid_depth()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: model w/ large grid in depth mode\n");
+  printf("Test: model with large grid in depth mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -102,7 +99,7 @@ int test_cvmhlabn_grid_offset()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: model w/ large grid in offset mode\n");
+  printf("Test: model with large grid in offset mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -140,10 +137,7 @@ int test_vx_lite_cvmhlabn_grid_elev()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ large grid in elevation mode\n");
-
-  printf("TODO\n");
-  return(0);
+  printf("Test: vx_lite_cvmhlabn executable with large grid in elevation mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -180,7 +174,7 @@ int test_vx_lite_cvmhlabn_grid_depth()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ large grid in depth mode\n");
+  printf("Test: vx_lite_cvmhlabn executable with large grid in depth mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -217,7 +211,7 @@ int test_vx_lite_cvmhlabn_grid_offset()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ large grid in elev offset mode\n");
+  printf("Test: vx_lite_cvmhlabn executable with large grid in elev offset mode\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);

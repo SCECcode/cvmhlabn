@@ -431,6 +431,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     if (enhanced == True) {
       elev = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
+      if(cvmhlabn_debug) { fprintf(stderr," surface -- %lf\n", surface); }
       if (surface < -90000.0) {
 	return(1);
       }
@@ -452,9 +453,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       depth = surface - entry->coor_utm[2];
     }
 
-//fprintf(stderr,"   IN private query..\n");
-//fprintf(stderr,"      entry : %lf %lf %lf\n", entry->coor[0], entry->coor[1], entry->coor[2]);
-
+    if(cvmhlabn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
+                                                        entry->coor[0], entry->coor[1], entry->coor[2]); }
     if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
 	 the grid spacing. The -1 is necessary to do the counting 
@@ -496,6 +496,8 @@ if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(
       entry->rho = calc_rho(entry->vp, entry->data_src);
     }
   }
+
+  if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f) rho(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs, entry->rho); }
 
   if(0) {
     fprintf(stderr,"KEEP warnings down: topo_gap(%lf) zt(%lf) depth(%lf)\n",topo_gap,zt,depth);

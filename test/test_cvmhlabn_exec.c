@@ -140,7 +140,7 @@ int test_query_by_elevation()
   // Query a point.
   pt.longitude = -118.1;
   pt.latitude = 34.0;
-  pt.depth = -1500;
+  pt.depth = -1500; // elevation
 
   if (test_assert_int(model_query(&pt, &ret, 1), 0) != 0) {
       return(1);

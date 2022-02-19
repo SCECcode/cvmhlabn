@@ -28,9 +28,9 @@ double cvmhlabn_total_height_m = 0;
 double cvmhlabn_total_width_m = 0;
 /*************************************/
 
-int debug=0;
+int cvmhlabn_ucvm_debug=0;
 int cvmhlabn_force_depth = 0;
-int cvmhlabn_zmode = VX_ZMODE_ELEVOFF;
+int cvmhlabn_zmode = VX_ZMODE_DEPTH;
 
 /**
  * Initializes the CVMHLABN plugin model within the UCVM framework. In order to initialize
@@ -100,14 +100,15 @@ int cvmhlabn_setparam(int id, int param, ...)
       switch (zmode) {
         case CVMHLABN_COORD_GEO_DEPTH:
           cvmhlabn_zmode = VX_ZMODE_DEPTH;
-          if(debug) fprintf(stderr,"cvmhlabn_setparam >>  depth\n");
+          if(cvmhlabn_ucvm_debug) fprintf(stderr,"cvmhlabn_setparam >>  depth\n");
           break;
         case CVMHLABN_COORD_GEO_ELEV:
           cvmhlabn_zmode = VX_ZMODE_ELEV;
-          if(debug) fprintf(stderr,"cvmhlabn_setparam >>  elevation\n");
+          if(cvmhlabn_ucvm_debug) fprintf(stderr,"cvmhlabn_setparam >>  elevation\n");
           break;
         default:
-          if(debug) fprintf(stderr,"cvmhlabn_setparam >>  use offset\n");
+          cvmhlabn_zmode = VX_ZMODE_ELEVOFF;
+          if(cvmhlabn_ucvm_debug) fprintf(stderr,"cvmhlabn_setparam >>  use offset\n");
           break;
        }
        vx_setzmode(cvmhlabn_zmode);
@@ -151,13 +152,16 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         entry.coor[1]=points[i].latitude;
         entry.coor_type = cvmhlabn_zmode;
         vx_getsurface(&(entry.coor[0]), entry.coor_type, &vx_surf);
-        if(debug) {
+        if(cvmhlabn_ucvm_debug) {
            fprintf(stderr, "cvmhlabn_query: surface is %f vs initial query depth %f\n", vx_surf, points[i].depth);
         }
         if (vx_surf - VX_NO_DATA < 0.01) {
           /* Fallback to using UCVM topo */
           entry.coor[2]=points[i].depth;
         } else {
+          if(cvmhlabn_ucvm_debug) {
+            fprintf(stderr,"POTENTIAL problem if cvmhlabn surface differ from UCVM surface !!!\n");
+          }
           entry.coor[2]=vx_surf - points[i].depth;
         }
       } else {
@@ -177,7 +181,7 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
       /* Query the point */
       int rc=vx_getcoord(&entry);
 
-      if(debug) {
+      if(cvmhlabn_ucvm_debug) {
         printf("%14.6f %15.6f %9.2f \n",
                entry.coor[0], entry.coor[1], entry.coor[2]);
         /* AP: Let's provide the computed UTM coordinates as well */
@@ -194,7 +198,7 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
         printf("%9.2f\n", entry.rho);
       }
 
-      if(debug) {
+      if(cvmhlabn_ucvm_debug) {
         fprintf(stderr,">>> a point..rc(%d)->",rc);
         switch(entry.data_src) {
           case VX_SRC_NR: {fprintf(stderr,"GOT VX_SRC_NR\n"); break; }

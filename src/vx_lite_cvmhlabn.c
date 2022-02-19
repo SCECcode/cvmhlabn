@@ -15,8 +15,9 @@
 #include <math.h>
 #include <getopt.h>
 #include "params.h"
-#include "vx_sub.h"
+#include "vx_sub_cvmhlabn.h"
 
+extern int cvmhlabn_debug;
 
 /* Usage function */
 void usage() {
@@ -49,8 +50,11 @@ int main (int argc, char *argv[])
   strcpy(modeldir, ".");
 
   /* Parse options */
-  while ((opt = getopt(argc, argv, "m:z:h")) != -1) {
+  while ((opt = getopt(argc, argv, "dm:z:h")) != -1) {
     switch (opt) {
+    case 'd': // enable debug mode
+      cvmhlabn_debug=1;
+      break;
     case 'm':
       strcpy(modeldir, optarg);
       break;

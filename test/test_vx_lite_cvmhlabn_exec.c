@@ -28,7 +28,7 @@ int test_vx_lite_cvhmlabn_points_elevation()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ elevation option\n");
+  printf("Test: vx_lite_cvmhlabn executable with elevation option\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -70,7 +70,7 @@ int test_vx_lite_cvhmlabn_points_depth()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ depth option\n");
+  printf("Test: vx_lite_cvmhlabn executable with depth option\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
@@ -112,7 +112,7 @@ int test_vx_lite_cvhmlabn_points_offset()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable w/ offset(none) option\n");
+  printf("Test: vx_lite_cvmhlabn executable with offset(none) option\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);

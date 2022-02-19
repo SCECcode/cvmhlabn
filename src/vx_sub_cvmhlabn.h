@@ -1,5 +1,5 @@
-#ifndef VX_SUB_H
-#define VX_SUB_H
+#ifndef VX_SUB_CVMHLABN_H
+#define VX_SUB_CVMHLABN_H
 
 extern char *VX_SRC_NAMES[7];
 

@@ -19,7 +19,7 @@ int test_vx_lite_points_emulation()
   char reffile[128];
   char currentdir[128];
 
-  printf("Test: vx_lite executable w/ emulation option\n");
+  printf("Test: vx_lite executable with emulation option\n");
 
   /* Save current directory */
   getcwd(currentdir, 128);
@@ -61,7 +61,7 @@ int test_vx_lite_points_depth()
   char reffile[128];
   char currentdir[128];
 
-  printf("Test: vx_lite executable w/ depth option\n");
+  printf("Test: vx_lite executable with depth option\n");
 
   /* Save current directory */
   getcwd(currentdir, 128);
@@ -104,7 +104,7 @@ int test_vx_lite_points_scec()
   char reffile[128];
   char currentdir[128];
 
-  printf("Test: vx_lite executable w/ SCEC 1D bkg option\n");
+  printf("Test: vx_lite executable with SCEC 1D bkg option\n");
 
   /* Save current directory */
   getcwd(currentdir, 128);
