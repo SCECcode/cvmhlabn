@@ -54,8 +54,7 @@ int test_vx_lite_cvhmlabn_points_elevation()
     return(1);
   }
 
-//  unlink(infile);
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -98,8 +97,7 @@ int test_vx_lite_cvhmlabn_points_depth()
     return(1);
   }
 
-//  unlink(infile);
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -138,8 +136,7 @@ int test_vx_lite_cvhmlabn_points_offset()
     return(1);
   }
 
-//  unlink(infile);
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);

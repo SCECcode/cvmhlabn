@@ -1,7 +1,7 @@
-#include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "unittest_defs.h"
@@ -106,6 +106,12 @@ int save_elevation_test_points(const char* filename)
   char line[128]; 
   size_t retval;
 
+  // generate if not there
+  if(fp = fopen(filename, "r")) {
+    fclose(fp);
+    return(0);
+  }
+
   get_test_points(x, y, z, coord_types);
 
   fp = fopen(filename, "w");
@@ -133,8 +139,14 @@ int save_depth_test_points(const char* filename)
   vx_coord_t coord_types[MAX_TEST_POINTS];
   FILE *fp;
   int i;
-  char line[128]; // 
+  char line[128]; 
   size_t retval;
+
+  // generate if not there
+  if(fp = fopen(filename, "r")) {
+    fclose(fp);
+    return(0);
+  }
 
   get_test_points(x, y, z, coord_types);
   get_surf_values(surf);

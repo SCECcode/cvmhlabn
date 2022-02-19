@@ -48,7 +48,7 @@ int test_cvmhlabn_grid_elev()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
 
@@ -85,7 +85,7 @@ int test_cvmhlabn_grid_depth()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
 
@@ -122,7 +122,7 @@ int test_cvmhlabn_grid_offset()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
 
@@ -160,7 +160,7 @@ int test_vx_lite_cvmhlabn_grid_elev()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -197,7 +197,7 @@ int test_vx_lite_cvmhlabn_grid_depth()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -237,7 +237,7 @@ int test_vx_lite_cvmhlabn_grid_offset()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
