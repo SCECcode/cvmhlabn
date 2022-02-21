@@ -40,7 +40,7 @@ int (*callback_bkg)(vx_entry_t *entry, vx_request_t req_type) = NULL;
 
 /* Model state variables */
 static int is_setup = False;
-vx_zmode_t vx_zmode = VX_ZMODE_ELEV;
+vx_zmode_t vx_zmode = VX_ZMODE_ELEV; // default
 struct axis mr_a, hr_a, to_a;
 struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
 float step_to[3], step_hr[3];

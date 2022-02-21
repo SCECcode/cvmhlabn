@@ -104,6 +104,24 @@ int main(int argc, char* const argv[]) {
            if (fscanf(stdin,"%lf %lf %lf",
                &pt.longitude,&pt.latitude,&pt.depth) == 3) {
 
+// using cvmhlabn -- everything is depth so need to convert here..
+              if(zmode == CVMHLABN_COORD_GEO_ELEV ) {
+                double elev=pt.depth;
+                float surface;
+                double coor[3]; 
+                coor[0]=pt.longitude;
+                coor[1]=pt.latitude;
+                coor[2]=pt.depth;
+                vx_coord_t coor_type;
+                if ((coor[0]<360.) && (fabs(coor[1])<90)) {
+                   coor_type = VX_COORD_GEO;
+                   } else {
+                      coor_type = VX_COORD_UTM;
+                }
+                vx_getsurface(coor, coor_type, &surface);
+                pt.depth = surface - elev;
+              }
+
 	      rc=cvmhlabn_query(&pt, &ret, 1);
               if(rc == 0) {
                 printf("vs : %lf vp: %lf rho: %lf\n",ret.vs, ret.vp, ret.rho);

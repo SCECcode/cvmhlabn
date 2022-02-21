@@ -103,7 +103,10 @@ int cvmhlabn_setparam(int id, int param, ...)
           if(cvmhlabn_ucvm_debug) fprintf(stderr,"cvmhlabn_setparam >>  depth\n");
           break;
         case CVMHLABN_COORD_GEO_ELEV:
+/*****
+even if ucvm_query set elevation mode, still need to run as depth
           cvmhlabn_zmode = VX_ZMODE_ELEV;
+*****/
           if(cvmhlabn_ucvm_debug) fprintf(stderr,"cvmhlabn_setparam >>  elevation\n");
           break;
         default:

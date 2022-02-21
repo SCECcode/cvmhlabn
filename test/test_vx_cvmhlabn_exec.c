@@ -54,7 +54,7 @@ int test_vx_cvhmlabn_points_elevation()
     return(1);
   }
 
-  unlink(outfile);
+//  unlink(outfile);
 
   printf("PASS\n");
   return(0);
