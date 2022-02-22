@@ -20,7 +20,7 @@ jobs:
       uses: luchihoratiu/debug-via-ssh@main
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 600
+            NGROK_TIMEOUT: 10 
             SSH_PASS: DumDum$$22 
 #            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
@@ -96,6 +96,14 @@ jobs:
       run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/cvmhlabn/ucvm" >> $GITHUB_ENV
     - name: set UCVM_INSTALL_PATH 
       run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
+    - name: Start SSH via Ngrok 
+      if: ${{ success() }}
+      uses: luchihoratiu/debug-via-ssh@main
+      with:
+            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+            NGROK_TIMEOUT: 10 
+            SSH_PASS: DumDum$$22 
+#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
