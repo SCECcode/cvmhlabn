@@ -26,6 +26,7 @@ cvmhlabn_model_t *cvmhlabn_velocity_model;
 double cvmhlabn_total_height_m = 0;
 /** The width of this model's region, in meters. */
 double cvmhlabn_total_width_m = 0;
+
 /*************************************/
 
 int cvmhlabn_ucvm_debug=0;
