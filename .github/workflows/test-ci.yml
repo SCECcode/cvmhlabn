@@ -22,7 +22,7 @@ jobs:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
             NGROK_TIMEOUT: 3000
 #            SSH_PASS: ${{ secrets.NGROK_SECRET }}
-            SSH_PASS: 526AGatewaySCEC&
+            SSH_PASS: dumdum&22
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
@@ -74,7 +74,6 @@ jobs:
 #            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
 #            NGROK_TIMEOUT: 3000 
 #            SSH_PASS: ${{ secrets.NGROK_SECRET }}
-#            SSH_PASS: Murmal&001
     - name: test cvmhlabn under ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/ucvm-test.sh)
       shell: bash

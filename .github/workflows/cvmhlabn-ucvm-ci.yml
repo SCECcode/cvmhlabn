@@ -15,14 +15,14 @@ jobs:
       run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/cvmhlabn/ucvm" >> $GITHUB_ENV
     - name: set UCVM_INSTALL_PATH 
       run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
-    - name: Start SSH via Ngrok 
-      if: ${{ success() }}
-      uses: luchihoratiu/debug-via-ssh@main
-      with:
-            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 600 
-#            SSH_PASS: Murmal&001
-            SSH_PASS: ${{ secrets.NGROK_SECRET }}
+#    - name: Start SSH via Ngrok 
+#      if: ${{ success() }}
+#      uses: luchihoratiu/debug-via-ssh@main
+#      with:
+#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+#            NGROK_TIMEOUT: 600 
+##            SSH_PASS: Murmal&001
+#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
     - name: force an exit
       run: exit 1
 ### build ucvm(basin) first 
@@ -44,14 +44,13 @@ jobs:
       with:
          initiating-repo: 'cvmhlabn'
          target-model: 'cvmhlabn'
-#    - name: Start SSH via Ngrok when ucvm-test.sh fails
-#      if: ${{ failure() }}
-#      uses: luchihoratiu/debug-via-ssh@main
-#      with:
-#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-#            NGROK_TIMEOUT: 6000
-#            SSH_PASS: DumDum$$22 
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
+    - name: Start SSH via Ngrok when ucvm-test.sh fails
+      if: ${{ failure() }}
+      uses: luchihoratiu/debug-via-ssh@main
+      with:
+            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+            NGROK_TIMEOUT: 6000
+            SSH_PASS: ${{ secrets.NGROK_SECRET }}
     - id: get-result
       run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
