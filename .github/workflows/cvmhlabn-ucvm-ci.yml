@@ -21,8 +21,8 @@ jobs:
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
             NGROK_TIMEOUT: 600 
-#            SSH_PASS: Murmal&001
-            SSH_PASS: ${{ secrets.NGROK_SECRET }}
+            SSH_PASS: Murmal&001
+#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
     - name: force an exit
       run: exit 1
 ### build ucvm(basin) first 
