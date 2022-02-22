@@ -101,7 +101,7 @@ jobs:
       uses: luchihoratiu/debug-via-ssh@main
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 10 
+            NGROK_TIMEOUT: 6000 
             SSH_PASS: DumDum$$22 
 #            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
