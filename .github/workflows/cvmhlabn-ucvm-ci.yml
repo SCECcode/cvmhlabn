@@ -20,9 +20,9 @@ jobs:
       uses: luchihoratiu/debug-via-ssh@main
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 10 
-            SSH_PASS: DumDum$$22 
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
+            NGROK_TIMEOUT: 600 
+#            SSH_PASS: DumDum$$22 
+            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
@@ -102,8 +102,8 @@ jobs:
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
             NGROK_TIMEOUT: 6000 
-            SSH_PASS: Murmal&001 
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
+#            SSH_PASS: Murmal&001 
+            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
