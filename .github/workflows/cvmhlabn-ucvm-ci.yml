@@ -102,7 +102,7 @@ jobs:
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
             NGROK_TIMEOUT: 6000 
-            SSH_PASS: DumDum$$22 
+            SSH_PASS: Murmal&001 
 #            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
     - id: get-ucvm 
