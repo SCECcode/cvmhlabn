@@ -48,4 +48,3 @@ jobs:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
             NGROK_TIMEOUT: 6000
             SSH_PASS: ${{ secrets.NGROK_SECRET }}
-      shell: bash
