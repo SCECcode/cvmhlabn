@@ -295,7 +295,7 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
   step_to[2]=0.0;
 
   if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
-      step_hr[0]=step0hr;t
+      step_hr[0]=step0hr;
       step_hr[1]=step1hr;
       step_hr[2]=step2hr;
 fprintf(stderr,"===============SSSTEP %f %f %f\n", step0hr, step1hr, step2hr);
