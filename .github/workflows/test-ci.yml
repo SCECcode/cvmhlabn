@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  cvmhlabn-test-linux:
-    runs-on: ubuntu-latest
+  cvmhlabn-test-mac:
+    runs-on: macos-latest
     strategy:
       matrix:
         python-version: [3.7]
@@ -15,14 +15,13 @@ jobs:
       run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/cvmhlabn/ucvm" >> $GITHUB_ENV
     - name: set UCVM_INSTALL_PATH 
       run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
-    - name: Start SSH via Ngrok
-      if: ${{ success() }}
-      uses: luchihoratiu/debug-via-ssh@main
-      with:
-            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 3000
+#    - name: Start SSH via Ngrok
+#      if: ${{ success() }}
+#      uses: luchihoratiu/debug-via-ssh@main
+#      with:
+#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+#            NGROK_TIMEOUT: 3000
 #            SSH_PASS: ${{ secrets.NGROK_SECRET }}
-            SSH_PASS: dumdum&22
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
@@ -42,38 +41,11 @@ jobs:
       with:
          initiating-repo: 'cvmhlabn'
          target-model: 'cvmhlabn'
-
-    - id: get-result
-      run: more ${{ steps.build-ucvm.outputs.build-log }}
-      shell: bash
-    - name: move stock cvmhlabn away
-      run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
-      shell: bash
-### build cvmhlabn from github 
-    - name: checkout cvmhlabn main
-      uses: actions/checkout@v2
-      with: 
-        path: cvmhlabn
-    - name: move it to the right location
-      run: (mv cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model; pwd; ls)
-      shell: bash
-    - name: build cvmhlabn as part of ucvm 
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-build.sh)
-      shell: bash
-### check ucvm is still valid
-    - name: check on ucvm
-      run: (source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ucvm_query -H)
-      shell: bash
-    - name: test cvmhlabn with ucvm
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/cvmhlabn-test-ucvm.sh)
-      shell: bash
-#    - name: Start SSH via Ngrok
-#      if: ${{ failure() }}
-#      uses: luchihoratiu/debug-via-ssh@main
-#      with:
-#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-#            NGROK_TIMEOUT: 3000 
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
-    - name: test cvmhlabn under ucvm
-      run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/ucvm-test.sh)
+    - name: Start SSH via Ngrok when ucvm-test.sh fails
+      if: ${{ failure() }}
+      uses: luchihoratiu/debug-via-ssh@main
+      with:
+            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+            NGROK_TIMEOUT: 6000
+            SSH_PASS: ${{ secrets.NGROK_SECRET }}
       shell: bash
