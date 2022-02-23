@@ -15,16 +15,6 @@ jobs:
       run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/cvmhlabn/ucvm" >> $GITHUB_ENV
     - name: set UCVM_INSTALL_PATH 
       run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
-#    - name: Start SSH via Ngrok 
-#      if: ${{ success() }}
-#      uses: luchihoratiu/debug-via-ssh@main
-#      with:
-#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-#            NGROK_TIMEOUT: 600 
-##            SSH_PASS: Murmal&001
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
-#    - name: force an exit
-#      run: exit 1
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
@@ -44,13 +34,6 @@ jobs:
       with:
          initiating-repo: 'cvmhlabn'
          target-model: 'cvmhlabn'
-    - name: Start SSH via Ngrok when ucvm-test.sh fails
-      if: ${{ failure() }}
-      uses: luchihoratiu/debug-via-ssh@main
-      with:
-            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 6000
-            SSH_PASS: ${{ secrets.NGROK_SECRET }}
     - id: get-result
       run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
@@ -65,11 +48,6 @@ jobs:
     - name: move it to the right location
       run: (mv cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model; pwd; ls)
       shell: bash
-#    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
-#             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
-#             echo " cvmhlabn-ucvm-ci2:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
-#             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
-#      shell: bash
     - name: build cvmhlabn as part of ucvm 
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-build.sh)
       shell: bash
@@ -97,16 +75,6 @@ jobs:
       run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/cvmhlabn/ucvm" >> $GITHUB_ENV
     - name: set UCVM_INSTALL_PATH 
       run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
-    - name: force an exit
-      run: exit 1
-    - name: Start SSH via Ngrok 
-      if: ${{ success() }}
-      uses: luchihoratiu/debug-via-ssh@main
-      with:
-            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 6000 
-            SSH_PASS: Murmal&001 
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
 ### build ucvm(basin) first 
     - id: get-ucvm 
       uses: actions/checkout@v2
@@ -114,25 +82,11 @@ jobs:
         repository: 'SCECcode/UCVM'
         ref: basin
         path: ucvm
-    - id: look-around
-      run: ( echo " cvmhlabn-ucvm-ci:pwd =>";pwd;
-             echo " cvmhlabn-ucvm-ci:UCVM_SRC_PATH =>"$UCVM_SRC_PATH;
-             echo " cvmhlabn-ucvm-ci:UCVM_INSTALL_PATH =>"$UCVM_INSTALL_PATH;
-             echo " cvmhlabn-ucvm-ci:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
-             echo " cvmhlabn-ucvm-ci:github.action_path =>"${{ github.action_path }};)
-      shell: bash
     - id: build-ucvm
       uses: SCECcode/UCVM/.github/actions/build-action@v1
       with:
          initiating-repo: 'cvmhlabn'
          target-model: 'cvmhlabn'
-#    - name: Start SSH via Ngrok when ucvm-test.sh fails
-#      if: ${{ failure() }}
-#      uses: luchihoratiu/debug-via-ssh@main
-#      with:
-#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-#            NGROK_TIMEOUT: 6000
-#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
     - id: get-result
       run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
@@ -147,11 +101,6 @@ jobs:
     - name: move it to the right location
       run: (mv cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model; pwd; ls)
       shell: bash
-#    - run: ( echo " cvmhlabn-ucvm-ci2:pwd =>"; pwd;
-#             echo " cvmhlabn-ucvm-ci2:ls =>"; ls;
-#             echo " cvmhlabn-ucvm-ci2:RUNNER_WORKSPACE =>"$RUNNER_WORKSPACE;
-#             echo " cvmhlabn-ucvm-ci2:github.action_path =>"${{ github.action_path }};)
-#      shell: bash
     - name: build cvmhlabn as part of ucvm 
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; ./.github/scripts/cvmhlabn-build.sh)
       shell: bash

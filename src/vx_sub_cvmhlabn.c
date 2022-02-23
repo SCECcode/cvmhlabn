@@ -26,8 +26,8 @@
 #define ELEV_EPSILON 0.01
 #define MAX_ITER_ELEV 4
 
-int _debug=1;
-int cvmhlabn_debug=1;
+int _debug=0;
+int cvmhlabn_debug=0;
 
 
 /* Function declarations */
@@ -166,7 +166,6 @@ int vx_setup(const char *data_dir)
   vx_io_getpropsize("PROP_ESIZE",3,&p9.ESIZE);
   vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p9.NO_DATA_VALUE);
 
-fprintf(stderr,"===============SSSTEP %f %f %f\n", step0hr, step1hr, step2hr);
 if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p9.FN); }
 
   hrtbuffer=(char *)malloc(NCells*p9.ESIZE);
@@ -174,13 +173,11 @@ if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p9.FN); }
     fprintf(stderr, "Failed to allocate HR tag file\n");
     return(1);
   }
-fprintf(stderr,"===============SSSTEP %f %f %f\n", step0hr, step1hr, step2hr);
   if (vx_io_loadvolume(data_dir, p9.FN,
 		       p9.ESIZE,NCells,hrtbuffer) != 0) {
     fprintf(stderr, "Failed to load HR tag volume\n");
     return(1);
   }
-fprintf(stderr,"===============SSSTEP %f %f %f\n", step0hr, step1hr, step2hr);
 
   // and vs
   sprintf(p12.NAME,"vs63_basin");
@@ -298,7 +295,6 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
       step_hr[0]=step0hr;
       step_hr[1]=step1hr;
       step_hr[2]=step2hr;
-fprintf(stderr,"===============SSSTEP %f %f %f\n", step0hr, step1hr, step2hr);
       } else {
           step_hr[0]=hr_a.U[0]/(hr_a.N[0]-1);
           step_hr[1]=hr_a.V[1]/(hr_a.N[1]-1);
@@ -351,7 +347,7 @@ int vx_getcoord(vx_entry_t *entry) {
    disable advanced features like depth/offset query modes.
 */ 
 int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
-  int j;
+  int j=0;
   double SP[2],SPUTM[2];
   int gcoor[3];
   // fall into bkg
@@ -365,6 +361,9 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
   depth = 0.0;
   zt = 0.0;
   topo_gap = 0.0;
+  gcoor[0]=0;
+  gcoor[1]=0;
+  gcoor[2]=0;
 
 
   /* Proceed only if setup has been performed */
@@ -465,11 +464,6 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	 correctly. The rounding is necessary because the data are cell 
 	 centered, eg. they are valid half a cell width away from the 
 	 data point */
-
-{ fprintf(stderr,"XXX (HR)>>>>>> entry->coor_utm(%lf %lf %lf)\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]); }
-{ fprintf(stderr,"XXX (HR)>>>>>> hr(%lf %lf %lf)\n", hr_a.O[0], hr_a.O[1], hr_a.O[2]); }
-{ fprintf(stderr,"XXX (HR)>>>>>> step(%lf %lf %lf)\n", step_hr[0], step_hr[1], step_hr[2]); }  
-
 
       /* Extract vp/vs */      
       gcoor[0]=round((entry->coor_utm[0]-hr_a.O[0])/step_hr[0]);
