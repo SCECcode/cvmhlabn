@@ -132,7 +132,8 @@ even if ucvm_query set elevation mode, still need to run as depth
  * @return SUCCESS or FAIL.
  */
 int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
-  // setup >> points -> entry
+
+  // setup >> points -> entry (assume always Q in depth)
   // retrieve >> entry -> data
 
   for(int i=0; i<numpoints; i++) {
