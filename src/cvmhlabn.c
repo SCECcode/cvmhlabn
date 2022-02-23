@@ -29,7 +29,7 @@ double cvmhlabn_total_width_m = 0;
 
 /*************************************/
 
-int cvmhlabn_ucvm_debug=0;
+int cvmhlabn_ucvm_debug=1;
 int cvmhlabn_force_depth = 0;
 int cvmhlabn_zmode = VX_ZMODE_DEPTH;
 

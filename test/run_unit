@@ -2,10 +2,13 @@
 
 if [[ -z "${UCVM_INSTALL_PATH}" ]]; then
   if [[ -f "${UCVM_INSTALL_PATH}/model/cvmhlabn/lib" ]]; then
+    echo "HERE.." ${UCVM_INSTALL_PATH}/model/cvmhlabn/lib
     env DYLD_LIBRARY_PATH=${UCVM_INSTALL_PATH}/model/cvmhlabn/lib ./unittest
     exit
   fi
 fi
 
+echo "outside.."
+#env DYLD_LIBRARY_PATH=../src otool -L unittest
 env DYLD_LIBRARY_PATH=../src ./unittest
 
