@@ -38,7 +38,7 @@ jobs:
       run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
     - name: move stock cvmhlabn away
-      run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
+      run: (rm -rf $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
       shell: bash
 ### build cvmhlabn from github 
     - name: checkout cvmhlabn main
@@ -61,13 +61,13 @@ jobs:
     - name: test cvmhlabn with ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/cvmhlabn-test-ucvm.sh)
       shell: bash
-    - name: Start SSH via Ngrok
-      if: ${{ success() }}
-      uses: luchihoratiu/debug-via-ssh@main
-      with:
-            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
-            NGROK_TIMEOUT: 3000
-            SSH_PASS: ${{ secrets.NGROK_SECRET }}
+#    - name: Start SSH via Ngrok
+#      if: ${{ success() }}
+#      uses: luchihoratiu/debug-via-ssh@main
+#      with:
+#            NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
+#            NGROK_TIMEOUT: 3000
+#            SSH_PASS: ${{ secrets.NGROK_SECRET }}
     - name: test cvmhlabn under ucvm
       run: (cd $RUNNER_WORKSPACE/cvmhlabn/ucvm; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/ucvm-test.sh)
       shell: bash
@@ -98,7 +98,7 @@ jobs:
       run: more ${{ steps.build-ucvm.outputs.build-log }}
       shell: bash
     - name: move stock cvmhlabn away
-      run: (mv $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn-old)
+      run: (rm -rf $RUNNER_WORKSPACE/cvmhlabn/ucvm/work/model/cvmhlabn)
       shell: bash
 ### build cvmhlabn from github 
     - name: checkout cvmhlabn main
