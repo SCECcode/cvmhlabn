@@ -222,7 +222,6 @@ int test_query_points_by_elevation()
          &pt.longitude,&pt.latitude,&elev) == 3) {
       surf = get_preset_ucvm_surface(pt.longitude, pt.latitude);
       pt.depth= surf - elev;
-fprintf(stderr,"XX depth %f\n", pt.depth);
       if (test_assert_int(model_query(&pt, &ret, 1), 0) == 0) {
          fprintf(outfp,"%lf %lf %lf\n",ret.vs, ret.vp, ret.rho);
       }
