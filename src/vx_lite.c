@@ -105,9 +105,11 @@ int main (int argc, char *argv[])
   /* Set zmode */
   vx_setzmode(zmode);
 
+  char line[2001];
   /* now let's start with searching .... */
-  while (!feof(stdin)) {
-    if (fscanf(stdin,"%lf %lf %lf",
+  while (fgets(line, 2000, stdin) != NULL) {
+    if(line[0]=='#') continue; // comment line
+    if (sscanf(line,"%lf %lf %lf",
 	       &entry.coor[0],&entry.coor[1],&entry.coor[2]) == 3) {
 
       if (entry.coor[1]<10000000) {

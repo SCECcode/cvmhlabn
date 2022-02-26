@@ -166,6 +166,85 @@ int test_query_by_elevation()
   return(0);
 }
 
+int test_query_points_by_elevation()
+{
+  printf("Test: model_query() points by elevation\n");
+
+  FILE  *infp, *outfp;
+  cvmhlabn_point_t pt;
+  cvmhlabn_properties_t ret;
+  double elev;
+  float surf;
+
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+// ge part
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_latlons_cvmhlabn_ge.txt");
+  sprintf(outfile, "%s/%s", currentdir,
+          "test_latlons_cvmhlabn_ge.out");
+  sprintf(reffile, "%s/%s", currentdir,
+          "./ref/test_latlons_cvmhlabn_ge.ref");
+
+  if (test_assert_file_exist(infile) != 0) {
+    printf("file:%s not found\n",infile);
+    return(1);
+  }
+
+  // pick up every point and convert the elevation to depth in pt structure
+  infp = fopen(infile, "r");
+  if (infp == NULL) {
+    printf("FAIL: cannot open %s\n", infile);
+    return(1);
+  }
+  outfp = fopen(outfile, "w");
+  if (outfp == NULL) {
+    printf("FAIL: cannot open %s\n", outfile);
+    return(1);
+  }
+
+  int zmode = CVMHLABN_COORD_GEO_ELEV;
+  if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
+      return(1);
+  }
+
+
+/* process one term at a time */
+  char line[1001];
+  while(fgets(line, 1000, infp) != NULL) {
+    if(line[0] == '#') continue; // a comment
+    if (sscanf(line,"%lf %lf %lf",
+         &pt.longitude,&pt.latitude,&elev) == 3) {
+      surf = get_preset_ucvm_surface(pt.longitude, pt.latitude);
+      pt.depth= surf - elev;
+fprintf(stderr,"XX depth %f\n", pt.depth);
+      if (test_assert_int(model_query(&pt, &ret, 1), 0) == 0) {
+         fprintf(outfp,"%lf %lf %lf\n",ret.vs, ret.vp, ret.rho);
+      }
+    }
+  }
+  fclose(infp);
+  fclose(outfp);
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
+    return(1);
+  }
+
+  unlink(outfile);
+
+  printf("PASS\n");
+  return(0);
+}
+
 int suite_cvmhlabn_exec(const char *xmldir)
 {
   suite_t suite;
@@ -174,7 +253,7 @@ int suite_cvmhlabn_exec(const char *xmldir)
 
   /* Setup test suite */
   strcpy(suite.suite_name, "suite_vcmhlabn_exec");
-  suite.num_tests = 4;
+  suite.num_tests = 5;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
   if (suite.tests == NULL) {
     fprintf(stderr, "Failed to alloc test structure\n");
@@ -198,6 +277,10 @@ int suite_cvmhlabn_exec(const char *xmldir)
   strcpy(suite.tests[3].test_name, "test_query_by_elevation()");
   suite.tests[3].test_func = &test_query_by_elevation;
   suite.tests[3].elapsed_time = 0.0;
+
+  strcpy(suite.tests[4].test_name, "test_query_points_by_elevation()");
+  suite.tests[4].test_func = &test_query_points_by_elevation;
+  suite.tests[4].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");

@@ -100,8 +100,10 @@ int main(int argc, char* const argv[]) {
         assert(cvmhlabn_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode) == 0);
 	printf("Set model zmode successfully.\n");
 
-        while (!feof(stdin)) {
-           if (fscanf(stdin,"%lf %lf %lf",
+        char line[2001];
+        while (fgets(line, 2000, stdin) != NULL) {
+           if(line[0]=='#') continue; // comment line
+           if (sscanf(line,"%lf %lf %lf",
                &pt.longitude,&pt.latitude,&pt.depth) == 3) {
 
 // using cvmhlabn -- everything is depth so need to convert here..

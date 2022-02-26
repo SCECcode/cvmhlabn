@@ -15,7 +15,7 @@ Description of CVMHLABN
 
 ### Installation
 This package is intended to be installed as part of the UCVM framework,
-version 21.10.0 or higher. 
+version 21.12.0 or higher. 
 
 This package can also be tested in standalone mode by,
 

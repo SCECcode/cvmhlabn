@@ -18,6 +18,8 @@ typedef enum { VX_TEST_DATASET_NOBKG = 0,
 	       VX_TEST_DATASET_BKG, 
 	       VX_TEST_DATASET_NOGTL } vx_test_dataset_t;
 
+int test_assert_file_exist(const char* filename);
+float get_preset_ucvm_surface(double, double);
 
 /* Retrieve basic test points */
 int get_test_points(double *x, double *y, double *z, 

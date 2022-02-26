@@ -9,6 +9,25 @@
 
 int debug_mode=0;
 
+int test_assert_file_exist(const char* filename)
+{
+  FILE *fp;
+
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
+    fclose(fp);
+    return(1);
+  }
+  return(0);
+}
+
+float get_preset_ucvm_surface(double y, double x) {
+   if(y == -118.1 && x == 34.0) {
+      return 55.827;
+   }
+   return 0;
+}
+
 /* Retrieve 10 test points */
 int get_test_points(double *x, double *y, double *z, 
                     vx_coord_t *coord_types)
@@ -107,7 +126,8 @@ int save_elevation_test_points(const char* filename)
   size_t retval;
 
   // generate if not there
-  if(fp = fopen(filename, "r")) {
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
     fclose(fp);
     return(0);
   }
@@ -143,7 +163,8 @@ int save_depth_test_points(const char* filename)
   size_t retval;
 
   // generate if not there
-  if(fp = fopen(filename, "r")) {
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
     fclose(fp);
     return(0);
   }
@@ -218,6 +239,7 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
 
 /* process one term at a time */
   while(fgets(line, 1000, infp) != NULL) {
+    if(line[0] == '#') continue; // a comment 
     if (sscanf(line,"%lf %lf %lf",
          &pt.longitude,&pt.latitude,&pt.depth) == 3) {
       if (test_assert_int(model_query(&pt, &ret, 1), 0) == 0) {

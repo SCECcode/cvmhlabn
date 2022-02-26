@@ -19,7 +19,7 @@
 #include "test_helper.h"
 #include "test_vx_cvmhlabn_exec.h"
 
-int VX_TESTS=3;
+int VX_TESTS=5;
 
 int test_vx_cvhmlabn_points_elevation()
 {
@@ -54,7 +54,7 @@ int test_vx_cvhmlabn_points_elevation()
     return(1);
   }
 
-//  unlink(outfile);
+  unlink(outfile);
 
   printf("PASS\n");
   return(0);
@@ -143,6 +143,88 @@ int test_vx_cvhmlabn_points_offset()
 }
 
 
+int test_vx_cvhmlabn_points_ge()
+{
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  printf("Test: vx_cvmhlabn validate ge option\n");
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+// ge part
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_latlons_cvmh_ge.txt");
+  sprintf(outfile, "%s/%s", currentdir, 
+	  "test_latlons_cvmh_ge.out");
+  sprintf(reffile, "%s/%s", currentdir, 
+	  "./ref/test_latlons_cvmh_ge.ref");
+
+  if (test_assert_file_exist(infile) != 0) {
+    printf("file:%s not found\n",infile);
+    return(1);
+  }
+
+  if (test_assert_int(runVXCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
+				MODE_ELEVATION), 0) != 0) {
+    printf("vx_cvmhlabn failure\n");
+    return(1);
+  }
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    return(1);
+  }
+
+  unlink(outfile);
+
+  printf("PASS\n");
+  return(0);
+}
+
+int test_vx_cvhmlabn_points_gd()
+{
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  printf("Test: vx_cvmhlabn validate gd option\n");
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+// ge part
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_latlons_gd.txt");
+  sprintf(outfile, "%s/%s", currentdir, 
+	  "test_latlons_gd.out");
+  sprintf(reffile, "%s/%s", currentdir, 
+	  "./ref/test_latlons_gd.ref");
+
+  if (test_assert_file_exist(infile) != 0) {
+    printf("file:%s not found\n",infile);
+    return(1);
+  }
+
+  if (test_assert_int(runVXCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
+				MODE_DEPTH), 0) != 0) {
+    printf("vx_cvmhlabn failure\n");
+    return(1);
+  }
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    return(1);
+  }
+
+  unlink(outfile);
+
+  printf("PASS\n");
+  return(0);
+}
+
 int suite_vx_cvmhlabn_exec(const char *xmldir)
 {
   suite_t suite;
@@ -169,9 +251,17 @@ int suite_vx_cvmhlabn_exec(const char *xmldir)
   suite.tests[1].test_func = &test_vx_cvhmlabn_points_depth;
   suite.tests[1].elapsed_time = 0.0;
 
-  strcpy(suite.tests[1].test_name, "test_vx_cvhmlabn_points_offset");
+  strcpy(suite.tests[2].test_name, "test_vx_cvhmlabn_points_offset");
   suite.tests[2].test_func = &test_vx_cvhmlabn_points_offset;
   suite.tests[2].elapsed_time = 0.0;
+
+  strcpy(suite.tests[3].test_name, "test_vx_cvhmlabn_points_gd");
+  suite.tests[3].test_func = &test_vx_cvhmlabn_points_gd;
+  suite.tests[3].elapsed_time = 0.0;
+
+  strcpy(suite.tests[4].test_name, "test_vx_cvhmlabn_points_ge");
+  suite.tests[4].test_func = &test_vx_cvhmlabn_points_ge;
+  suite.tests[4].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");
