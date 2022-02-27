@@ -174,7 +174,7 @@ int test_query_points_by_elevation()
   cvmhlabn_point_t pt;
   cvmhlabn_properties_t ret;
   double elev;
-  float surf;
+  double surf;
 
   char infile[1280];
   char outfile[1280];

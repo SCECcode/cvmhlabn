@@ -21,7 +21,7 @@ int test_assert_file_exist(const char* filename)
   return(0);
 }
 
-float get_preset_ucvm_surface(double y, double x) {
+double get_preset_ucvm_surface(double y, double x) {
    if(y == -118.1 && x == 34.0) {
       return 55.827;
    }
