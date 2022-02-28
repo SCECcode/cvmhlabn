@@ -208,11 +208,19 @@ int test_query_points_by_elevation()
     return(1);
   }
 
+  char *envstr=getenv("UCVM_INSTALL_PATH");
+  if(envstr != NULL) {
+    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+      return(1);
+    }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return(1);
+  }
+
   int zmode = CVMHLABN_COORD_GEO_ELEV;
   if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
       return(1);
   }
-
 
 /* process one term at a time */
   char line[1001];
@@ -237,6 +245,9 @@ int test_query_points_by_elevation()
     printf("%s\n",reffile);
     return(1);
   }
+
+  // Close the model.
+  assert(model_finalize() == 0);
 
   unlink(outfile);
 
