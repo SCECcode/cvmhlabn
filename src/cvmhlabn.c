@@ -15,18 +15,23 @@
 /************ Constants and Variables ********/
 /** The version of the model. */
 const char *cvmhlabn_version_string = "CVMHLABN";
+
 int cvmhlabn_is_initialized = 0;
+
 /** Location of the binary data files. */
 char cvmhlabn_data_directory[2000];
+
 /** Configuration parameters. */
 cvmhlabn_configuration_t *cvmhlabn_configuration;
+
 /** Holds pointers to the velocity model data OR indicates it can be read from file. */
 cvmhlabn_model_t *cvmhlabn_velocity_model;
+
 /** The height of this model's region, in meters. */
 double cvmhlabn_total_height_m = 0;
+
 /** The width of this model's region, in meters. */
 double cvmhlabn_total_width_m = 0;
-
 /*************************************/
 
 int cvmhlabn_ucvm_debug=0;
@@ -53,13 +58,13 @@ int cvmhlabn_init(const char *dir, const char *label) {
 	sprintf(configbuf, "%s/model/%s/data/config", dir, label);
 
 	// Read the configuration file.
-	if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != SUCCESS) {
+	if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != UCVM_CODE_SUCCESS) {
 
            // Try another, when is running in standalone mode..
 	   sprintf(configbuf, "%s/data/config", dir);
-	   if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != SUCCESS) {
+	   if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != UCVM_CODE_SUCCESS) {
                cvmhlabn_print_error("No configuration file was found to read from.");
-               return FAIL;
+               return UCVM_CODE_ERROR;
                } else {
 	       // Set up the data directory.
 	       sprintf(cvmhlabn_data_directory, "%s/data/%s", dir, cvmhlabn_configuration->model_dir);
@@ -71,13 +76,13 @@ int cvmhlabn_init(const char *dir, const char *label) {
 
         /* Init vx */
         if (vx_setup(cvmhlabn_data_directory) != 0) {
-          return FAIL;
+          return UCVM_CODE_ERROR;
         }
 
 	// Let everyone know that we are initialized and ready for business.
 	cvmhlabn_is_initialized = 1;
 
-	return SUCCESS;
+	return UCVM_CODE_SUCCESS;
 }
 
 /**  
@@ -93,17 +98,17 @@ int cvmhlabn_setparam(int id, int param, ...)
   va_start(ap, param);
 
   switch (param) {
-    case CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
+    case UCVM_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF:
       cvmhlabn_force_depth = va_arg(ap, int);
       break;
-    case CVMHLABN_PARAM_QUERY_MODE:
+    case UCVM_PARAM_QUERY_MODE:
       zmode = va_arg(ap,int);
       switch (zmode) {
-        case CVMHLABN_COORD_GEO_DEPTH:
+        case UCVM_COORD_GEO_DEPTH:
           cvmhlabn_zmode = VX_ZMODE_DEPTH;
           if(cvmhlabn_ucvm_debug) fprintf(stderr,"calling cvmhlabn_setparam >>  depth\n");
           break;
-        case CVMHLABN_COORD_GEO_ELEV:
+        case UCVM_COORD_GEO_ELEV:
 /*****
 even if ucvm_query set elevation mode, still need to run as depth
           cvmhlabn_zmode = VX_ZMODE_ELEV;
@@ -119,7 +124,7 @@ even if ucvm_query set elevation mode, still need to run as depth
        break;
   }
   va_end(ap);
-  return SUCCESS;
+  return UCVM_CODE_SUCCESS;
 }
 
 
@@ -129,7 +134,7 @@ even if ucvm_query set elevation mode, still need to run as depth
  * @param points The points at which the queries will be made.
  * @param data The data that will be returned (Vp, Vs, density, Qs, and/or Qp).
  * @param numpoints The total number of points to query.
- * @return SUCCESS or FAIL.
+ * @return UCVM_CODE_SUCCESS or UCVM_CODE_ERROR.
  */
 int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpoints) {
 
@@ -229,18 +234,18 @@ int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int nu
       }
 
   }
-  return SUCCESS;
+  return UCVM_CODE_SUCCESS;
 }
 
 /**
  * Called when the model is being discarded. Free all variables.
  *
- * @return SUCCESS
+ * @return UCVM_CODE_SUCCESS
  */
 int cvmhlabn_finalize() {
         vx_cleanup();
 	cvmhlabn_is_initialized = 0;
-	return SUCCESS;
+	return UCVM_CODE_SUCCESS;
 }
 
 /**
@@ -259,11 +264,11 @@ int cvmhlabn_version(char *ver, int len)
   }
   memset(ver, 0, len);
   strncpy(ver, cvmhlabn_version_string, verlen);
-  return 0;
+  return UCVM_CODE_SUCCESS;
 }
 
 /**
- * Reads the configuration file describing the various properties of CVMHLABNand populates
+ * Reads the configuration file describing the various properties of CVMHLABN and populates
  * the configuration struct. This assumes configuration has been "calloc'ed" and validates
  * that each value is not zero at the end.
  *
@@ -279,7 +284,7 @@ int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config) {
 
 	// If our file pointer is null, an error has occurred. Return fail.
 	if (fp == NULL) {
-		return FAIL;
+		return UCVM_CODE_ERROR;
 	}
 
 	// Read the lines in the configuration file.
@@ -299,12 +304,12 @@ int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config) {
 	// Have we set up all configuration parameters?
 	if (config->utm_zone == 0 || config->model_dir[0] == '\0' ) {
 		cvmhlabn_print_error("One configuration parameter not specified. Please check your configuration file.");
-		return FAIL;
+		return UCVM_CODE_ERROR;
 	}
 
 	fclose(fp);
 
-	return SUCCESS;
+	return UCVM_CODE_SUCCESS;
 }
 
 /*

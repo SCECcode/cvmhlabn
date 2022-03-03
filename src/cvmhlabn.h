@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdarg.h>
 
+#include "ucvm_model_dtypes.h"
 #include "vx_sub.h"
 
 // Constants
@@ -27,21 +28,7 @@
 	#define M_PI 3.14159265358979323846
 #endif
 
-/* Picked up from ucvm_dtypes.h */
 #define VX_NO_DATA -99999.0
-#define CVMHLABN_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF 0
-#define CVMHLABN_PARAM_QUERY_MODE 1
-// matching with VZ_ZMODE..
-#define CVMHLABN_COORD_GEO_DEPTH 0
-#define CVMHLABN_COORD_GEO_ELEV 1
-#define CVMHLABN_COORD_GEO_ELEVOFF 2
-
-/** Defines a return value of success */
-#define SUCCESS 0
-/** Defines a return value of failure */
-#define FAIL 1
-/** Defines a return value of NA from model */
-#define NA -1 
 
 // Structures
 /** Defines a point (latitude, longitude, and depth) in WGS84 format */

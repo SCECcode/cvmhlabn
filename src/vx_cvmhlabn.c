@@ -56,7 +56,7 @@ int main(int argc, char* const argv[]) {
 	// Declare the structures.
 	cvmhlabn_point_t pt;
 	cvmhlabn_properties_t ret;
-        int zmode=CVMHLABN_COORD_GEO_DEPTH;
+        int zmode=UCVM_COORD_GEO_DEPTH;
         int rc;
         int opt;
 
@@ -66,11 +66,11 @@ int main(int argc, char* const argv[]) {
           switch (opt) {
           case 'z':
             if (strcasecmp(optarg, "dep") == 0) {
-              zmode = CVMHLABN_COORD_GEO_DEPTH;
+              zmode = UCVM_COORD_GEO_DEPTH;
             } else if (strcasecmp(optarg, "elev") == 0) {
-              zmode = CVMHLABN_COORD_GEO_ELEV;
+              zmode = UCVM_COORD_GEO_ELEV;
             } else if (strcasecmp(optarg, "off") == 0) {
-              zmode = CVMHLABN_COORD_GEO_ELEVOFF;
+              zmode = UCVM_COORD_GEO_ELEVOFF;
             } else {
               fprintf(stderr, "Invalid coord type %s", optarg);
               usage();
@@ -97,7 +97,7 @@ int main(int argc, char* const argv[]) {
         }
 	printf("Loaded the model successfully.\n");
 
-        assert(cvmhlabn_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode) == 0);
+        assert(cvmhlabn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
 	printf("Set model zmode successfully.\n");
 
         char line[2001];
@@ -107,7 +107,7 @@ int main(int argc, char* const argv[]) {
                &pt.longitude,&pt.latitude,&pt.depth) == 3) {
 
 // using cvmhlabn -- everything is depth so need to convert here..
-              if(zmode == CVMHLABN_COORD_GEO_ELEV ) {
+              if(zmode == UCVM_COORD_GEO_ELEV ) {
                 double elev=pt.depth;
                 float surface;
                 double coor[3]; 
