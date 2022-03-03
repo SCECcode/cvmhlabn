@@ -58,7 +58,7 @@ int cvmhlabn_init(const char *dir, const char *label) {
            // Try another, when is running in standalone mode..
 	   sprintf(configbuf, "%s/data/config", dir);
 	   if (cvmhlabn_read_configuration(configbuf, cvmhlabn_configuration) != SUCCESS) {
-               print_error("No configuration file was found to read from.");
+               cvmhlabn_print_error("No configuration file was found to read from.");
                return FAIL;
                } else {
 	       // Set up the data directory.
@@ -298,7 +298,7 @@ int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config) {
 
 	// Have we set up all configuration parameters?
 	if (config->utm_zone == 0 || config->model_dir[0] == '\0' ) {
-		print_error("One configuration parameter not specified. Please check your configuration file.");
+		cvmhlabn_print_error("One configuration parameter not specified. Please check your configuration file.");
 		return FAIL;
 	}
 
@@ -310,7 +310,7 @@ int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config) {
 /*
  * @param err The error string to print out to stderr.
  */
-void print_error(char *err) {
+void cvmhlabn_print_error(char *err) {
 	fprintf(stderr, "An error has occurred while executing CVMHLABN. The error was:\n\n");
 	fprintf(stderr, "%s", err);
 	fprintf(stderr, "\n\nPlease contact software@scec.org and describe both the error and a bit\n");

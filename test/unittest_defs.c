@@ -1,4 +1,4 @@
-#define _BSD_SOURCE  /* Required for gethostname */ 
+#define _DEFAULT_SOURCE  /* Required for gethostname */ 
 #include <unistd.h>
 #include <string.h>
 #include <sys/time.h>

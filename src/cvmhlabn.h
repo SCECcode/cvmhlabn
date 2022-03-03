@@ -139,7 +139,7 @@ int cvmhlabn_setparam(int, int, ...);
 // Non-UCVM Helper Functions
 /** Reads the configuration file. */
 int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config);
-void print_error(char *err);
+void cvmhlabn_print_error(char *err);
 int cvmhlabn_setzmode(char* z);
 
 #endif
