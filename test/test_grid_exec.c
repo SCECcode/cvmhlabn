@@ -18,6 +18,7 @@
 #include "test_grid_exec.h"
 
 
+// test with elevation offset by cvmh's digital elevation
 int test_cvmhlabn_grid_elev()
 {
   char infile[1280];

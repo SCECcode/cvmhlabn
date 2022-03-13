@@ -39,6 +39,6 @@ clean:
 	rm -rf *~ *.o *.out $(bin_PROGRAMS) 
 
 install:
-	mkdir -p ${prefix}/tests
-	cp -R inputs ${prefix}/tests
+	mkdir -p ${prefix}/test
+	cp -R inputs ${prefix}/test
 	cp -R ref ${prefix}/ref

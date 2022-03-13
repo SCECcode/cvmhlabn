@@ -19,8 +19,6 @@ vx_lite_SOURCES = vx_lite.c
 run_vx_sh_SOURCES = run_vx.sh
 run_vx_lite_sh_SOURCES = run_vx_lite.sh
 
-all: $(lib_LIBRARIES) $(bin_PROGRAMS)
-
 TARGETS = vx_lite_cvmhlabn vx_cvmhlabn libvxapi_cvmhlabn.a libvxapi.a libcvmhlabn.a libcvmhlabn.so
 
 all: $(TARGETS)

@@ -5,12 +5,12 @@ authors:
   given-names: ""
 keywords: UCVM, research
 license: BSD-3-Clause
-repository-code: "https://github.com/SCECcode//cvmhlabn.git"
+repository-code: "https://github.com/SCECcode/cvmhlabn.git"
 title: "CVMH15-1-Los-Angeles-Basin (cvmhlabn)"
 version: 1.0
 doi: 10.5281/zenodo.1234
 date-released: 2022-01-31
-repository-code: "https://github.com/SCECcode//cvmhlabn.git"
+repository-code: "https://github.com/SCECcode/cvmhlabn.git"
 contact:
   - email: software@scec.org
     name: "The SCEC Software project cvmhlabn"

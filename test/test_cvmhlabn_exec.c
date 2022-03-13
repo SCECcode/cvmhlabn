@@ -16,6 +16,7 @@
 #include "unittest_defs.h"
 #include "test_helper.h"
 #include "test_cvmhlabn_exec.h"
+#include "ucvm_model_dtypes.h"
 
 
 int test_setup()
@@ -53,8 +54,8 @@ int test_setparam()
     return(1);
   }
 
-  int zmode = CVMHLABN_COORD_GEO_DEPTH;
-  if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
+  int zmode = UCVM_COORD_GEO_DEPTH;
+  if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
       return(1);
   }
 
@@ -83,8 +84,8 @@ int test_query_by_depth()
     return(1);
   }
 
-  int zmode = CVMHLABN_COORD_GEO_DEPTH;
-  if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
+  int zmode = UCVM_COORD_GEO_DEPTH;
+  if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
       return(1);
   }
 
@@ -132,8 +133,8 @@ int test_query_by_elevation()
     return(1);
   }
 
-  int zmode = CVMHLABN_COORD_GEO_ELEV;
-  if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
+  int zmode = UCVM_COORD_GEO_ELEV;
+  if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
       return(1);
   }
 
@@ -166,6 +167,7 @@ int test_query_by_elevation()
   return(0);
 }
 
+// using points 'offset' by ucvm's digital elevation
 int test_query_points_by_elevation()
 {
   printf("Test: model_query() points by elevation\n");
@@ -185,11 +187,11 @@ int test_query_points_by_elevation()
   getcwd(currentdir, 1000);
 
 // ge part
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test_latlons_cvmhlabn_ge.txt");
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test_latlons_ucvm_ge.txt");
   sprintf(outfile, "%s/%s", currentdir,
-          "test_latlons_cvmhlabn_ge.out");
+          "test_latlons_ucvm_ge.out");
   sprintf(reffile, "%s/%s", currentdir,
-          "./ref/test_latlons_cvmhlabn_ge.ref");
+          "./ref/test_latlons_ucvm_ge.ref");
 
   if (test_assert_file_exist(infile) != 0) {
     printf("file:%s not found\n",infile);
@@ -217,8 +219,8 @@ int test_query_points_by_elevation()
     return(1);
   }
 
-  int zmode = CVMHLABN_COORD_GEO_ELEV;
-  if (test_assert_int(model_setparam(0, CVMHLABN_PARAM_QUERY_MODE, zmode), 0) != 0) {
+  int zmode = UCVM_COORD_GEO_ELEV;
+  if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
       return(1);
   }
 
