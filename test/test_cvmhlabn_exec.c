@@ -98,22 +98,19 @@ int test_query_by_depth()
       return(1);
   }
 
-  if ((test_assert_double(ret.vs, 1569.190063), 0) != 0) {
-      return(1);
-  }
-  if ((test_assert_double(ret.vp, 3180.260498), 0) != 0) {
-      return(1);
-  }
-  if ((test_assert_double(ret.vp, 3180.260498), 0) != 0) {
-      return(1);
-  }
-  // printf("Query was successful.\n");
-
   // Close the model.
   assert(model_finalize() == 0);
 
-  printf("PASS\n");
-  return(0);
+  if ( test_assert_double(ret.vs, 1569.190063) ||
+       test_assert_double(ret.vp, 3180.260498) ||
+       test_assert_double(ret.rho, 2261.115808) ) {
+     printf("FAIL\n");
+     return(1);
+     } else {
+       printf("PASS\n");
+       return(0);
+  }
+
 }
 
 int test_query_by_elevation()
@@ -149,22 +146,20 @@ int test_query_by_elevation()
       return(1);
   }
 
-  if ((test_assert_double(ret.vs, 1569.190063), 0) != 0) {
-      return(1);
-  }
-  if ((test_assert_double(ret.vp, 3180.260498), 0) != 0) {
-      return(1);
-  }
-  if ((test_assert_double(ret.vp, 3180.260498), 0) != 0) {
-      return(1);
-  }
-  //printf("Query was successful.\n");
-
   // Close the model.
   assert(model_finalize() == 0);
 
-  printf("PASS\n");
-  return(0);
+//fprintf(stderr, "%lf %lf %lf\n", ret.vs, ret.vp, ret.rho);
+
+  if ( test_assert_double(ret.vs, 1569.190063) ||
+       test_assert_double(ret.vp, 3180.260498) ||
+       test_assert_double(ret.rho, 2261.115808) ) {
+     printf("FAIL\n");
+     return(1);
+     } else {
+       printf("PASS\n");
+       return(0);
+  }
 }
 
 // using points 'offset' by ucvm's digital elevation
