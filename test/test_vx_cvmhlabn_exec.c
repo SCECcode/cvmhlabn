@@ -21,7 +21,7 @@
 
 int VX_TESTS=5;
 
-int test_vx_cvhmlabn_points_elevation()
+int test_vx_cvmhlabn_points_elevation()
 {
   char infile[1280];
   char outfile[1280];
@@ -62,7 +62,7 @@ int test_vx_cvhmlabn_points_elevation()
 
 
 
-int test_vx_cvhmlabn_points_depth()
+int test_vx_cvmhlabn_points_depth()
 {
   char infile[1280];
   char outfile[1280];
@@ -103,7 +103,7 @@ int test_vx_cvhmlabn_points_depth()
   return(0);
 }
 
-int test_vx_cvhmlabn_points_offset()
+int test_vx_cvmhlabn_points_offset()
 {
   char infile[1280];
   char outfile[1280];
@@ -143,7 +143,7 @@ int test_vx_cvhmlabn_points_offset()
 }
 
 
-int test_vx_cvhmlabn_points_ge()
+int test_vx_cvmhlabn_points_ge()
 {
   char infile[1280];
   char outfile[1280];
@@ -184,7 +184,7 @@ int test_vx_cvhmlabn_points_ge()
   return(0);
 }
 
-int test_vx_cvhmlabn_points_gd()
+int test_vx_cvmhlabn_points_gd()
 {
   char infile[1280];
   char outfile[1280];
@@ -232,7 +232,7 @@ int suite_vx_cvmhlabn_exec(const char *xmldir)
   FILE *lf = NULL;
 
   /* Setup test suite */
-  strcpy(suite.suite_name, "suite_vx_cvhmlabn_exec");
+  strcpy(suite.suite_name, "suite_vx_cvmhlabn_exec");
 
   suite.num_tests = VX_TESTS;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
@@ -243,24 +243,24 @@ int suite_vx_cvmhlabn_exec(const char *xmldir)
   test_get_time(&suite.exec_time);
 
   /* Setup test cases */
-  strcpy(suite.tests[0].test_name, "test_vx_cvhmlabn_points_elevation");
-  suite.tests[0].test_func = &test_vx_cvhmlabn_points_elevation;
+  strcpy(suite.tests[0].test_name, "test_vx_cvmhlabn_points_elevation");
+  suite.tests[0].test_func = &test_vx_cvmhlabn_points_elevation;
   suite.tests[0].elapsed_time = 0.0;
 
-  strcpy(suite.tests[1].test_name, "test_vx_cvhmlabn_points_depth");
-  suite.tests[1].test_func = &test_vx_cvhmlabn_points_depth;
+  strcpy(suite.tests[1].test_name, "test_vx_cvmhlabn_points_depth");
+  suite.tests[1].test_func = &test_vx_cvmhlabn_points_depth;
   suite.tests[1].elapsed_time = 0.0;
 
-  strcpy(suite.tests[2].test_name, "test_vx_cvhmlabn_points_offset");
-  suite.tests[2].test_func = &test_vx_cvhmlabn_points_offset;
+  strcpy(suite.tests[2].test_name, "test_vx_cvmhlabn_points_offset");
+  suite.tests[2].test_func = &test_vx_cvmhlabn_points_offset;
   suite.tests[2].elapsed_time = 0.0;
 
-  strcpy(suite.tests[3].test_name, "test_vx_cvhmlabn_points_gd");
-  suite.tests[3].test_func = &test_vx_cvhmlabn_points_gd;
+  strcpy(suite.tests[3].test_name, "test_vx_cvmhlabn_points_gd");
+  suite.tests[3].test_func = &test_vx_cvmhlabn_points_gd;
   suite.tests[3].elapsed_time = 0.0;
 
-  strcpy(suite.tests[4].test_name, "test_vx_cvhmlabn_points_ge");
-  suite.tests[4].test_func = &test_vx_cvhmlabn_points_ge;
+  strcpy(suite.tests[4].test_name, "test_vx_cvmhlabn_points_ge");
+  suite.tests[4].test_func = &test_vx_cvmhlabn_points_ge;
   suite.tests[4].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
