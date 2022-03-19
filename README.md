@@ -4,14 +4,14 @@
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![cvmhlabn-ci Actions Status](https://github.com/SCECcode/cvmhlabn/workflows/cvmhlabn-ci/badge.svg)](https://github.com/SCECcode/cvmhlabn/actions)
-[![cvmhlabn-cvmhlabn-ci Actions Status](https://github.com/SCECcode/cvmhlabn/workflows/cvmhlabn-cvmhlabn-ci/badge.svg)](https://github.com/SCECcode/cvmhlabn/actions)
+[![cvmhlabn-ucvm-ci Actions Status](https://github.com/SCECcode/cvmhlabn/workflows/cvmhlabn-ucvm-ci/badge.svg)](https://github.com/SCECcode/cvmhlabn/actions)
 
 
 ## Description
 
 CVMHLABN
 
-## Table of Content
+## Table of Contents
 1. [Software Documentation](https://github.com/SCECcode/cvmhlabn/wiki)
 2. [Installation](#installation)
 3. [Usage](#usage)
@@ -19,7 +19,7 @@ CVMHLABN
 5. [Credits](#credit)
 6. [License](#license)
 
-### Installation
+## Installation
 This package is intended to be installed as part of the UCVM framework,
 version 21.12.0 or higher. 
 
