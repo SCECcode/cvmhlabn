@@ -46,4 +46,3 @@ jobs:
     - name: test cvmhlabn standalone
       run: ./.github/scripts/cvmhlabn-test-standalone.sh
       shell: bash
-

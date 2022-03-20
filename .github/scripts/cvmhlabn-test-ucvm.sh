@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## testing cvmhlabn part
+
 cd test
 
 make run_unit | tee result_unit.txt

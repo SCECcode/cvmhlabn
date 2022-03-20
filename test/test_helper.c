@@ -262,7 +262,7 @@ int runVXCVMHLABN(const char *bindir, const char *cvmdir,
 {
   char currentdir[1280];
   char runpath[1280];
-  char flags[1280];
+  char flags[1280]="";
 
   sprintf(runpath, "%s/run_vx_cvmhlabn.sh", bindir);
 
@@ -325,7 +325,7 @@ int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir,
 	      int mode)
 {
   char currentdir[1280];
-  char flags[1280];
+  char flags[1280]="";
 
   char runpath[1280];
 

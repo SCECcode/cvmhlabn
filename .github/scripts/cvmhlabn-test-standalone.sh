@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## testing the cvmh part only
+
 cd test_cvmh
 
 make run_unit | tee result_unit.txt
