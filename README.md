@@ -9,7 +9,7 @@
 
 ## Description
 
-CVMHLABN
+CVMH Los Angeles Basin
 
 ## Table of Contents
 1. [Software Documentation](https://github.com/SCECcode/cvmhlabn/wiki)
