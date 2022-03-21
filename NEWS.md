@@ -1,3 +1,2 @@
 
-
-Please see ChangeLog
+From Andreas Plesch
