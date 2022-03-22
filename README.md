@@ -3,6 +3,7 @@
 <a href="https://github.com/sceccode/cvmhlabn.git"><img src="https://github.com/sceccode/cvmhlabn/wiki/images/cvmhlabn_logo.png"></a>
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+![GitHub repo size](https://img.shields.io/github/repo-size/sceccode/cvmhlabn)
 [![cvmhlabn-ci Actions Status](https://github.com/SCECcode/cvmhlabn/workflows/cvmhlabn-ci/badge.svg)](https://github.com/SCECcode/cvmhlabn/actions)
 [![cvmhlabn-ucvm-ci Actions Status](https://github.com/SCECcode/cvmhlabn/workflows/cvmhlabn-ucvm-ci/badge.svg)](https://github.com/SCECcode/cvmhlabn/actions)
 
