@@ -77,13 +77,15 @@ int vx_io_finalize()
 /* Get vector from voxel property file */
 int vx_io_getvec(char *search, float *vec)
 {
-  int i;
+  int i=0;
+  int slen=strlen(search);
 
-  i = 0;
   while (i < vx_num_prop) {
-    if (strstr(vx_props[i], search)) {
+    if (strstr(vx_props[i], search) &&
+          (slen+1) < strlen(vx_props[i]) &&
+             vx_props[i][slen]==' ') {
       sscanf(&vx_props[i][0]+strlen(search)+1,"%f %f %f",
-	     &vec[0], &vec[1], &vec[2]);
+             &vec[0], &vec[1], &vec[2]);
       return(0);
     }
     i++;
