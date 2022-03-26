@@ -1,6 +1,6 @@
 # GNU Automake config
 
-lib_LIBRARIES = libgeo.a
+lib_LIBRARIES = libgctpc.a
 
 # Set compiler/linker flags
 AM_CFLAGS = -D_GNU_SOURCE -fno-builtin -fPIC
@@ -8,7 +8,7 @@ AM_LDFLAGS = $(LDFLAGS)
 
 
 # Dist sources
-libgeo_a_SOURCES = gctp.c alberfor.c alberinv.c alconfor.c alconinv.c azimfor.c \
+libgctpc_a_SOURCES = gctp.c alberfor.c alberinv.c alconfor.c alconinv.c azimfor.c \
 	  aziminv.c eqconfor.c eqconinv.c equifor.c equiinv.c gnomfor.c \
 	  gnominv.c goodfor.c goodinv.c gvnspfor.c gvnspinv.c hamfor.c \
 	  haminv.c imolwfor.c imolwinv.c lamazfor.c lamazinv.c merfor.c \
@@ -43,7 +43,7 @@ all: $(lib_LIBRARIES)
 # Executables
 ############################################
 
-libgeo.a: $(LIB_OBJECTS)
+libgctpc.a: $(LIB_OBJECTS)
 	$(AR) rcs $@ $^
 
 

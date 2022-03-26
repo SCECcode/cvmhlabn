@@ -101,6 +101,16 @@ int vx_setup(const char *data_dir)
   vx_io_getvec("AXIS_MAX",hr_a.MAX);
   vx_io_getdim("AXIS_N ",hr_a.N);
 
+  if(_debug) {
+    fprintf(stderr," From:\n");
+    fprintf(stderr,"    hr_a.O %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
+    fprintf(stderr,"    hr_a.U %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
+    fprintf(stderr,"    hr_a.V %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
+    fprintf(stderr,"    hr_a.W %.0f %.0f %.0f\n", hr_a.W[0],hr_a.W[1],hr_a.W[2]);
+    fprintf(stderr,"    hr_a.MAX %.0f %.0f %.0f\n", hr_a.MAX[0],hr_a.MAX[1],hr_a.MAX[2]);
+    fprintf(stderr,"    hr_a.MIN %.0f %.0f %.0f\n", hr_a.MIN[0],hr_a.MIN[1],hr_a.MIN[2]);
+  }
+
   if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
 /* origin */
       float origin0hr= hr_a.O[0] + hr_a.U[0] * hr_a.MIN[0];
@@ -129,15 +139,29 @@ int vx_setup(const char *data_dir)
       hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; hr_a.W[2]=wmax2hr;
    
       if(_debug) {
-        fprintf(stderr,"NEW HR------\n");
-        fprintf(stderr,"new origin %f %f %f\n", origin0hr, origin1hr, origin2hr);
-        fprintf(stderr,"new umax %f %f %f\n", umax0hr, umax1hr, umax2hr);
-        fprintf(stderr,"new vmax %f %f %f\n", vmax0hr, vmax1hr, vmax2hr);
-        fprintf(stderr,"new wmax %f %f %f\n", wmax0hr, wmax1hr, wmax2hr);
-        fprintf(stderr,"new step %f %f %f\n\n", step0hr, step1hr, step2hr);
+        fprintf(stderr,">>>Info: newly calculated HR------\n");
+        fprintf(stderr," origin %.0f %.0f %.0f\n", origin0hr, origin1hr, origin2hr);
+        fprintf(stderr," umax %.0f %.0f %.0f\n", umax0hr, umax1hr, umax2hr);
+        fprintf(stderr," vmax %.0f %.0f %.0f\n", vmax0hr, vmax1hr, vmax2hr);
+        fprintf(stderr," wmax %.0f %.0f %.0f\n", wmax0hr, wmax1hr, wmax2hr);
+        fprintf(stderr," step %f %f %f\n\n", step0hr, step1hr, step2hr);
+      }
+      } else {
+
+       if(_debug) {
+          step0hr=((hr_a.MAX[0] - hr_a.MIN[0]) * hr_a.U[0]) / (hr_a.N[0]-1);
+          step1hr=((hr_a.MAX[1] - hr_a.MIN[1]) * hr_a.V[1]) / (hr_a.N[1]-1);
+          step2hr=((hr_a.MAX[2] - hr_a.MIN[2]) * hr_a.W[2]) / (hr_a.N[2]-1);
+
+          fprintf(stderr,">>>Info: read HR------\n");
+          fprintf(stderr," origin %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
+          fprintf(stderr," umax %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
+          fprintf(stderr," vmax %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
+          fprintf(stderr," wmax %.0f %.0f %.0f\n", hr_a.W[0],hr_a.W[1],hr_a.W[2]);
+          fprintf(stderr," step %f %f %f\n\n", step0hr, step1hr, step2hr);
       }
 
-     }
+    }
 
   NCells=hr_a.N[0]*hr_a.N[1]*hr_a.N[2];
 
