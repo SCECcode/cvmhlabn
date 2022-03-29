@@ -15,7 +15,7 @@
 
 
 /* Location of model files */
-#define MODEL_DIR "../data/cvmhlabn"
+#define MODEL_DIR "../data/cvmhsgbn"
 
 
 /* Test  datatype */
