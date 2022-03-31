@@ -164,12 +164,12 @@ CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/./aux-config/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/Users/mei/scec/TARGET_cvmhlabn/aux-config/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '/Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-config/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} '/Users/mei/scec/TARGET_cvmhlabn/aux-config/missing' autoconf
-AUTOHEADER = ${SHELL} '/Users/mei/scec/TARGET_cvmhlabn/aux-config/missing' autoheader
-AUTOMAKE = ${SHELL} '/Users/mei/scec/TARGET_cvmhlabn/aux-config/missing' automake-1.16
+AUTOCONF = ${SHELL} '/Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-config/missing' autoconf
+AUTOHEADER = ${SHELL} '/Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-config/missing' autoheader
+AUTOMAKE = ${SHELL} '/Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-config/missing' automake-1.16
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -194,7 +194,7 @@ LDFLAGS =    -lm
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} '/Users/mei/scec/TARGET_cvmhlabn/aux-config/missing' makeinfo
+MAKEINFO = ${SHELL} '/Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-config/missing' makeinfo
 MKDIR_P = /usr/local/bin/gmkdir -p
 OBJEXT = o
 PACKAGE = cvmhlabn
@@ -210,10 +210,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.0
-abs_builddir = /Users/mei/scec/TARGET_cvmhlabn/test
-abs_srcdir = /Users/mei/scec/TARGET_cvmhlabn/test
-abs_top_builddir = /Users/mei/scec/TARGET_cvmhlabn
-abs_top_srcdir = /Users/mei/scec/TARGET_cvmhlabn
+abs_builddir = /Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/test
+abs_srcdir = /Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/test
+abs_top_builddir = /Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn
+abs_top_srcdir = /Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -232,7 +232,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/mei/scec/TARGET_cvmhlabn/aux-config/install-sh
+install_sh = ${SHELL} /Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-config/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -241,7 +241,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /Users/mei/SCEC/TARGET_UCVM/ucvm_install/model/cvmhlabn
+prefix = /Users/mei/SCEC/TARGET_UCVM/ucvm_install
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -257,7 +257,7 @@ top_srcdir = ..
 AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
         -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 ${CFLAGS} -I../src
 
-AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhlabn -L../gctpc/source -lgeo -lm
+AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhlabn -L../gctpc/source -lgctpc -lm
 
 # Dist sources
 unittest_SOURCES = *.c *.h
