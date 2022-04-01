@@ -19,6 +19,8 @@
 #include "vx_io.h"
 #include "vx_sub_cvmhlabn.h"
 
+int bad_surface_count;
+
 /* Smoothing parameters for SCEC 1D */
 #define SCEC_SMOOTH_DIST 50.0 // km
 
@@ -465,7 +467,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       elev = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
       if(cvmhlabn_debug) { fprintf(stderr," surface -- %lf\n", surface); }
-      if (surface < -90000.0) {
+      if (surface < -90000.0) {  
+        bad_surface_count++;
 	return(1);
       }
       switch (vx_zmode) {
@@ -683,7 +686,11 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	    flag = 1;
 	  }
 	  num_iter = num_iter + 1;
+if(cvmhlabn_debug)
+  fprintf(stderr,"vvvvv===call get_coord_private from surface..%d\n",num_iter);
 	  vx_getcoord_private(&entry, False);
+if(cvmhlabn_debug)
+  fprintf(stderr,"^^^^^===call get_coord_private from surface..%d\n",num_iter);
 	  if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
 	    switch (entry.data_src) {
 	    case VX_SRC_HR:
@@ -833,7 +840,7 @@ void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel)
   double gcoor[3]; // coord of point wrt volume
   float gcoor_min[3]; // UTM coord of volume origin
   float step[3];
-  int esize;
+  int esize=p0_ESIZE;
 
   vx_init_voxel(voxel);
 
@@ -903,7 +910,7 @@ void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel)
   double gcoor[3]; // coord of point wrt volume
   float gcoor_min[3]; // UTM coord of volume origin
   float step[3];
-  int esize;
+  int esize=p0_ESIZE;
   //float testval;
 
   vx_init_voxel(voxel);
