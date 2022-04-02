@@ -7,6 +7,8 @@
 07/2011: PES: Extracted io into separate module from vx_sub.c
 **/
 
+int MEI =1 ;
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,8 +21,6 @@
 #include "vx_io.h"
 #include "vx_sub_cvmhlabn.h"
 
-int bad_surface_count;
-
 /* Smoothing parameters for SCEC 1D */
 #define SCEC_SMOOTH_DIST 50.0 // km
 
@@ -30,7 +30,11 @@ int bad_surface_count;
 
 int _debug=0;
 int cvmhlabn_debug=0;
+int surface_nodata_count=0; // tracing how many NO_DATA_VALUE
 
+float p0_NO_DATA_VALUE = -99999.0; // p0.NO_DATA_VALUE 
+//float p0_NO_DATA_VALUE = 0.0; // p0.NO_DATA_VALUE 
+int p0_ESIZE = 4; // p0.ESIZE
 
 /* Function declarations */
 void gctp();
@@ -44,15 +48,19 @@ int (*callback_bkg)(vx_entry_t *entry, vx_request_t req_type) = NULL;
 static int is_setup = False;
 vx_zmode_t vx_zmode = VX_ZMODE_ELEV; // default
 struct axis mr_a, hr_a, to_a;
-//struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
-struct property p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
+
+int pkey=0;
+// ?? struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
+struct property p_vp63_basin; // p2
+struct property p_tag61_basin; // p9
+struct property p_vs63_basin; // p12 
+struct property p_topo_dem; // p4 
+struct property p_moho; // p5
+struct property p_base; // p6
+struct property p_model_top; // p13
+
 float step_to[3], step_hr[3];
 float step0hr, step1hr, step2hr;
-
-float p0_NO_DATA_VALUE = -99999.0; // p0_NO_DATA_VALUE
-//float p0_NO_DATA_VALUE = 0.0; // p0_NO_DATA_VALUE
-int p0_ESIZE = 4; // p0_ESIZE
-
 
 /* Model buffers */
 static char *hrbuffer = NULL;
@@ -115,11 +123,12 @@ int vx_setup(const char *data_dir)
     fprintf(stderr,"    hr_a.U %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
     fprintf(stderr,"    hr_a.V %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
     fprintf(stderr,"    hr_a.W %.0f %.0f %.0f\n", hr_a.W[0],hr_a.W[1],hr_a.W[2]);
-    fprintf(stderr,"    hr_a.MAX %.0f %.0f %.0f\n", hr_a.MAX[0],hr_a.MAX[1],hr_a.MAX[2]);
-    fprintf(stderr,"    hr_a.MIN %.0f %.0f %.0f\n", hr_a.MIN[0],hr_a.MIN[1],hr_a.MIN[2]);
+    fprintf(stderr,"    hr_a.MAX %f %f %f\n", hr_a.MAX[0],hr_a.MAX[1],hr_a.MAX[2]);
+    fprintf(stderr,"    hr_a.MIN %f %f %f\n", hr_a.MIN[0],hr_a.MIN[1],hr_a.MIN[2]);
+    fprintf(stderr,"    hr_a.N %d %d %d\n", hr_a.N[0],hr_a.N[1],hr_a.N[2]);
   }
 
-  if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
+  if( MEI || (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
 /* origin */
       float origin0hr= hr_a.O[0] + hr_a.U[0] * hr_a.MIN[0];
       float origin1hr= hr_a.O[1] + hr_a.V[1] * hr_a.MIN[1];
@@ -145,22 +154,21 @@ int vx_setup(const char *data_dir)
       hr_a.U[0]=umax0hr; hr_a.U[1]=umax1hr; hr_a.U[2]=umax2hr;
       hr_a.V[0]=vmax0hr; hr_a.V[1]=vmax1hr; hr_a.V[2]=vmax2hr;
       hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; hr_a.W[2]=wmax2hr;
-   
+
       if(_debug) {
-        fprintf(stderr,">>>Info: newly calculated HR------\n");
-        fprintf(stderr," origin %.0f %.0f %.0f\n", origin0hr, origin1hr, origin2hr);
-        fprintf(stderr," umax %.0f %.0f %.0f\n", umax0hr, umax1hr, umax2hr);
-        fprintf(stderr," vmax %.0f %.0f %.0f\n", vmax0hr, vmax1hr, vmax2hr);
-        fprintf(stderr," wmax %.0f %.0f %.0f\n", wmax0hr, wmax1hr, wmax2hr);
+        fprintf(stderr,">>>Info: newly  calculated HR ------\n");
+        fprintf(stderr," origin %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
+        fprintf(stderr," umax %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
+        fprintf(stderr," vmax %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
+        fprintf(stderr," wmax %.0f %.0f %.0f\n", hr_a.W[0],hr_a.W[1],hr_a.W[2]);
         fprintf(stderr," step %f %f %f\n\n", step0hr, step1hr, step2hr);
       }
-      } else {
 
-       if(_debug) {
+      } else { // get the info out
+        if(_debug) {
           step0hr=((hr_a.MAX[0] - hr_a.MIN[0]) * hr_a.U[0]) / (hr_a.N[0]-1);
           step1hr=((hr_a.MAX[1] - hr_a.MIN[1]) * hr_a.V[1]) / (hr_a.N[1]-1);
           step2hr=((hr_a.MAX[2] - hr_a.MIN[2]) * hr_a.W[2]) / (hr_a.N[2]-1);
-
           fprintf(stderr,">>>Info: read HR------\n");
           fprintf(stderr," origin %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
           fprintf(stderr," umax %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
@@ -169,63 +177,68 @@ int vx_setup(const char *data_dir)
           fprintf(stderr," step %f %f %f\n\n", step0hr, step1hr, step2hr);
       }
 
-    }
+   }
 
   NCells=hr_a.N[0]*hr_a.N[1]*hr_a.N[2];
 
- //???  why sprintf(p1.NAME,"vint");
-  sprintf(p2.NAME,"vp63_basin");
-  vx_io_getpropname("PROP_FILE",1,p2.FN);
-  vx_io_getpropsize("PROP_ESIZE",1,&p2.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",1,&p2.NO_DATA_VALUE);
+  sprintf(p_vp63_basin.NAME,"vp63_basin");
+  pkey=vx_io_getpropkey(p_vp63_basin.NAME);
 
-  if(_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p2.FN); }
+  vx_io_getpropname("PROP_FILE",pkey,p_vp63_basin.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_vp63_basin.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vp63_basin.NO_DATA_VALUE);
 
-  hrbuffer=(char *)malloc(NCells*p2.ESIZE);
+  if(_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p_vp63_basin.FN); }
+
+  hrbuffer=(char *)malloc(NCells*p_vp63_basin.ESIZE);
   if (hrbuffer == NULL) {
     fprintf(stderr, "Failed to allocate HR Vp file\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p2.FN,
-		       p2.ESIZE,NCells,hrbuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_vp63_basin.FN,
+		       p_vp63_basin.ESIZE,NCells,hrbuffer) != 0) {
     fprintf(stderr, "Failed to load HR Vp volume\n");
     return(1);
   }
 
   // and the tags
-  sprintf(p9.NAME,"tag61_basin");
-  vx_io_getpropname("PROP_FILE",3,p9.FN);
-  vx_io_getpropsize("PROP_ESIZE",3,&p9.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p9.NO_DATA_VALUE);
+  sprintf(p_tag61_basin.NAME,"tag61_basin");
+  pkey=vx_io_getpropkey(p_tag61_basin.NAME);
 
-if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p9.FN); }
+  vx_io_getpropname("PROP_FILE",pkey,p_tag61_basin.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_tag61_basin.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_tag61_basin.NO_DATA_VALUE);
 
-  hrtbuffer=(char *)malloc(NCells*p9.ESIZE);
+if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p_tag61_basin.FN); }
+
+  hrtbuffer=(char *)malloc(NCells*p_tag61_basin.ESIZE);
   if (hrtbuffer == NULL) {
     fprintf(stderr, "Failed to allocate HR tag file\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p9.FN,
-		       p9.ESIZE,NCells,hrtbuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_tag61_basin.FN,
+		       p_tag61_basin.ESIZE,NCells,hrtbuffer) != 0) {
     fprintf(stderr, "Failed to load HR tag volume\n");
     return(1);
   }
 
   // and vs
-  sprintf(p12.NAME,"vs63_basin");
-  vx_io_getpropname("PROP_FILE",2,p12.FN);
-  vx_io_getpropsize("PROP_ESIZE",2,&p12.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p12.NO_DATA_VALUE);
+  sprintf(p_vs63_basin.NAME,"vs63_basin");
+  pkey=vx_io_getpropkey(p_vs63_basin.NAME);
 
-if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
+  vx_io_getpropname("PROP_FILE",pkey,p_vs63_basin.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_vs63_basin.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vs63_basin.NO_DATA_VALUE);
 
-  hrvsbuffer=(char *)malloc(NCells*p12.ESIZE);
+if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p_vs63_basin.FN); }
+
+  hrvsbuffer=(char *)malloc(NCells*p_vs63_basin.ESIZE);
   if (hrvsbuffer == NULL) {
     fprintf(stderr, "Failed to allocate HR Vs file\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p12.FN,
-		       p12.ESIZE,NCells,hrvsbuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_vs63_basin.FN,
+		       p_vs63_basin.ESIZE,NCells,hrvsbuffer) != 0) {
     fprintf(stderr, "Failed to load HR Vs volume\n");
     return(1);
   }
@@ -249,70 +262,76 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
   NCells=to_a.N[0]*to_a.N[1]*to_a.N[2];
 
   // topo
-  sprintf(p4.NAME,"topo_dem");
-  vx_io_getpropname("PROP_FILE",1,p4.FN);
-  vx_io_getpropsize("PROP_ESIZE",1,&p4.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",1,&p4.NO_DATA_VALUE);
+  sprintf(p_topo_dem.NAME,"topo_dem");
+  pkey=vx_io_getpropkey(p_topo_dem.NAME);
 
-  tobuffer=(char *)malloc(NCells*p4.ESIZE);
+  vx_io_getpropname("PROP_FILE",pkey,p_topo_dem.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_topo_dem.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_topo_dem.NO_DATA_VALUE);
+
+  tobuffer=(char *)malloc(NCells*p_topo_dem.ESIZE);
   if (tobuffer == NULL) {
     fprintf(stderr, "Failed to allocate topo dem buffer\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p4.FN, 
-		       p4.ESIZE, NCells, tobuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_topo_dem.FN, 
+		       p_topo_dem.ESIZE, NCells, tobuffer) != 0) {
     fprintf(stderr, "Failed to load topo volume\n");
     return(1);
   }
 
   // moho
-  sprintf(p5.NAME,"moho");
-  vx_io_getpropname("PROP_FILE",3,p5.FN);
-  vx_io_getpropsize("PROP_ESIZE",3,&p5.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p5.NO_DATA_VALUE);
+  sprintf(p_moho.NAME,"moho");
+  pkey=vx_io_getpropkey(p_moho.NAME);
+  vx_io_getpropname("PROP_FILE",pkey,p_moho.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_moho.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_moho.NO_DATA_VALUE);
 
-  mobuffer=(char *)malloc(NCells*p5.ESIZE);
+  mobuffer=(char *)malloc(NCells*p_moho.ESIZE);
   if (mobuffer == NULL) {
     fprintf(stderr, "Failed to allocate topo moho buffer\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p5.FN, 
-		       p5.ESIZE, NCells, mobuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_moho.FN, 
+		       p_moho.ESIZE, NCells, mobuffer) != 0) {
     fprintf(stderr, "Failed to load moho volume\n");
     return(1);
   }
 
   // basement
-  sprintf(p6.NAME,"base");
-  vx_io_getpropname("PROP_FILE",2,p6.FN);
-  vx_io_getpropsize("PROP_ESIZE",2,&p6.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p6.NO_DATA_VALUE);
+  sprintf(p_base.NAME,"base");
+  pkey=vx_io_getpropkey(p_base.NAME);
+  vx_io_getpropname("PROP_FILE",pkey,p_base.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_base.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_base.NO_DATA_VALUE);
 
-  babuffer=(char *)malloc(NCells*p6.ESIZE);
+  babuffer=(char *)malloc(NCells*p_base.ESIZE);
   if (babuffer == NULL) {
     fprintf(stderr, "Failed to allocate topo basement buffer\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p6.FN, 
-		       p6.ESIZE, NCells, babuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_base.FN, 
+		       p_base.ESIZE, NCells, babuffer) != 0) {
     fprintf(stderr, "Failed to load basement volume\n");
     return(1);
   }
 
   // top elevation of model
-  sprintf(p13.NAME,"modeltop");
-  vx_io_getpropname("PROP_FILE",4,p13.FN);
-  vx_io_getpropsize("PROP_ESIZE",4,&p13.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",4,&p13.NO_DATA_VALUE);
+  sprintf(p_model_top.NAME,"model_top");
+  pkey=vx_io_getpropkey(p_model_top.NAME);
 
-  mtopbuffer=(char *)malloc(NCells*p13.ESIZE);
+  vx_io_getpropname("PROP_FILE",pkey,p_model_top.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_model_top.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_model_top.NO_DATA_VALUE);
+
+  mtopbuffer=(char *)malloc(NCells*p_model_top.ESIZE);
   if (mtopbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate topo modeltop buffer\n");
+    fprintf(stderr, "Failed to allocate topo model_top buffer\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p13.FN, 
-		       p13.ESIZE, NCells, mtopbuffer) != 0) {
-    fprintf(stderr, "Failed to load modeltop volume\n");
+  if (vx_io_loadvolume(data_dir, p_model_top.FN, 
+		       p_model_top.ESIZE, NCells, mtopbuffer) != 0) {
+    fprintf(stderr, "Failed to load model_top volume\n");
     return(1);
   }
 
@@ -323,7 +342,7 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
   step_to[1]=to_a.V[1]/(to_a.N[1]-1);
   step_to[2]=0.0;
 
-  if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
+  if( MEI || (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
       step_hr[0]=step0hr;
       step_hr[1]=step1hr;
       step_hr[2]=step2hr;
@@ -434,6 +453,9 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     break;
   }
 
+  if(cvmhlabn_debug) { fprintf(stderr," UTM -> %lf %lf %lf\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
+}
+
   /* Now we have UTM Zone 11 */
   /*** Prevent all to obvious bad coordinates from being displayed */
   if (entry->coor_utm[1] < 10000000) {
@@ -449,11 +471,11 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
        gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
       entry->elev_cell[0]= to_a.O[0]+gcoor[0]*step_to[0];
       entry->elev_cell[1]= to_a.O[1]+gcoor[1]*step_to[1];
-      j=voxbytepos(gcoor,to_a.N,p4.ESIZE);
-      memcpy(&(entry->topo), &tobuffer[j], p4.ESIZE);
-      memcpy(&(entry->mtop), &mtopbuffer[j], p4.ESIZE);
-      memcpy(&(entry->base), &babuffer[j], p4.ESIZE);
-      memcpy(&(entry->moho), &mobuffer[j], p4.ESIZE);
+      j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
+      memcpy(&(entry->topo), &tobuffer[j], p_topo_dem.ESIZE);
+      memcpy(&(entry->mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
+      memcpy(&(entry->base), &babuffer[j], p_topo_dem.ESIZE);
+      memcpy(&(entry->moho), &mobuffer[j], p_topo_dem.ESIZE);
       if (((entry->topo - p0_NO_DATA_VALUE < 0.1) || 
 	   (entry->mtop - p0_NO_DATA_VALUE < 0.1))) {
 	do_bkg = True;
@@ -466,9 +488,9 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     if (enhanced == True) {
       elev = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
-      if(cvmhlabn_debug) { fprintf(stderr," surface -- %lf\n", surface); }
-      if (surface < -90000.0) {  
-        bad_surface_count++;
+      if(cvmhlabn_debug) { fprintf(stderr," cvmh surface -- %lf\n", surface); }
+      if (surface < -90000.0) {
+        surface_nodata_count++;
 	return(1);
       }
       switch (vx_zmode) {
@@ -503,21 +525,24 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       gcoor[1]=round((entry->coor_utm[1]-hr_a.O[1])/step_hr[1]);
       gcoor[2]=round((entry->coor_utm[2]-hr_a.O[2])/step_hr[2]);
       
-if(_debug) { fprintf(stderr,"before    --- in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
+if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d) with utm(%f %f %f)\n", 
+                              gcoor[0],gcoor[1],gcoor[2], entry->coor_utm[0],
+                                           entry->coor_utm[1], entry->coor_utm[2]); }
+
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
-if(_debug) { fprintf(stderr,"    --- in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
+if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-if(_debug) { fprintf(stderr," entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
-	j=voxbytepos(gcoor,hr_a.N,p2.ESIZE);
+if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
+	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0_ESIZE);
-	memcpy(&(entry->vp), &hrbuffer[j], p2.ESIZE);
-	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
+	memcpy(&(entry->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
+	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);
 	entry->data_src = VX_SRC_HR;
-if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
         do_bkg = True;
@@ -569,11 +594,11 @@ void vx_getvoxel(vx_voxel_t *voxel) {
       {
 	voxel->elev_cell[0]= to_a.O[0]+gcoor[0]*step_to[0];
         voxel->elev_cell[1]= to_a.O[1]+gcoor[1]*step_to[1];
-	j=voxbytepos(gcoor,to_a.N,p4.ESIZE);
-	memcpy(&(voxel->topo), &tobuffer[j], p4.ESIZE);
-	memcpy(&(voxel->mtop), &mtopbuffer[j], p4.ESIZE);
-	memcpy(&(voxel->base), &babuffer[j], p4.ESIZE);
-	memcpy(&(voxel->moho), &mobuffer[j], p4.ESIZE);
+	j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
+	memcpy(&(voxel->topo), &tobuffer[j], p_topo_dem.ESIZE);
+	memcpy(&(voxel->mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
+	memcpy(&(voxel->base), &babuffer[j], p_topo_dem.ESIZE);
+	memcpy(&(voxel->moho), &mobuffer[j], p_topo_dem.ESIZE);
       } 
     break;
   case VX_SRC_HR:
@@ -584,10 +609,10 @@ void vx_getvoxel(vx_voxel_t *voxel) {
 	voxel->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	voxel->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	voxel->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-	j=voxbytepos(gcoor,hr_a.N,p2.ESIZE);
+	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
 	memcpy(&(voxel->provenance), &hrtbuffer[j], p0_ESIZE);
-	memcpy(&(voxel->vp), &hrbuffer[j], p2.ESIZE);
-	memcpy(&(voxel->vs), &hrvsbuffer[j], p2.ESIZE);	
+	memcpy(&(voxel->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
+	memcpy(&(voxel->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);	
       }
 
     break;
@@ -657,9 +682,9 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
   /* check if inside topo volume */
   if(gcoor[0]>=0&&gcoor[1]>=0&&
      gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
-    j=voxbytepos(gcoor,to_a.N,p4.ESIZE);
-    memcpy(&(entry.topo), &tobuffer[j], p4.ESIZE);
-    memcpy(&(entry.mtop), &mtopbuffer[j], p4.ESIZE);
+    j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
+    memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
 
     // Test points for topo - mtop gap
     // -118.75 36.8 0.0
@@ -686,11 +711,7 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	    flag = 1;
 	  }
 	  num_iter = num_iter + 1;
-if(cvmhlabn_debug)
-  fprintf(stderr,"vvvvv===call get_coord_private from surface..%d\n",num_iter);
 	  vx_getcoord_private(&entry, False);
-if(cvmhlabn_debug)
-  fprintf(stderr,"^^^^^===call get_coord_private from surface..%d\n",num_iter);
 	  if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
 	    switch (entry.data_src) {
 	    case VX_SRC_HR:
@@ -773,9 +794,9 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
   /* check if inside topo volume */
   if(gcoor[0]>=0&&gcoor[1]>=0&&
      gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
-    j=voxbytepos(gcoor,to_a.N,p4.ESIZE);
-    memcpy(&(entry.topo), &tobuffer[j], p4.ESIZE);
-    memcpy(&(entry.mtop), &mtopbuffer[j], p4.ESIZE);
+    j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
+    memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
   } else {
     do_bkg = True;
   }
@@ -851,7 +872,7 @@ void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel)
       gcoor_min[j] = to_a.O[j];
       model_max[j] = to_a.N[j];
       step[j] = step_to[j];
-      esize = p4.ESIZE;
+      esize = p_topo_dem.ESIZE;
     default:
       return;
       break;
@@ -882,10 +903,10 @@ void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel)
   /* Get vp/vs for closest voxel */
   switch (entry->data_src) {
   case VX_SRC_TO:
-    memcpy(&(voxel->topo), &tobuffer[j], p4.ESIZE);
-    memcpy(&(voxel->mtop), &mtopbuffer[j], p4.ESIZE);
-    memcpy(&(voxel->base), &babuffer[j], p4.ESIZE);
-    memcpy(&(voxel->moho), &mobuffer[j], p4.ESIZE);
+    memcpy(&(voxel->topo), &tobuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(voxel->mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(voxel->base), &babuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(voxel->moho), &mobuffer[j], p_topo_dem.ESIZE);
     break;
   default:
     return;
@@ -910,7 +931,7 @@ void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel)
   double gcoor[3]; // coord of point wrt volume
   float gcoor_min[3]; // UTM coord of volume origin
   float step[3];
-  int esize=p0_ESIZE;
+  int esize;
   //float testval;
 
   vx_init_voxel(voxel);
@@ -922,7 +943,7 @@ void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel)
       gcoor_min[j] = to_a.O[j];
       model_max[j] = to_a.N[j];
       step[j] = step_to[j];
-      esize = p4.ESIZE;
+      esize = p_topo_dem.ESIZE;
       break;
     default:
       return;
@@ -956,10 +977,10 @@ void vx_closest_voxel_to_coord(vx_entry_t *entry, vx_voxel_t *voxel)
   /* Get vp/vs for closest voxel */
   switch (entry->data_src) {
   case VX_SRC_TO:
-    memcpy(&(voxel->topo), &tobuffer[j], p4.ESIZE);
-    memcpy(&(voxel->mtop), &mtopbuffer[j], p4.ESIZE);
-    memcpy(&(voxel->base), &babuffer[j], p4.ESIZE);
-    memcpy(&(voxel->moho), &mobuffer[j], p4.ESIZE);
+    memcpy(&(voxel->topo), &tobuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(voxel->mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(voxel->base), &babuffer[j], p_topo_dem.ESIZE);
+    memcpy(&(voxel->moho), &mobuffer[j], p_topo_dem.ESIZE);
     break;
   default:
     return;
@@ -994,7 +1015,7 @@ void vx_dist_point_to_voxel(vx_entry_t *entry, vx_voxel_t *voxel,
       gcoor_min[j] = to_a.O[j];
       model_max[j] = to_a.N[j];
       step[j] = step_to[j];
-      esize = p4.ESIZE;
+      esize = p_topo_dem.ESIZE;
       break;
     default:
       return;

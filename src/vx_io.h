@@ -13,6 +13,8 @@ int vx_io_init(char *);
 /* Finalize voxel prop reader */
 int vx_io_finalize();
 
+/* Get property key from voxel property file */
+int vx_io_getpropkey(char *);
 
 /* Get vector from voxel property file */
 int vx_io_getvec(char *,float *);

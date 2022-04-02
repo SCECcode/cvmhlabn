@@ -73,19 +73,38 @@ int vx_io_finalize()
   return(0);
 }
 
+//PROPERTY 1 vp63_basin
+int vx_io_getpropkey(char *search) {
+  int i=0;
+  const char *pstr="PROPERTY ";
+  int slen=strlen(pstr);
+  int pkey=0;
+
+  while (i < vx_num_prop) {
+    if (strstr(vx_props[i], pstr)) {
+      if(strstr(&vx_props[i][slen], search) &&
+            sscanf(&vx_props[i][slen],"%d", &pkey) ) {
+        return pkey;
+      }
+    }
+    i++;
+  }
+  return(0);
+}
 
 /* Get vector from voxel property file */
 int vx_io_getvec(char *search, float *vec)
 {
-  int i=0;
+  int i;
   int slen=strlen(search);
 
+  i = 0;
   while (i < vx_num_prop) {
-    if (strstr(vx_props[i], search) &&
-          (slen+1) < strlen(vx_props[i]) &&
+    if (strstr(vx_props[i], search) && 
+          (slen+1) < strlen(vx_props[i]) && 
              vx_props[i][slen]==' ') {
       sscanf(&vx_props[i][0]+strlen(search)+1,"%f %f %f",
-             &vec[0], &vec[1], &vec[2]);
+	     &vec[0], &vec[1], &vec[2]);
       return(0);
     }
     i++;

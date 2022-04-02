@@ -40,7 +40,7 @@ int test_vx_grid()
 
   unlink(outfile);
 
-  printf("PASS\n");
+  printf("PPASS\n");
   return(0);
 }
 
