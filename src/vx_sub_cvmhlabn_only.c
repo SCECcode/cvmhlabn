@@ -1,4 +1,4 @@
-/** vx_sub_cvmhlabn.c - Query interface to GoCAD voxet volumes and GTL. Supports
+/** vx_sub.c - Query interface to GoCAD voxet volumes and GTL. Supports
     queries for material properties and topography. Accepts Geographic Coordinates 
     or UTM Zone 11 coordinates.
 
@@ -6,32 +6,6 @@
               Added Vs30 Derived GTL, 1D background, smoothing
 07/2011: PES: Extracted io into separate module from vx_sub.c
 **/
-
-/*
-b.dat
-X,Y,Z,vp63_basin,vs63_basin
-421000.000000,3712000.000000,-1906.000000,-1.0000,-1.0000
-354000.000000,3756000.000000,-2000.000366,3326.486084,1695.246582
-g.dat
-X,Y,Z,vp63_basin,vs63_basin
-359000.000000,3766000.000000,-100.000114,1710.692505,302.321136
-s.dat
-X,Y,Z,vp63_basin,vs63_basin
-359000.000000,3766000.000000,-100.000114,1710.692505,302.321136
-354000.000000,3756000.000000,-2000.000366,3326.486084,1695.246582
-464000.000000,3662000.000000,-1900.000000,3438.379395,1791.699829
-
-bad-in
-354000.000000 3756000.000000-2000.000366
-./vx_lite -z elev -m ../data/cvmhlabn  < bad-in
-
-./vx_cvmhlabn_validate  -z elev -f b.dat
-#./vx_cvmhlabn_validate  -z elev -f g.dat
-
-#./vx_cvmhlabn_validate  -z elev -f s.dat
-#./vx_cvmhlabn_validate  -z elev -f ss.dat
-#./vx_cvmhlabn_validate -z elev -f /Users/mei/scec/UCVM_MODELS/Harvard/WORKSPACE/cvmhlabn/CVMHB-Los-Angeles-Basin.dat
-*/
 
 int MEI =1 ;
 
@@ -54,7 +28,7 @@ int MEI =1 ;
 #define ELEV_EPSILON 0.01
 #define MAX_ITER_ELEV 4
 
-int _debug=1;
+int _debug=0;
 int cvmhlabn_debug=0;
 int surface_nodata_count=0; // tracing how many NO_DATA_VALUE
 
@@ -73,34 +47,28 @@ int (*callback_bkg)(vx_entry_t *entry, vx_request_t req_type) = NULL;
 /* Model state variables */
 static int is_setup = False;
 vx_zmode_t vx_zmode = VX_ZMODE_ELEV; // default
-struct axis lr_a, mr_a, hr_a, to_a;
+struct axis mr_a, hr_a, to_a;
 
 int pkey=0;
 // ?? struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
-struct property p_vp_hr; // HR p2
-struct property p_tag_hr; // HR p9
-struct property p_vs_hr; // HR p12 
-struct property p_topo_dem; // interface p4 
-struct property p_moho; // interface p5
-struct property p_base; // interface p6
-struct property p_model_top; // interface p13
-struct property p_vp_lr; // LR p0
-struct property p_tag_lr; // LR p7
-struct property p_vs_lr; // LR p11
+struct property p_vp63_basin; // p2
+struct property p_tag61_basin; // p9
+struct property p_vs63_basin; // p12 
+struct property p_topo_dem; // p4 
+struct property p_moho; // p5
+struct property p_base; // p6
+struct property p_model_top; // p13
 
-float step_to[3], step_hr[3], step_lr[3];
+float step_to[3], step_hr[3];
 float step0hr, step1hr, step2hr;
 
 /* Model buffers */
-static char *lrbuffer = NULL;
 static char *hrbuffer = NULL;
 static char *tobuffer = NULL;
 static char *mobuffer = NULL;
 static char *babuffer = NULL;
 static char *mtopbuffer = NULL;
-static char *lrtbuffer = NULL;
 static char *hrtbuffer = NULL;
-static char *lrvsbuffer = NULL;
 static char *hrvsbuffer = NULL;
 
 /* Data source labels */
@@ -133,85 +101,6 @@ int vx_setup(const char *data_dir)
 
   char TO_PAR[CMLEN];
   sprintf(TO_PAR, "%s/interfaces.vo", data_dir);
-
-  /**** First we load the LowRes File****/
-  if (vx_io_init(LR_PAR) != 0) {
-    fprintf(stderr, "Failed to load LR param file %s. Check that the model path is correct.\n", LR_PAR);
-    return(1);
-  }
-
-fprintf(stderr, "load LR param file %s. \n", LR_PAR);
-
-  vx_io_getvec("AXIS_O",lr_a.O);
-  vx_io_getvec("AXIS_U",lr_a.U);
-  vx_io_getvec("AXIS_V",lr_a.V);
-  vx_io_getvec("AXIS_W",lr_a.W);
-  vx_io_getvec("AXIS_MIN",lr_a.MIN);
-  vx_io_getvec("AXIS_MAX",lr_a.MAX);
-  vx_io_getdim("AXIS_N",lr_a.N);
-
-  /** AP: AXIS_MIN and AXIS_MAX are currently not used and need to be 0
-      0 0 and 1 1 1, respectively, in the .vo file. The AXIS_UVW would
-      need to be adjusted accordingly in the .vo file.
-  **/
-
-  NCells=lr_a.N[0]*lr_a.N[1]*lr_a.N[2];
-  sprintf(p_vp_lr.NAME,"vint");
-  vx_io_getpropname("PROP_FILE",1,p_vp_lr.FN);
-  vx_io_getpropsize("PROP_ESIZE",1,&p_vp_lr.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",1,&p_vp_lr.NO_DATA_VALUE);
-
-if(_debug) { fprintf(stderr,"using LR VP file ..%s\n\n",p_vp_lr.FN); }
-
-  lrbuffer=(char *)malloc(NCells*p_vp_lr.ESIZE);
-  if (lrbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate LR Vp buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p_vp_lr.FN,
-		       p_vp_lr.ESIZE,NCells,lrbuffer) != 0) {
-    fprintf(stderr, "Failed to load LR Vp volume\n");
-    return(1);
-  }
-
-  // and the tags
-  sprintf(p_tag_lr.NAME,"tag");
-  vx_io_getpropname("PROP_FILE",2,p_tag_lr.FN);
-  vx_io_getpropsize("PROP_ESIZE",2,&p_tag_lr.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",2,&p_tag_lr.NO_DATA_VALUE);
-
-if(_debug) { fprintf(stderr,"using LR TAG file ..%s\n\n",p_tag_lr.FN); }
-
-  lrtbuffer=(char *)malloc(NCells*p_tag_lr.ESIZE);
-  if (lrtbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate LR tag buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p_tag_lr.FN,
-		       p_tag_lr.ESIZE,NCells,lrtbuffer) != 0) {
-    fprintf(stderr, "Failed to load LR tag volume\n");
-    return(1);
-  }
-
-  // and vs
-  sprintf(p_vs_lr.NAME,"vs");
-  vx_io_getpropname("PROP_FILE",3,p_vs_lr.FN);
-  vx_io_getpropsize("PROP_ESIZE",3,&p_vs_lr.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",3,&p_vs_lr.NO_DATA_VALUE);
-
-if(_debug) { fprintf(stderr,"using LR VS file ..%s\n\n",p_vs_lr.FN); }
-
-  lrvsbuffer=(char *)malloc(NCells*p_vs_lr.ESIZE);
-  if (lrvsbuffer == NULL) {
-    fprintf(stderr, "Failed to allocate LR Vs buffer\n");
-    return(1);
-  }
-  if (vx_io_loadvolume(data_dir, p_vs_lr.FN,
-		       p_vs_lr.ESIZE,NCells,lrvsbuffer) != 0) {
-    fprintf(stderr, "Failed to load LR Vs volume\n");
-    return(1);
-  }
-  vx_io_finalize();
 
 
   /**** First we load the HighRes File *****/
@@ -292,64 +181,64 @@ if(_debug) { fprintf(stderr,"using LR VS file ..%s\n\n",p_vs_lr.FN); }
 
   NCells=hr_a.N[0]*hr_a.N[1]*hr_a.N[2];
 
-  sprintf(p_vp_hr.NAME,"vp63_basin");
-  pkey=vx_io_getpropkey(p_vp_hr.NAME);
+  sprintf(p_vp63_basin.NAME,"vp63_basin");
+  pkey=vx_io_getpropkey(p_vp63_basin.NAME);
 
-  vx_io_getpropname("PROP_FILE",pkey,p_vp_hr.FN);
-  vx_io_getpropsize("PROP_ESIZE",pkey,&p_vp_hr.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vp_hr.NO_DATA_VALUE);
+  vx_io_getpropname("PROP_FILE",pkey,p_vp63_basin.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_vp63_basin.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vp63_basin.NO_DATA_VALUE);
 
-  if(_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p_vp_hr.FN); }
+  if(_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p_vp63_basin.FN); }
 
-  hrbuffer=(char *)malloc(NCells*p_vp_hr.ESIZE);
+  hrbuffer=(char *)malloc(NCells*p_vp63_basin.ESIZE);
   if (hrbuffer == NULL) {
     fprintf(stderr, "Failed to allocate HR Vp file\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p_vp_hr.FN,
-		       p_vp_hr.ESIZE,NCells,hrbuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_vp63_basin.FN,
+		       p_vp63_basin.ESIZE,NCells,hrbuffer) != 0) {
     fprintf(stderr, "Failed to load HR Vp volume\n");
     return(1);
   }
 
   // and the tags
-  sprintf(p_tag_hr.NAME,"tag61_basin");
-  pkey=vx_io_getpropkey(p_tag_hr.NAME);
+  sprintf(p_tag61_basin.NAME,"tag61_basin");
+  pkey=vx_io_getpropkey(p_tag61_basin.NAME);
 
-  vx_io_getpropname("PROP_FILE",pkey,p_tag_hr.FN);
-  vx_io_getpropsize("PROP_ESIZE",pkey,&p_tag_hr.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_tag_hr.NO_DATA_VALUE);
+  vx_io_getpropname("PROP_FILE",pkey,p_tag61_basin.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_tag61_basin.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_tag61_basin.NO_DATA_VALUE);
 
-if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p_tag_hr.FN); }
+if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p_tag61_basin.FN); }
 
-  hrtbuffer=(char *)malloc(NCells*p_tag_hr.ESIZE);
+  hrtbuffer=(char *)malloc(NCells*p_tag61_basin.ESIZE);
   if (hrtbuffer == NULL) {
     fprintf(stderr, "Failed to allocate HR tag file\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p_tag_hr.FN,
-		       p_tag_hr.ESIZE,NCells,hrtbuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_tag61_basin.FN,
+		       p_tag61_basin.ESIZE,NCells,hrtbuffer) != 0) {
     fprintf(stderr, "Failed to load HR tag volume\n");
     return(1);
   }
 
   // and vs
-  sprintf(p_vs_hr.NAME,"vs63_basin");
-  pkey=vx_io_getpropkey(p_vs_hr.NAME);
+  sprintf(p_vs63_basin.NAME,"vs63_basin");
+  pkey=vx_io_getpropkey(p_vs63_basin.NAME);
 
-  vx_io_getpropname("PROP_FILE",pkey,p_vs_hr.FN);
-  vx_io_getpropsize("PROP_ESIZE",pkey,&p_vs_hr.ESIZE);
-  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vs_hr.NO_DATA_VALUE);
+  vx_io_getpropname("PROP_FILE",pkey,p_vs63_basin.FN);
+  vx_io_getpropsize("PROP_ESIZE",pkey,&p_vs63_basin.ESIZE);
+  vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vs63_basin.NO_DATA_VALUE);
 
-if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p_vs_hr.FN); }
+if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p_vs63_basin.FN); }
 
-  hrvsbuffer=(char *)malloc(NCells*p_vs_hr.ESIZE);
+  hrvsbuffer=(char *)malloc(NCells*p_vs63_basin.ESIZE);
   if (hrvsbuffer == NULL) {
     fprintf(stderr, "Failed to allocate HR Vs file\n");
     return(1);
   }
-  if (vx_io_loadvolume(data_dir, p_vs_hr.FN,
-		       p_vs_hr.ESIZE,NCells,hrvsbuffer) != 0) {
+  if (vx_io_loadvolume(data_dir, p_vs63_basin.FN,
+		       p_vs63_basin.ESIZE,NCells,hrvsbuffer) != 0) {
     fprintf(stderr, "Failed to load HR Vs volume\n");
     return(1);
   }
@@ -453,10 +342,6 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p_vs_hr.FN); }
   step_to[1]=to_a.V[1]/(to_a.N[1]-1);
   step_to[2]=0.0;
 
-  step_lr[0]=lr_a.U[0]/(lr_a.N[0]-1);
-  step_lr[1]=lr_a.V[1]/(lr_a.N[1]-1);
-  step_lr[2]=lr_a.W[2]/(lr_a.N[2]-1);
-
   if( MEI || (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
       step_hr[0]=step0hr;
       step_hr[1]=step1hr;
@@ -481,7 +366,6 @@ int vx_cleanup()
   }
 
   free(hrbuffer);
-  free(lrbuffer);
   free(tobuffer);
   free(mobuffer);
   free(babuffer);
@@ -489,8 +373,6 @@ int vx_cleanup()
 
   free(hrtbuffer);
   free(hrvsbuffer);
-  free(lrtbuffer);
-  free(lrvsbuffer);
 
   vx_zmode = VX_ZMODE_ELEV;
 
@@ -583,8 +465,6 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     gcoor[0]=round((entry->coor_utm[0]-to_a.O[0])/step_to[0]);
     gcoor[1]=round((entry->coor_utm[1]-to_a.O[1])/step_to[1]);
     gcoor[2]=0;
-
-{ fprintf(stderr,"CHECKING with elvation part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); }
     
     //check if inside
     if(gcoor[0]>=0&&gcoor[1]>=0&&
@@ -631,7 +511,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       depth = surface - entry->coor_utm[2];
     }
 
-if(cvmhlabn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
+    if(cvmhlabn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
                                                         entry->coor[0], entry->coor[1], entry->coor[2]); }
     if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
@@ -645,11 +525,10 @@ if(cvmhlabn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf
       gcoor[1]=round((entry->coor_utm[1]-hr_a.O[1])/step_hr[1]);
       gcoor[2]=round((entry->coor_utm[2]-hr_a.O[2])/step_hr[2]);
       
-{ fprintf(stderr,"CHECKING with HR part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); }
-
 if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d) with utm(%f %f %f)\n", 
                               gcoor[0],gcoor[1],gcoor[2], entry->coor_utm[0],
                                            entry->coor_utm[1], entry->coor_utm[2]); }
+
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
 if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
@@ -657,40 +536,16 @@ if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-
 if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
-	j=voxbytepos(gcoor,hr_a.N,p_vp_hr.ESIZE);
+	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0_ESIZE);
-	memcpy(&(entry->vp), &hrbuffer[j], p_vp_hr.ESIZE);
-	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp_hr.ESIZE);
+	memcpy(&(entry->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
+	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);
 	entry->data_src = VX_SRC_HR;
 if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
-      } else {  // try LR region	  
-
-if(cvmhlabn_debug) { fprintf(stderr,"Looking into (LR)>>>>>> entry->coor(%lf %lf %lf)\n",
-                                                        entry->coor[0], entry->coor[1], entry->coor[2]); }
-
-        gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
-        gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
-        gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
-
-{ fprintf(stderr,"CHECKING with LR part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); }
-
-        if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
-           gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2]) {
-          /* AP: And here are the cell centers*/
-          entry->vel_cell[0]= lr_a.O[0]+gcoor[0]*step_lr[0];
-          entry->vel_cell[1]= lr_a.O[1]+gcoor[1]*step_lr[1];
-          entry->vel_cell[2]= lr_a.O[2]+gcoor[2]*step_lr[2];
-          j=voxbytepos(gcoor,lr_a.N,p_vp_lr.ESIZE);
-          memcpy(&(entry->provenance), &lrtbuffer[j], p_vp_lr.ESIZE);
-          memcpy(&(entry->vp), &lrbuffer[j], p_vp_lr.ESIZE);
-          memcpy(&(entry->vs), &lrvsbuffer[j], p_vp_lr.ESIZE);
-          entry->data_src = VX_SRC_LR;
-          } else {	  
-             do_bkg = True;
-        }
+      } else {	  
+        do_bkg = True;
       }
     }
 
@@ -754,26 +609,10 @@ void vx_getvoxel(vx_voxel_t *voxel) {
 	voxel->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	voxel->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	voxel->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-	j=voxbytepos(gcoor,hr_a.N,p_vp_hr.ESIZE);
+	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
 	memcpy(&(voxel->provenance), &hrtbuffer[j], p0_ESIZE);
-	memcpy(&(voxel->vp), &hrbuffer[j], p_vp_hr.ESIZE);
-	memcpy(&(voxel->vs), &hrvsbuffer[j], p_vp_hr.ESIZE);	
-      }
-
-    break;
-
-  case VX_SRC_LR:
-
-    if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
-       gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2])
-      {
-        voxel->vel_cell[0]= lr_a.O[0]+gcoor[0]*step_lr[0];
-        voxel->vel_cell[1]= lr_a.O[1]+gcoor[1]*step_lr[1];
-        voxel->vel_cell[2]= lr_a.O[2]+gcoor[2]*step_lr[2];
-        j=voxbytepos(gcoor,lr_a.N,p_vp_lr.ESIZE);
-        memcpy(&(voxel->provenance), &lrtbuffer[j], p_vp_lr.ESIZE);
-        memcpy(&(voxel->vp), &lrbuffer[j], p_vp_lr.ESIZE);
-        memcpy(&(voxel->vs), &lrvsbuffer[j], p_vp_lr.ESIZE);
+	memcpy(&(voxel->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
+	memcpy(&(voxel->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);	
       }
 
     break;
@@ -878,9 +717,6 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	    case VX_SRC_HR:
 	      entry.coor[2] -= fabs(step_hr[2]);
 	      break;
-            case VX_SRC_LR:
-              entry.coor[2] -= fabs(step_lr[2]);
-              break;
 	    default:
 	      do_bkg = True;
 	      flag = 1;
@@ -991,9 +827,6 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
 	  case VX_SRC_HR:
 	    entry.coor[2] -= fabs(step_hr[2]);
 	    break;
-          case VX_SRC_LR:
-            entry.coor[2] -= fabs(step_lr[2]);
-            break;
 	  default:
 	    do_bkg = True;
 	    flag = 1;

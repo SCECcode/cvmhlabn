@@ -549,6 +549,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     gcoor[0]=round((entry->coor_utm[0]-to_a.O[0])/step_to[0]);
     gcoor[1]=round((entry->coor_utm[1]-to_a.O[1])/step_to[1]);
     gcoor[2]=0;
+
+fprintf(stderr,"XXX checking with elevation part %d %d %d\n",gcoor[0], gcoor[1], gcoor[2]);
     
     //check if inside
     if(gcoor[0]>=0&&gcoor[1]>=0&&
@@ -606,6 +608,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       gcoor[0]=round((entry->coor_utm[0]-hr_a.O[0])/step_hr[0]);
       gcoor[1]=round((entry->coor_utm[1]-hr_a.O[1])/step_hr[1]);
       gcoor[2]=round((entry->coor_utm[2]-hr_a.O[2])/step_hr[2]);
+
+fprintf(stderr,"XXX checking with  HR %d %d %d\n",gcoor[0], gcoor[1], gcoor[2]);
       
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
@@ -622,6 +626,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
 	gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
 	gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
+
+fprintf(stderr,"XXX checking with LR %d %d %d\n",gcoor[0], gcoor[1], gcoor[2]);
 	
 	if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	   gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2]) {
@@ -639,6 +645,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	  gcoor[1]=round((entry->coor_utm[1]-cm_a.O[1])/step_cm[1]);
 	  gcoor[2]=round((entry->coor_utm[2]-cm_a.O[2])/step_cm[2]);
 	  
+fprintf(stderr,"XXX checking with  CM %d %d %d\n",gcoor[0], gcoor[1], gcoor[2]);
+
 	  /** AP: check if inside CM voxet; the uppermost layer of 
 	      CM overlaps with the lowermost of LR, may need to be 
 	      ignored but is not.
