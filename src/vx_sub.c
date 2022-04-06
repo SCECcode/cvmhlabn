@@ -596,6 +596,9 @@ fprintf(stderr,"XXX checking with elevation part %d %d %d\n",gcoor[0], gcoor[1],
       depth = surface - entry->coor_utm[2];
     }
 
+// XXX
+fprintf(stderr,"\n READY..\n");
+
     if ((do_bkg == False) || ((do_bkg == True) && (callback_bkg == NULL)) || 
 	(enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 

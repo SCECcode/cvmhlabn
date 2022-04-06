@@ -302,10 +302,10 @@ int main(int argc, char* const argv[]) {
                       _compare_double(dat.vs, -99999.0) ||
                       _compare_double(dat.vp, -99999.0)) {
                   
-                       fprintf(stderr,"VALIDATE:Mismatching -\n");
-                       fprintf(stderr,"VALIDATE:%lf,%lf,%lf\n\n",dat.x, dat.y, dat.z);
-                       fprintf(stderr,"VALIDATE:   vs: %lf vp:%lf\n",ret.vs, ret.vp);
-                       fprintf(stderr,"VALIDATE:   dat_vs: %lf dat_vp: %lf\n",dat.vs, dat.vp);
+                       fprintf(stderr,"\nVALIDATE:Mismatching -\n");
+                       fprintf(stderr,"VALIDATE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                       fprintf(stderr,"VALIDATE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                       fprintf(stderr,"VALIDATE:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
                        mcount++;  // real mismatch
                        } else {
                              mmcount++;  // just -1 vs -99999
