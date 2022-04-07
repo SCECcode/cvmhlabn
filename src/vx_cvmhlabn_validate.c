@@ -293,25 +293,31 @@ int main(int argc, char* const argv[]) {
                 if(validate_debug) {
                    fprintf(stderr,"VALIDATE:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
                 }
+
                 // is result matching ?
                 if(_compare_double(ret.vs, dat.vs) ||
                              _compare_double(ret.vp, dat.vp)) { 
 
-                   if(_compare_double(ret.vs, -1.0) ||
-                      _compare_double(ret.vp, -1.0) ||
-                      _compare_double(dat.vs, -99999.0) ||
-                      _compare_double(dat.vp, -99999.0)) {
-                  
-                       fprintf(stderr,"\nVALIDATE:Mismatching -\n");
-                       fprintf(stderr,"VALIDATE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                       fprintf(stderr,"VALIDATE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                       fprintf(stderr,"VALIDATE:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
-                       mcount++;  // real mismatch
+/*** special case.. only in lr
+
+VALIDATE:356000.000000,3754000.000000,-100.000114
+VALIDATE: dat.vs(-99999.000000),dat.vp(1480.000000)
+VALIDATE:   ret vs:(-1.000000) ret vp:(-1.000000)
+
+**/
+                     // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (ret.vs == -1, ret.vp == -1) 
+                     if (!_compare_double(ret.vs, -1.0) && !_compare_double(ret.vp, -1.0) &&
+                              !_compare_double(dat.vs, -99999.0) && !_compare_double(dat.vp, -99999.0)) {
+                       mmcount++;  // just -1 vs -99999
                        } else {
-                             mmcount++;  // just -1 vs -99999
-                    }
+                         fprintf(stderr,"\nVALIDATE:Mismatching -\n");
+                         fprintf(stderr,"VALIDATE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                         fprintf(stderr,"VALIDATE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                         fprintf(stderr,"VALIDATE:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
+                         mcount++;  // real mismatch
+                      }
                     } else {
-                          okcount++;
+                         okcount++;
                   }
                 } else { // rc=1 
                    if(validate_debug) printf("VALIDATE: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
@@ -322,7 +328,7 @@ int main(int argc, char* const argv[]) {
 
         fprintf(stderr,"VALIDATE: %d mismatch out of %d \n", mcount, tcount);
         fprintf(stderr,"VALIDATE: surface NO_DATA_VALUE count: local(%d), deep(%d)\n", local_surface_nodata_count,surface_nodata_count);
-        fprintf(stderr,"VALIDATE: good (%d) not(%d) \n",okcount, local_query_fail_count );
+        fprintf(stderr,"VALIDATE: good with matching values(%d) fail(%d) \n",okcount, local_query_fail_count );
 	assert(cvmhlabn_finalize() == 0);
 	printf("VALIDATE:Model closed successfully.\n");
 

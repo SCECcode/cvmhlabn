@@ -55,8 +55,8 @@ int LABN=1;
 #define ELEV_EPSILON 0.01
 #define MAX_ITER_ELEV 4
 
-int _debug=0;
 int cvmhlabn_debug=0;
+int _debug=0;
 int surface_nodata_count=0; // tracing how many NO_DATA_VALUE
 
 float p0_NO_DATA_VALUE = -99999.0; // p0.NO_DATA_VALUE 
@@ -589,7 +589,7 @@ if(cvmhlabn_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)
     break;
   }
 
-  if(cvmhlabn_debug) { fprintf(stderr," UTM -> %lf %lf %lf\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
+  if(_debug) { fprintf(stderr," UTM -> %lf %lf %lf\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
 }
 
   /* Now we have UTM Zone 11 */
@@ -602,7 +602,7 @@ if(cvmhlabn_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)
     gcoor[1]=round((entry->coor_utm[1]-to_a.O[1])/step_to[1]);
     gcoor[2]=0;
 
-if(cvmhlabn_debug){ fprintf(stderr,"CHECKING with elevation part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); }
+if(_debug){ fprintf(stderr,"CHECKING with elevation part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); }
     
     //check if inside
     if(gcoor[0]>=0&&gcoor[1]>=0&&
@@ -626,7 +626,7 @@ if(cvmhlabn_debug){ fprintf(stderr,"CHECKING with elevation part %d %d %d\n", gc
     if (enhanced == True) {
       elev = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
-      if(cvmhlabn_debug) { fprintf(stderr," cvmh surface -- %lf\n", surface); }
+      if(_debug) { fprintf(stderr," cvmh surface -- %lf\n", surface); }
       if (surface < -90000.0) {
         surface_nodata_count++;
 	return(1);
@@ -650,7 +650,6 @@ if(cvmhlabn_debug){ fprintf(stderr,"CHECKING with elevation part %d %d %d\n", gc
     }
 
 if(cvmhlabn_debug) fprintf(stderr,"\n  READY  \n");
-
 if(cvmhlabn_debug) { fprintf(stderr,"Looking into (LAYER)>>>>>> entry->coor(%lf %lf %lf)\n",
                                                         entry->coor[0], entry->coor[1], entry->coor[2]); }
     if ((do_bkg == False) || (enhanced == False)) {
@@ -665,14 +664,13 @@ if(cvmhlabn_debug) { fprintf(stderr,"Looking into (LAYER)>>>>>> entry->coor(%lf 
       gcoor[1]=round((entry->coor_utm[1]-hr_a.O[1])/step_hr[1]);
       gcoor[2]=round((entry->coor_utm[2]-hr_a.O[2])/step_hr[2]);
       
-if(cvmhlabn_debug) fprintf(stderr,"CHECKING with HR part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]);
-if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d) with utm(%f %f %f)\n", 
-                              gcoor[0],gcoor[1],gcoor[2], entry->coor_utm[0],
-                                           entry->coor_utm[1], entry->coor_utm[2]); }
+if(cvmhlabn_debug) fprintf(stderr,"is this in HR? %d %d %d utm(%f %f %f) \n", 
+gcoor[0], gcoor[1], gcoor[2] ,entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
+
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
 
-if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
+if(cvmhlabn_debug) fprintf(stderr,"CHECKING into HR with %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); 
 
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
@@ -685,29 +683,30 @@ if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cel
 	memcpy(&(entry->vp), &hrbuffer[j], p_vp_hr.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp_hr.ESIZE);
 
-//        if(entry->vs != -99999.0 && entry->vp != -99999.0) { 
-if(1) {
-	  entry->data_src = VX_SRC_HR;
-if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+        if(entry->vs == -99999.0 &&  entry->vp == -99999.0) { 
+           if(cvmhlabn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+//MEI, still set it ??
+//	  entry->data_src = VX_SRC_HR;
+
           } else {
-if(cvmhlabn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+	  entry->data_src = VX_SRC_HR;
+if(cvmhlabn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
         }
-
       }
-      if( entry->data_src != VX_SRC_HR ) { // try LR region	  
 
-if(cvmhlabn_debug) { fprintf(stderr,"Looking into (LR)>>>>>> entry->coor(%lf %lf %lf)\n",
-                                                        entry->coor[0], entry->coor[1], entry->coor[2]); }
+      if( entry->data_src != VX_SRC_HR ) { // try LR region	  
 
         gcoor[0]=round((entry->coor_utm[0]-lr_a.O[0])/step_lr[0]);
         gcoor[1]=round((entry->coor_utm[1]-lr_a.O[1])/step_lr[1]);
         gcoor[2]=round((entry->coor_utm[2]-lr_a.O[2])/step_lr[2]);
 
-if(cvmhlabn_debug) fprintf(stderr,"CHECKING with LR part %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); 
+if(cvmhlabn_debug) fprintf(stderr,"is this in LR? %d %d %d utm(%f %f %f) \n", 
+gcoor[0], gcoor[1], gcoor[2] ,entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
 
         if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
            gcoor[0]<lr_a.N[0]&&gcoor[1]<lr_a.N[1]&&gcoor[2]<lr_a.N[2]) {
           /* AP: And here are the cell centers*/
+if(cvmhlabn_debug) fprintf(stderr,"CHECKING with LR with %d %d %d\n", gcoor[0], gcoor[1], gcoor[2]); 
           entry->vel_cell[0]= lr_a.O[0]+gcoor[0]*step_lr[0];
           entry->vel_cell[1]= lr_a.O[1]+gcoor[1]*step_lr[1];
           entry->vel_cell[2]= lr_a.O[2]+gcoor[2]*step_lr[2];
@@ -734,7 +733,7 @@ if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In LR)>>>>>> j(%d) gcoor(%d
     }
   }
 
-  if(cvmhlabn_debug) { fprintf(stderr,"   DONE(ALL)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f) rho(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs, entry->rho); }
+  if(_debug) { fprintf(stderr,"   DONE(ALL)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f) rho(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs, entry->rho); }
 
   if(0) {
     fprintf(stderr,"KEEP warnings down: topo_gap(%lf) zt(%lf) depth(%lf)\n",topo_gap,zt,depth);
@@ -742,7 +741,7 @@ if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In LR)>>>>>> j(%d) gcoor(%d
 
   /* Restore original input coords */
   memcpy(entry->coor, incoor, sizeof(double) * 3);
-if(cvmhlabn_debug) fprintf(stderr,"DONE CALLING --- vx_getcoord_private\n");
+if(cvmhlabn_debug) fprintf(stderr,"DONE --- vx_getcoord_private\n");
   return(0);
 }
 
@@ -875,6 +874,9 @@ if(cvmhlabn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
   /* check if inside topo volume */
   if(gcoor[0]>=0&&gcoor[1]>=0&&
      gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
+
+if(cvmhlabn_debug) fprintf(stderr," SURFACE: in topo\n");
+
     j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
     memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
     memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
@@ -884,7 +886,7 @@ if(cvmhlabn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
     // -118.5 36.8 0.0
     // 345500.000000  4059000.0 0.0
 
-    {
+    { // this is from where (vx_use_gtl != TRUE)
       /* check for valid topo values */
       if ((entry.topo - p0_NO_DATA_VALUE > 0.1) && 
 	  (entry.mtop - p0_NO_DATA_VALUE > 0.1)) {
@@ -899,7 +901,7 @@ if(cvmhlabn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
 	int num_iter = 0;
 	entry.coor[2] = *surface;
 	while (!flag) {
-if(cvmhlabn_debug) fprintf(stderr,"  --- LOOPING in here %lf\n", entry.coor[2]);
+if(cvmhlabn_debug) fprintf(stderr," SURFACE: LOOPING in here %lf\n", entry.coor[2]);
 	  if (num_iter > MAX_ITER_ELEV) {
 	    *surface = p0_NO_DATA_VALUE;
 	    flag = 1;
@@ -910,9 +912,11 @@ if(cvmhlabn_debug) fprintf(stderr,"  --- LOOPING in here %lf\n", entry.coor[2]);
 	    switch (entry.data_src) {
 	    case VX_SRC_HR:
 	      entry.coor[2] -= fabs(step_hr[2]);
+if(cvmhlabn_debug) fprintf(stderr, " SURFACE: HR offset %lf -> %lf\n", step_hr[2], entry.coor[2]);
 	      break;
             case VX_SRC_LR:
               entry.coor[2] -= fabs(step_lr[2]);
+if(cvmhlabn_debug) fprintf(stderr, " SURFACE: LR offset %lf -> %lf\n", step_hr[2], entry.coor[2]);
               break;
 	    default:
 	      do_bkg = True;
@@ -937,7 +941,7 @@ if(cvmhlabn_debug) fprintf(stderr,"  --- LOOPING in here %lf\n", entry.coor[2]);
     *surface = p0_NO_DATA_VALUE;
   }
 
-if(cvmhlabn_debug)  fprintf(stderr,"DONE CALLING vx_getsurface_private\n");
+if(cvmhlabn_debug)  fprintf(stderr,"DONE -- vx_getsurface_private surface found=%lf\n", *surface);
   return(0);
 }
 

@@ -398,6 +398,8 @@ int vx_getcoord(vx_entry_t *entry) {
    disable advanced features like depth/offset query modes.
 */ 
 int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
+
+if(cvmhlabn_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enhanced);
   int j=0;
   double SP[2],SPUTM[2];
   int gcoor[3];
@@ -541,9 +543,16 @@ if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cel
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0_ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);
-	entry->data_src = VX_SRC_HR;
-if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+// ???? 
 
+        if(entry->vs == -99999.0 &&  entry->vp == -99999.0) {
+if(cvmhlabn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+//MEI, still set it ?? fake it
+        entry->data_src = VX_SRC_HR;
+          } else {
+            entry->data_src = VX_SRC_HR;
+if(cvmhlabn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+        }
       } else {	  
         do_bkg = True;
       }
@@ -567,6 +576,9 @@ if(cvmhlabn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d
 
   /* Restore original input coords */
   memcpy(entry->coor, incoor, sizeof(double) * 3);
+
+if(cvmhlabn_debug) fprintf(stderr,"DONE --- vx_getcoord_private\n");
+
   return(0);
 }
 
@@ -635,6 +647,7 @@ void vx_getsurface(double *coor, vx_coord_t coor_type, float *surface)
 /* Private function for querying elevation of free surface at point 'coor'.  */
 int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 {
+if(cvmhlabn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
   int gcoor[3];
   double SP[2],SPUTM[2];
   int j;
@@ -682,6 +695,9 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
   /* check if inside topo volume */
   if(gcoor[0]>=0&&gcoor[1]>=0&&
      gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
+
+if(cvmhlabn_debug) fprintf(stderr," SURFACE: in topo\n");
+
     j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
     memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
     memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
@@ -702,13 +718,17 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	  *surface = entry.topo - ELEV_EPSILON;
 	}
 	
+
+
 	int flag = 0;
 	int num_iter = 0;
 	entry.coor[2] = *surface;
 	while (!flag) {
+if(cvmhlabn_debug) fprintf(stderr," SURFACE: LOOPING in here %lf\n", entry.coor[2]);
 	  if (num_iter > MAX_ITER_ELEV) {
 	    *surface = p0_NO_DATA_VALUE;
 	    flag = 1;
+fprintf(stderr,"SURFACE: over max_iter set  to NO_DATA_VALUE\n");
 	  }
 	  num_iter = num_iter + 1;
 	  vx_getcoord_private(&entry, False);
@@ -723,10 +743,12 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	      break;
 	    }
 	  } else {
+fprintf(stderr,"SURFACE: LOOPING checked %lf\n", entry.coor[2]);
 	    *surface = entry.coor[2];
 	    flag = 1;
 	  }
 	}
+fprintf(stderr,"SURFACE: LOOPING is over %lf\n", entry.coor[2]);
       } else {
 	do_bkg = True;
       }
@@ -738,7 +760,9 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 
   if (do_bkg) {
     *surface = p0_NO_DATA_VALUE;
+fprintf(stderr,"SURFACE: do_bkg set to NO_DATA_VALUE\n");
   }
+if(cvmhlabn_debug)  fprintf(stderr,"DONE -- vx_getsurface_private surface found=%lf\n", *surface);
 
   return(0);
 }
