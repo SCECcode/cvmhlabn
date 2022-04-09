@@ -1,7 +1,7 @@
 # Autoconf/automake file
 
 lib_LIBRARIES = libvxapi.a libvxapi_cvmhlabn.a libcvmhlabn.a 
-bin_PROGRAMS = vx vx_lite vx_slice vx_lite_cvmhlabn vx_cvmhlabn vx_cvmhlabn_validate run_vx.sh run_vx_lite.sh
+bin_PROGRAMS = vx vx_lite vx_slice vx_lite_cvmhlabn vx_cvmhlabn vx_cvmhlabn_validate vx_cvmhlabn_lite_validate run_vx.sh run_vx_lite.sh
 include_HEADERS = vx_sub.h
 
 # General compiler/linker flags
@@ -14,6 +14,7 @@ libcvmhlabn_a_SOURCES = vx_sub_cvmhlabn.c vx_io.c
 libvxapi_a_SOURCES = vx_sub.c scec1d.c vs30_gtl.c vx_io.c utils.c 
 vx_lite_cvmhlabn_SOURCES = vx_lite_cvmhlabn.c
 vx_cvmhlabn_SOURCES = vx_cvmhlabn.c
+vx_cvmhlabn_lite_validate_SOURCES = vx_cvmhlabn_lite_validate.c
 vx_cvmhlabn_validate_SOURCES = vx_cvmhlabn_validate.c
 vx_slice_SOURCES = vx_slice.c
 vx_lite_SOURCES = vx_lite.c
@@ -60,6 +61,12 @@ vx_cvmhlabn_validate.o : vx_cvmhlabn_validate.c
 	$(CC) -o $@ -c $^ $(AM_CFLAGS)
 
 vx_cvmhlabn_validate : vx_cvmhlabn_validate.o libcvmhlabn.a
+	$(CC) -o $@ $^ $(AM_LDFLAGS)
+
+vx_cvmhlabn_lite_validate.o : vx_cvmhlabn_lite_validate.c
+	$(CC) -o $@ -c $^ $(AM_CFLAGS)
+
+vx_cvmhlabn_lite_validate : vx_cvmhlabn_lite_validate.o libcvmhlabn.a
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
 vx_cvmhlabn.o : vx_cvmhlabn.c

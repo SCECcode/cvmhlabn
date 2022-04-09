@@ -58,6 +58,7 @@ typedef struct vx_entry_t
   float vp;
   float vs;
   double rho;
+  double depth;
 } vx_entry_t;
 
 
