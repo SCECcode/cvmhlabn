@@ -21,7 +21,6 @@
 #include "vx_sub_cvmhlabn.h"
 
 int validate_debug = 0;
-int local_query_fail_count=0;
 
 
 /*********************************************/
@@ -179,8 +178,6 @@ int main(int argc, char* const argv[]) {
         int mcount=0;  // real mismatch
         int mmcount=0; // fake mismatch -- no data
         int okcount=0;
-
-        local_query_fail_count=0;
 
         /* Parse options */
         while ((opt = getopt(argc, argv, "df:m:h")) != -1) {

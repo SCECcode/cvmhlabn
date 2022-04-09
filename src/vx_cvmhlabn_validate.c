@@ -20,7 +20,6 @@
 #include "cvmhlabn.h"
 
 int validate_debug = 0;
-int local_query_fail_count=0;
 
 
 /*********************************************/
@@ -186,7 +185,6 @@ int main(int argc, char* const argv[]) {
         int mcount=0;  // real mismatch
         int mmcount=0; // fake mismatch -- no data
         int okcount=0;
-        local_query_fail_count=0;
         FILE *ofp= fopen("validate_ucvm_bad.out","w");
         FILE *oofp= fopen("validate_ucvm_other.out","w");
         fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
@@ -285,7 +283,6 @@ VALIDATE_UCVM:   ret vs:(-1.000000) ret vp:(-1.000000)
                   }
                 } else { // rc=1 
                    if(validate_debug) printf("VALIDATE_UCVM: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
-                   local_query_fail_count++;
               }
           rc=_next_datfile(fp, &dat);
         }

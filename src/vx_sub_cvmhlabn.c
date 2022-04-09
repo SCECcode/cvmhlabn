@@ -91,9 +91,6 @@ int vx_setup(const char *data_dir)
   hrtbuffer = NULL;
   hrvsbuffer = NULL;
 
-  char LR_PAR[CMLEN];
-  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
-  
   char HR_PAR[CMLEN];
   sprintf(HR_PAR, "%s/CVMHB-Los-Angeles-Basin.vo", data_dir);
   
@@ -494,7 +491,7 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
     if(enhanced == True) {
 
       vx_getsurface(entry->coor, entry->coor_type, &surface);
-      if(cvmhlabn_debug) { fprintf(stderr," XXX cvmh surface -- %lf\n", surface); }
+      if(cvmhlabn_debug) { fprintf(stderr," FOUND cvmh surface -- %lf\n", surface); }
       if (surface < -90000.0) {
         surface_nodata_count++;
 	return(1);
@@ -513,7 +510,6 @@ if(_debug) fprintf(stderr," === PRE >>> surface %lf utm2 %lf coor2 %lf \n", surf
       }
 
 if(_debug) fprintf(stderr," ===  NEW >>> depth %lf surface %lf utm2 %lf coor %lf \n", depth, surface, entry->coor_utm[2], entry->coor[2]);
-if(_debug) fprintf(stderr," === zmode (%d)\n", vx_zmode); 
 
       switch (vx_zmode) {
       case VX_ZMODE_ELEV:
@@ -567,16 +563,11 @@ if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cel
 
         if(entry->vs == -99999.0 &&  entry->vp == -99999.0) {
 if(cvmhlabn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
-//MEI, still set it ?? fake it
          }
          entry->data_src = VX_SRC_HR;
+         entry->depth = surface - entry->coor_utm[2];
 
-//XX  determining the depth at this point,
-if(_debug) fprintf(stderr, "====>XXXX (enhanced%d) utm2(%lf),  surface (%lf)\n", enhanced, entry->coor_utm[2], surface);
-
-            entry->depth = surface - entry->coor_utm[2];
-
-if(_debug) fprintf(stderr," ===XXXX Woohoo depth(%lf) \n", entry->depth);
+if(_debug) fprintf(stderr," === Woohoo depth(%lf) \n", entry->depth);
 if(cvmhlabn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
@@ -1018,7 +1009,6 @@ double calc_rho(float vp, vx_src_t data_src)
   /* Compute rho */
   switch (data_src) {
   case VX_SRC_HR:
-  case VX_SRC_LR:
     /*** Density should be at least 1000 ***/
     if (vp!=1480) {
       if (vp>744.) {
