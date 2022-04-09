@@ -26,9 +26,8 @@ int MEI =1 ;
 
 /* Topography filtering DEPRECATED */
 #define ELEV_EPSILON 0.01
-#define MAX_ITER_ELEV 4
 
-float TARGET_COOR_UTM2=-99999.0;
+float HighRes_z=0.0;
 
 int _debug=0;
 int cvmhlabn_debug=0;
@@ -118,6 +117,8 @@ int vx_setup(const char *data_dir)
   vx_io_getvec("AXIS_MIN",hr_a.MIN);
   vx_io_getvec("AXIS_MAX",hr_a.MAX);
   vx_io_getdim("AXIS_N ",hr_a.N);
+
+  HighRes_z=hr_a.O[2]; // deepest part of volume
 
   if(_debug) {
     fprintf(stderr," From:\n");
@@ -491,7 +492,6 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
 
     /* Convert depth/offset Z coordinate to elevation */
     if(enhanced == True) {
-      TARGET_COOR_UTM2= entry->coor_utm[2];
 
       vx_getsurface(entry->coor, entry->coor_type, &surface);
       if(cvmhlabn_debug) { fprintf(stderr," XXX cvmh surface -- %lf\n", surface); }
@@ -574,7 +574,7 @@ if(cvmhlabn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor
 //XX  determining the depth at this point,
 if(_debug) fprintf(stderr, "====>XXXX (enhanced%d) utm2(%lf),  surface (%lf)\n", enhanced, entry->coor_utm[2], surface);
 
-            entry-> depth = surface - entry->coor_utm[2];
+            entry->depth = surface - entry->coor_utm[2];
 
 if(_debug) fprintf(stderr," ===XXXX Woohoo depth(%lf) \n", entry->depth);
 if(cvmhlabn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
@@ -679,7 +679,6 @@ if(cvmhlabn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
   int j;
   vx_entry_t entry;
   int do_bkg = False;
-  int iter_limit = MAX_ITER_ELEV; // by default
 
   *surface = p0_NO_DATA_VALUE;
 
@@ -745,45 +744,33 @@ if(cvmhlabn_debug) fprintf(stderr," SURFACE: in topo gcoor(%d,%d,%d)\n",gcoor[0]
 	  *surface = entry.topo - ELEV_EPSILON;
 	}
 	
-        if(TARGET_COOR_UTM2 != -99999.0) {  // only the first time 
-
-if(_debug) fprintf(stderr," ===> SURFACE: SAVE UTM is %lf surface from topo is %lf\n", TARGET_COOR_UTM2, *surface);
-          iter_limit=0;
-          if (vx_zmode == VX_ZMODE_ELEV) {
-            int tmp= (*surface == p0_NO_DATA_VALUE)? 0: round((*surface - TARGET_COOR_UTM2)/step_hr[2]);
-            iter_limit = (tmp < 0)?0 : tmp+1;
-          }
-          if (vx_zmode == VX_ZMODE_DEPTH) {
-            iter_limit = round((TARGET_COOR_UTM2+abs(*surface))/step_hr[2])+1;
-          }
-          iter_limit = (iter_limit ==0)? MAX_ITER_ELEV:iter_limit; // to be on the safe side
-        }
-        
-
-if(_debug) fprintf(stderr," SURFACE:new max iter..%d elevation from (%lf to %lf)\n", iter_limit, *surface,TARGET_COOR_UTM2);
-
 	int flag = 0;
 	int num_iter = 0;
 	entry.coor[2] = *surface;
 	while (!flag) {
 if(cvmhlabn_debug) fprintf(stderr," SURFACE: (%d)LOOPING in here %lf\n", num_iter,entry.coor[2]);
-	  if (num_iter > iter_limit) { 
-	    *surface = p0_NO_DATA_VALUE;
-	    flag = 1;
-if(cvmhlabn_debug) fprintf(stderr,"SURFACE: over iter_limit set  to NO_DATA_VALUE\n");
-	  }
+
 	  num_iter = num_iter + 1;
 	  vx_getcoord_private(&entry, False);
+
+// go down to see where the actual surface for this point is
+
 	  if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
-	    switch (entry.data_src) {
-	    case VX_SRC_HR:
-	      entry.coor[2] -= fabs(step_hr[2]);
-	      break;
-	    default:
-	      do_bkg = True;
-	      flag = 1;
-	      break;
-	    }
+            if( *surface < HighRes_z ) {
+	      *surface = p0_NO_DATA_VALUE;
+              flag=1;
+if(cvmhlabn_debug) fprintf(stderr,"SURFACE: HIT the bottom set to NO_DATA_VALUE\n");
+              } else { 
+	        switch (entry.data_src) {
+	        case VX_SRC_HR:
+	          entry.coor[2] -= fabs(step_hr[2]);
+	          break;
+	        default:
+	          do_bkg = True;
+	          flag = 1;
+	          break;
+	        }
+          }
 	  } else {
 	    *surface = entry.coor[2];
 	    flag = 1;
@@ -809,112 +796,6 @@ if(_debug)  fprintf(stderr,"DONE -- SURFACE: vx_getsurface_private surface found
   return(0);
 }
 
-
-/* Return mtop at coordinates 'coor' in 'surface' */
-void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
-{
-  int gcoor[3];
-  double SP[2],SPUTM[2];
-  int j;
-  vx_entry_t entry;
-  int do_bkg = False;
-
-  *surface = p0_NO_DATA_VALUE;
-
-  entry.coor[0] = coor[0];
-  entry.coor[1] = coor[1];
-  entry.coor[2] = 0.0;
-  entry.coor_type = coor_type;
-
-  // Initialize entry structure
-  vx_init_entry(&entry);
-
-  switch (entry.coor_type) {
-  case VX_COORD_GEO:
-    
-    SP[0]=entry.coor[0];
-    SP[1]=entry.coor[1];
-    
-    gctp(SP,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
-	 SPUTM,&outsys,&outzone,inparm,&outunit,&outdatum,
-	 file27, file83,&iflg);
-    
-    entry.coor_utm[0]=SPUTM[0];
-    entry.coor_utm[1]=SPUTM[1];
-    entry.coor_utm[2]=entry.coor[2];
-    break;
-  case VX_COORD_UTM:
-    entry.coor_utm[0]=entry.coor[0];
-    entry.coor_utm[1]=entry.coor[1];
-    entry.coor_utm[2]=entry.coor[2];
-    break;
-  default:
-    return;
-    break;
-  }
-
-  gcoor[0]=round((entry.coor_utm[0]-to_a.O[0])/step_to[0]);
-  gcoor[1]=round((entry.coor_utm[1]-to_a.O[1])/step_to[1]);
-  gcoor[2]=0;
-    
-  /* check if inside topo volume */
-  if(gcoor[0]>=0&&gcoor[1]>=0&&
-     gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
-    j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
-    memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
-    memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
-  } else {
-    do_bkg = True;
-  }
-
-  if (!do_bkg) {
-
-    /* check for valid topo values */
-    if ((entry.topo - p0_NO_DATA_VALUE > 0.1) && 
-	(entry.mtop - p0_NO_DATA_VALUE > 0.1)) {
-      if (entry.topo > entry.mtop) {
-	*surface = entry.mtop - ELEV_EPSILON;
-      } else {
-	*surface = entry.topo - ELEV_EPSILON;
-      }
-      
-      int flag = 0;
-      int num_iter = 0;
-      entry.coor[2] = *surface;
-      while (!flag) {
-	if (num_iter > MAX_ITER_ELEV) {
-	  *surface = p0_NO_DATA_VALUE;
-	  flag = 1;
-	}
-	num_iter = num_iter + 1;
-	vx_getcoord_private(&entry, False);
-	if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
-	  switch (entry.data_src) {
-	  case VX_SRC_HR:
-	    entry.coor[2] -= fabs(step_hr[2]);
-	    break;
-	  default:
-	    do_bkg = True;
-	    flag = 1;
-	    break;
-	  }
-	} else {
-	  *surface = entry.coor[2];
-	  flag = 1;
-	}
-      }
-      
-    } else {
-      do_bkg = True;
-    }
-  }
-
-  if (do_bkg) {
-    *surface = p0_NO_DATA_VALUE;
-  }
-
-  return;
-}
 
 /* Return the voxel 'voxel' that lies precisely at the coord/model
    specified in 'entry'. If point lies outside of volume, the returned

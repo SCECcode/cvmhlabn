@@ -58,12 +58,12 @@ FILE *_process_datfile(char *fname) {
   char dat_line[1028];
   FILE *fp = fopen(fname, "r");
   if (fp == NULL) {
-    fprintf(stderr,"VALIDATE: FAIL: Unable to open the validation data file %s\n", fname);
+    fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
   /* read the title line */
   if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"VALIDATE: FAIL: Unable to extract validation data file %s\n", fname);
+    fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to extract validation data file %s\n", fname);
     fclose(fp);
     exit(1);
   }
@@ -81,7 +81,7 @@ FILE *_process_datfile(char *fname) {
 // X,Y,Z,depth,vp63_basin,vs63_basin
   while(p != NULL)
   {
-    if(validate_debug) { printf("VALIDATE:'%s'\n", p); }
+    if(validate_debug) { printf("VALIDATE_UCVM:'%s'\n", p); }
     if(strcmp(p,"X")==0)
       dat_entry.x_idx=counter;
     else if(strcmp(p,"Y")==0)
@@ -206,7 +206,7 @@ int main(int argc, char* const argv[]) {
             } else if (strcasecmp(optarg, "off") == 0) {
               zmode = UCVM_COORD_GEO_ELEVOFF;
             } else {
-              fprintf(stderr, "VALIDATE: Invalid coord type %s", optarg);
+              fprintf(stderr, "VALIDATE_UCVM: Invalid coord type %s", optarg);
               usage();
               exit(0);
             }
@@ -235,10 +235,10 @@ int main(int argc, char* const argv[]) {
            } else {
 	     assert(cvmhlabn_init("..", "cvmhlabn") == 0);
         }
-	printf("VALIDATE: Loaded the model successfully.\n");
+	printf("VALIDATE_UCVM: Loaded the model successfully.\n");
 
         assert(cvmhlabn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
-	printf("VALIDATE: Set model zmode successfully.\n");
+	printf("VALIDATE_UCVM: Set model zmode successfully.\n");
 
         rc=_next_datfile(fp, &dat);
         while(rc==0) {
@@ -249,11 +249,11 @@ int main(int argc, char* const argv[]) {
 
 	      rc=cvmhlabn_query(&pt, &ret, 1); // rc 0 is okay
 
-              if(validate_debug) {fprintf(stderr, "VALIDATE:   with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
+              if(validate_debug) {fprintf(stderr, "VALIDATE_UCVM:   with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
               if(rc == 0) {
 
                 if(validate_debug) {
-                   fprintf(stderr,"VALIDATE:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
+                   fprintf(stderr,"VALIDATE_UCVM:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
                 }
 
                 // is result matching ?
@@ -262,9 +262,9 @@ int main(int argc, char* const argv[]) {
 
 /*** special case.. only in lr
 
-VALIDATE:356000.000000,3754000.000000,-100.000114
-VALIDATE: dat.vs(-99999.000000),dat.vp(1480.000000)
-VALIDATE:   ret vs:(-1.000000) ret vp:(-1.000000)
+VALIDATE_UCVM:356000.000000,3754000.000000,-100.000114
+VALIDATE_UCVM: dat.vs(-99999.000000),dat.vp(1480.000000)
+VALIDATE_UCVM:   ret vs:(-1.000000) ret vp:(-1.000000)
 
 **/
                      // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (ret.vs == -1, ret.vp == -1) 
@@ -273,10 +273,10 @@ VALIDATE:   ret vs:(-1.000000) ret vp:(-1.000000)
                        mmcount++;  // just -1 vs -99999
                        fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                        } else {
-                         fprintf(stderr,"\nVALIDATE:Mismatching -\n");
-                         fprintf(stderr,"VALIDATE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                         fprintf(stderr,"VALIDATE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                         fprintf(stderr,"VALIDATE:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
+                         fprintf(stderr,"\nVALIDATE_UCVM:Mismatching -\n");
+                         fprintf(stderr,"VALIDATE_UCVM:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                         fprintf(stderr,"VALIDATE_UCVM: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                         fprintf(stderr,"VALIDATE_UCVM:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
                          mcount++;  // real mismatch
                          fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                       }
@@ -284,16 +284,16 @@ VALIDATE:   ret vs:(-1.000000) ret vp:(-1.000000)
                          okcount++;
                   }
                 } else { // rc=1 
-                   if(validate_debug) printf("VALIDATE: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
+                   if(validate_debug) printf("VALIDATE_UCVM: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
                    local_query_fail_count++;
               }
           rc=_next_datfile(fp, &dat);
         }
 
-        fprintf(stderr,"VALIDATE: %d mismatch out of %d \n", mcount, tcount);
-        fprintf(stderr,"VALIDATE: good with matching values(%d) mmcount(%d) \n",okcount, mmcount );
+        fprintf(stderr,"VALIDATE_UCVM: %d mismatch out of %d \n", mcount, tcount);
+        fprintf(stderr,"VALIDATE_UCVM: good with matching values(%d) mmcount(%d) \n",okcount, mmcount );
 	assert(cvmhlabn_finalize() == 0);
-	printf("VALIDATE:Model closed successfully.\n");
+	printf("VALIDATE_UCVM:Model closed successfully.\n");
 
 
         fclose(fp);

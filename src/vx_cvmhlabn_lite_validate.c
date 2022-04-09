@@ -57,12 +57,12 @@ FILE *_process_datfile(char *fname) {
   char dat_line[1028];
   FILE *fp = fopen(fname, "r");
   if (fp == NULL) {
-    fprintf(stderr,"VALIDATE: FAIL: Unable to open the validation data file %s\n", fname);
+    fprintf(stderr,"VALIDATE_LITE: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
   /* read the title line */
   if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"VALIDATE: FAIL: Unable to extract validation data file %s\n", fname);
+    fprintf(stderr,"VALIDATE_LITE: FAIL: Unable to extract validation data file %s\n", fname);
     fclose(fp);
     exit(1);
   }
@@ -80,7 +80,7 @@ FILE *_process_datfile(char *fname) {
 // X,Y,Z,tag61_basin,vp63_basin,vs63_basin
   while(p != NULL)
   {
-    if(validate_debug) { printf("VALIDATE:'%s'\n", p); }
+    if(validate_debug) { printf("VALIDATE_LITE:'%s'\n", p); }
     if(strcmp(p,"X")==0)
       dat_entry.x_idx=counter;
     else if(strcmp(p,"Y")==0)
@@ -232,30 +232,30 @@ int main(int argc, char* const argv[]) {
 
                vx_getcoord(&entry);
 
-               if(validate_debug) fprintf(stderr, "VALIDATE:   with.. %lf %lf %lf\n", entry.coor[0],entry.coor[1],entry.coor[2]);
+               if(validate_debug) fprintf(stderr, "VALIDATE_LITE:   with.. %lf %lf %lf\n", entry.coor[0],entry.coor[1],entry.coor[2]);
 
               if(1) { // sometimes rcc could be 1 because it can not find right surface or of area or of area
                 if(validate_debug) {
-                   fprintf(stderr,"VALIDATE:     vs:%lf vp:%lf rho:%lf\n\n",entry.vs, entry.vp, entry.rho);
+                   fprintf(stderr,"VALIDATE_LITE:     vs:%lf vp:%lf rho:%lf\n\n",entry.vs, entry.vp, entry.rho);
                 }
 
                 // is result matching ?
                 if(_compare_double(entry.vs, dat.vs) ||
                              _compare_double(entry.vp, dat.vp)) { 
 /*** special case.. only in lr
-VALIDATE:356000.000000,3754000.000000,-100.000114
-VALIDATE: dat.vs(-99999.000000),dat.vp(1480.000000)
-VALIDATE:   ret vs:(-1.000000) ret vp:(-1.000000)
+VALIDATE_LITE:356000.000000,3754000.000000,-100.000114
+VALIDATE_LITE: dat.vs(-99999.000000),dat.vp(1480.000000)
+VALIDATE_LITE:   ret vs:(-1.000000) ret vp:(-1.000000)
 **/
                      // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (entry.vs == -1, entry.vp == -1) 
                      if (!_compare_double(entry.vs, -1.0) && !_compare_double(entry.vp, -1.0) &&
                               !_compare_double(dat.vs, -99999.0) && !_compare_double(dat.vp, -99999.0)) {
                        mmcount++;  // just -1 vs -99999
                        } else {
-                         fprintf(stderr,"\nVALIDATE:Mismatching -\n");
-                         fprintf(stderr,"VALIDATE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                         fprintf(stderr,"VALIDATE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                         fprintf(stderr,"VALIDATE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
+                         fprintf(stderr,"\nVALIDATE_LITE:Mismatching -\n");
+                         fprintf(stderr,"VALIDATE_LITE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                         fprintf(stderr,"VALIDATE_LITE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                         fprintf(stderr,"VALIDATE_LITE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
                          mcount++;  // real mismatch
                       }
                       fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
@@ -267,8 +267,8 @@ VALIDATE:   ret vs:(-1.000000) ret vp:(-1.000000)
           rc=_next_datfile(fp, &dat);
         }
 
-        fprintf(stderr,"VALIDATE: %d mismatch out of %d (mmcount %d)\n", mcount, tcount,mmcount);
-        fprintf(stderr,"VALIDATE: good with matching values(%d) \n",okcount );
+        fprintf(stderr,"VALIDATE_LITE: %d mismatch out of %d (mmcount %d)\n", mcount, tcount,mmcount);
+        fprintf(stderr,"VALIDATE_LITE: good with matching values(%d) \n",okcount );
  
        // vx_cleanup();
 
