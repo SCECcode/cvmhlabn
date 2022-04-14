@@ -2,7 +2,7 @@ name: test-ci
 
 on:
   push:
-    branches: [ main ]
+    branches: [ foo ]
 
 jobs:
   cvmhlabn-test-mac:

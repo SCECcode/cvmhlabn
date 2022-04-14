@@ -19,4 +19,4 @@ if [ "x$UCVM_INSTALL_PATH" != "x" ] ; then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-env DYLD_LIBRARY_PATH=${SCRIPT_DIR}/../src ./cvmhlabn_api_validate -f ./validate_vxlite_good.txt
+env DYLD_LIBRARY_PATH=${SCRIPT_DIR}/../src LD_LIBRARY_PATH=${SCRIPT_DIR}/../src ./cvmhlabn_api_validate -f ./validate_vxlite_good.txt
