@@ -256,7 +256,7 @@ int main(int argc, char* const argv[]) {
               if(idx == NUM_POINTS) {
                 /* Query the UCVM */
                 if (ucvm_query(NUM_POINTS, pnts, props) != UCVM_CODE_SUCCESS) {
-                  fprintf(stderr, "Query CVM failed\n");
+                  fprintf(stderr, "Query CVM Failed\n");
                   return(1);
                 }
                 // compare result
@@ -276,7 +276,7 @@ int main(int argc, char* const argv[]) {
         if(idx > 0) {
             /* Query the UCVM */
             if (ucvm_query(idx, pnts, props) != UCVM_CODE_SUCCESS) {
-              fprintf(stderr, "Query CVM failed\n");
+              fprintf(stderr, "Query CVM Failed\n");
               return(1);
             }
             // compare result

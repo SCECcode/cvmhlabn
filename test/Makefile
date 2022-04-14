@@ -173,7 +173,7 @@ AUTOMAKE = ${SHELL} '/Users/mei/scec/TARGET_UCVM/ucvm/work/model/cvmhlabn/aux-co
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS =    -I/Users/mei/SCEC/TARGET_UCVM/ucvm_install/include
+CFLAGS =    
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -190,7 +190,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LDFLAGS =    -L/Users/mei/SCEC/TARGET_UCVM/ucvm_install/lib -lucvm -dynamic  -L/Users/mei/SCEC/TARGET_UCVM/ucvm_install/lib/euclid3/lib -letree -L/Users/mei/SCEC/TARGET_UCVM/ucvm_install/lib/proj-5/lib -lproj -lpthread -L/Users/mei/SCEC/TARGET_UCVM/ucvm_install/lib/fftw/lib -lfftw3 -lm
+LDFLAGS =     -lm
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
