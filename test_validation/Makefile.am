@@ -11,11 +11,6 @@ AM_LDFLAGS = -L../src -lcvmhlabn -L../gctpc/source -lgctpc -lm
 cvmhlabn_api_validate_SOURCES = cvmhlabn_api_validate.c
 cvmhlabn_vxlite_validate_SOURCES = cvmhlabn_vxlite_validate.c
 
-#if UCVM
-#bin_PROGRAMS += cvmhlabn_ucvm_validate
-#cvmhlabn_ucvm_validate_SOURCES = cvmhlabn_ucvm_validate.c
-#endif
-
 .PHONY = run_validate run_validate_with_ucvm
 
 all: $(bin_PROGRAMS)
@@ -30,10 +25,14 @@ cvmhlabn_vxlite_validate : cvmhlabn_vxlite_validate.o
 cvmhlabn_api_validate : cvmhlabn_api_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
-#if UCVM
-#cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o 
-#	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
-#endif
+### only run after ucvm is built and installed
+if UCVM
+cvmhlabn_ucvm_validate.o : cvmhlabn_ucvm_validate.c
+	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
+
+cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o 
+	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
+#endi
 
 ############################################
 # Special build targets
@@ -47,5 +46,5 @@ run_validate_with_ucvm:
 	./run_ucvm_validate.sh
 
 clean:
-	rm -rf *~ *.o $(bin_PROGRAMS) *.txt
+	rm -rf *~ *.o $(bin_PROGRAMS) cvmhlabn_ucvm_validate *.txt
 
