@@ -32,7 +32,7 @@ cvmhlabn_ucvm_validate.o : cvmhlabn_ucvm_validate.c
 
 cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
-#endi
+endif
 
 ############################################
 # Special build targets
