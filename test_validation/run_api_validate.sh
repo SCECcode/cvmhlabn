@@ -10,10 +10,13 @@ if [ ! -f ./validate_vxlite_good.txt  ]; then
 fi
 
 if [ "x$UCVM_INSTALL_PATH" != "x" ] ; then
-  SCRIPT_DIR="$UCVM_INSTALL_PATH"/bin
-  source $SCRIPT_DIR/../conf/ucvm_env.sh
-  ./cvmhlabn_api_validate -f ./validate_vxlite_good.txt
-  else
-    SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-    env DYLD_LIBRARY_PATH=${SCRIPT_DIR}/../src ./cvmhlabn_api_validate -f ./validate_vxlite_good.txt
+  if [ -f $SCRIPT_DIR/../conf/ucvm_env.sh  ] ; then
+    SCRIPT_DIR="$UCVM_INSTALL_PATH"/bin
+    source $SCRIPT_DIR/../conf/ucvm_env.sh
+    ./cvmhlabn_api_validate -f ./validate_vxlite_good.txt
+    exit
+  fi
 fi
+
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+env DYLD_LIBRARY_PATH=${SCRIPT_DIR}/../src ./cvmhlabn_api_validate -f ./validate_vxlite_good.txt

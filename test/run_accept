@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "x${UCVM_INSTALL_PATH}" != "x" ]; then
-  if [ -d ${UCVM_INSTALL_PATH}/model/cvmhlabn/lib ]; then
+  if [ -f ${UCVM_INSTALL_PATH}/conf/ucvm_env.sh ]; then
      source ${UCVM_INSTALL_PATH}/conf/ucvm_env.sh
      ./accepttest
     exit

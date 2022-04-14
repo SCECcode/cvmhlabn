@@ -11,6 +11,8 @@ jobs:
       matrix:
         python-version: [3.7]
     steps:
+    - name: set UCVM_INSTALL_PATH 
+      run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
     - name: checkout cvmhlabn main
       uses: actions/checkout@v2
       with: 
@@ -28,6 +30,8 @@ jobs:
       matrix:
         python-version: [3.7]
     steps:
+    - name: set UCVM_INSTALL_PATH 
+      run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/cvmhlabn/target" >> $GITHUB_ENV
     - name: checkout cvmhlabn main
       uses: actions/checkout@v2
       with: 
