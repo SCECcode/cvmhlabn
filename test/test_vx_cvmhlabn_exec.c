@@ -14,12 +14,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <getopt.h>
-#include "vx_sub.h"
 #include "unittest_defs.h"
 #include "test_helper.h"
 #include "test_vx_cvmhlabn_exec.h"
 
-int VX_TESTS=5;
+int VX_TESTS=4;
 
 int test_vx_cvmhlabn_points_elevation()
 {
@@ -102,46 +101,6 @@ int test_vx_cvmhlabn_points_depth()
   printf("PASS\n");
   return(0);
 }
-
-int test_vx_cvmhlabn_points_offset()
-{
-  char infile[1280];
-  char outfile[1280];
-  char reffile[1280];
-  char currentdir[1000];
-
-  printf("Test: vx_cvmhlabn executable with offset(none) option\n");
-
-  /* Save current directory */
-  getcwd(currentdir, 1000);
-
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test-offset.in");
-  sprintf(outfile, "%s/%s", currentdir, 
-	  "test-10-point-vx-cvmhlabn-extract-offset.out");
-  sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-10-point-vx-cvmhlabn-extract-offset.ref");
-
-  if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
-    return(1);
-  }
-
-  if (test_assert_int(runVXCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
-				MODE_NONE), 0) != 0) {
-    printf("vx_cvmhlabn failure\n");
-    return(1);
-  }
-
-  /* Perform diff btw outfile and ref */
-  if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
-  }
-
-  unlink(outfile);
-
-  printf("PASS\n");
-  return(0);
-}
-
 
 int test_vx_cvmhlabn_points_ge()
 {
@@ -251,17 +210,13 @@ int suite_vx_cvmhlabn_exec(const char *xmldir)
   suite.tests[1].test_func = &test_vx_cvmhlabn_points_depth;
   suite.tests[1].elapsed_time = 0.0;
 
-  strcpy(suite.tests[2].test_name, "test_vx_cvmhlabn_points_offset");
-  suite.tests[2].test_func = &test_vx_cvmhlabn_points_offset;
+  strcpy(suite.tests[2].test_name, "test_vx_cvmhlabn_points_gd");
+  suite.tests[2].test_func = &test_vx_cvmhlabn_points_gd;
   suite.tests[2].elapsed_time = 0.0;
 
-  strcpy(suite.tests[3].test_name, "test_vx_cvmhlabn_points_gd");
-  suite.tests[3].test_func = &test_vx_cvmhlabn_points_gd;
+  strcpy(suite.tests[3].test_name, "test_vx_cvmhlabn_points_ge");
+  suite.tests[3].test_func = &test_vx_cvmhlabn_points_ge;
   suite.tests[3].elapsed_time = 0.0;
-
-  strcpy(suite.tests[4].test_name, "test_vx_cvmhlabn_points_ge");
-  suite.tests[4].test_func = &test_vx_cvmhlabn_points_ge;
-  suite.tests[4].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");

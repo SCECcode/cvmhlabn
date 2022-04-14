@@ -1,7 +1,7 @@
 #ifndef TEST_HELPER_H
 #define TEST_HELPER_H
 
-#include "vx_sub.h"
+#include "ucvm_model_dtypes.h"
 #include "cvmhlabn.h"
 
 /* Constants */

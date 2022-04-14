@@ -23,13 +23,23 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
+if test x"$UCVM_INSTALL_PATH" = x; then
+AM_CONDITIONAL(UCVM, false)
+UCVM_CFLAGS=
+UCVM_LDFLAGS=
+else
+AM_CONDITIONAL(UCVM, true)
+UCVM_CFLAGS=-I$UCVM_INSTALL_PATH/include
+UCVM_LDFLAGS="-L$UCVM_INSTALL_PATH/lib -lucvm -dynamic  -L$UCVM_INSTALL_PATH/lib/euclid3/lib -letree -L$UCVM_INSTALL_PATH/lib/proj-5/lib -lproj -lpthread -L$UCVM_INSTALL_PATH/lib/fftw/lib -lfftw3"
+fi
+
 # Checks for library functions.
 
 # Set final CFLAGS and LDFLAGS
-CFLAGS="$CHECK_CFLAGS $ETREE_INCL $PROJ4_INCL"
-LDFLAGS="$CHECK_LDFLAGS $ETREE_LIB $PROJ4_LIB"
+CFLAGS="$CHECK_CFLAGS $ETREE_INCL $PROJ4_INCL $UCVM_CFLAGS"
+LDFLAGS="$CHECK_LDFLAGS $ETREE_LIB $PROJ4_LIB $UCVM_LDFLAGS"
 LDFLAGS="$LDFLAGS -lm"
 
-AC_CONFIG_FILES([Makefile data/Makefile gctpc/source/Makefile src/Makefile test/Makefile test_cvmh/Makefile])
+AC_CONFIG_FILES([Makefile data/Makefile gctpc/source/Makefile src/Makefile test/Makefile test_validation/Makefile])
 
 AC_OUTPUT

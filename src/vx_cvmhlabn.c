@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "ucvm_model_dtypes.h"
 #include "cvmhlabn.h"
 
 extern int cvmhlabn_debug;

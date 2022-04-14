@@ -209,7 +209,7 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
     return(1);
   }
 
-  int zmode = UCVM_COORD_GEO_ELEVOFF;
+  int zmode = UCVM_COORD_GEO_ELEV;
   switch (mode) {
     case MODE_ELEVATION:
       zmode = UCVM_COORD_GEO_ELEV;
@@ -272,9 +272,6 @@ int runVXCVMHLABN(const char *bindir, const char *cvmdir,
       break;
     case MODE_DEPTH:
       sprintf(flags, "-z dep ");
-      break;
-    case MODE_NONE:
-      sprintf(flags, "-z off ");
       break;
   }
 
@@ -339,9 +336,6 @@ int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir,
        break;
      case MODE_DEPTH:
        strcat(flags, "-z dep ");
-       break;
-    case MODE_NONE:
-       strcat(flags, "-z off ");
        break;
   }
 

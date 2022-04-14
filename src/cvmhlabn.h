@@ -19,7 +19,6 @@
 #include <math.h>
 #include <stdarg.h>
 
-#include "ucvm_model_dtypes.h"
 #include "vx_sub_cvmhlabn.h"
 
 // Constants

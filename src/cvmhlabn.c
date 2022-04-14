@@ -10,6 +10,7 @@
  *
  */
 
+#include "ucvm_model_dtypes.h"
 #include "cvmhlabn.h"
 
 /************ Constants and Variables ********/
