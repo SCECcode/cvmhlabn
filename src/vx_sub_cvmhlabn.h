@@ -12,8 +12,7 @@ typedef enum { VX_SRC_NR = 0,
                VX_SRC_GT} vx_src_t;
 
 typedef enum { VX_ZMODE_ELEV = 0, 
-	       VX_ZMODE_DEPTH, 
-	       VX_ZMODE_ELEVOFF } vx_zmode_t;
+	       VX_ZMODE_DEPTH } vx_zmode_t;
 
 typedef enum { VX_COORD_GEO = 0, VX_COORD_UTM } vx_coord_t;
 

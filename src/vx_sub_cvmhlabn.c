@@ -1,7 +1,8 @@
-/** vx_sub.c - Query interface to GoCAD voxet volumes and GTL. Supports
+/** vx_sub_cvmhlabn.c - Query interface to GoCAD voxet volumes and GTL. Supports
     queries for material properties and topography. Accepts Geographic Coordinates 
     or UTM Zone 11 coordinates.
 
+04/2022: MHS: converted to extract just basin(reuse HR)
 01/2010: PES: Derived from original VX interface, vx.c. 
               Added Vs30 Derived GTL, 1D background, smoothing
 07/2011: PES: Extracted io into separate module from vx_sub.c
@@ -380,7 +381,7 @@ int vx_cleanup()
 }
 
 
-/* Set query mode: elevation, elevation offset, depth */
+/* Set query mode: elevation, depth */
 int vx_setzmode(vx_zmode_t m) {
   vx_zmode = m;
   return(0);
@@ -395,7 +396,7 @@ int vx_getcoord(vx_entry_t *entry) {
 
 
 /* Private query function for material properties. Allows caller to 
-   disable advanced features like depth/offset query modes.
+   disable advanced features like depth query modes.
 */ 
 int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 
@@ -487,7 +488,7 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
       do_bkg = True;
     }
 
-    /* Convert depth/offset Z coordinate to elevation */
+    /* Convert depth Z coordinate to elevation */
     if(enhanced == True) {
 
       vx_getsurface(entry->coor, entry->coor_type, &surface);
@@ -517,10 +518,6 @@ if(_debug) fprintf(stderr," ===  NEW >>> depth %lf surface %lf utm2 %lf coor %lf
 	break;
       case VX_ZMODE_DEPTH:
 	entry->coor[2] = elev;
-	entry->coor_utm[2] = entry->coor[2];
-	break;
-      case VX_ZMODE_ELEVOFF:
-	entry->coor[2] = surface + elev;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
       default:

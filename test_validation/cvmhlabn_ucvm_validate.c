@@ -23,9 +23,12 @@
 
 #include "cvmhlabn.h"
 
-#define NUM_POINTS 10
+#define NUM_POINTS 10000
 
 int validate_debug = 0;
+
+// from gctpc
+void gctp();
 
 /*********************************************/
 typedef struct dat_entry_t 
@@ -48,9 +51,54 @@ typedef struct dat_data_t
   double vs;
   double rho;
   double depth;
+  double lon;
+  double lat;
 } dat_data_t;
 
 dat_entry_t dat_entry;
+
+void utm2geo(double utmX, double utmY, double *lon, double *lat) {
+    double SPUTM[2];
+    double SPGEO[2];
+    long insys_geo = 1;
+    long inzone_geo= 11;
+    long inunit_geo = 2;
+    long indatum_geo = 0;
+    long outsys_geo = 0;
+    long outzone_geo= 0;
+    long outunit_geo = 4;
+    long outdatum_geo = 0;
+    double inparm[15];
+    long ipr=5;
+    char efile[256]="errfile";
+    long jpr=5;
+    char file27[256]="proj27";
+    char file83[256]="file83";
+    long iflg=0;
+
+    for(int n=0;n>15;n++) inparm[n]=0;
+    SPUTM[0]=utmX;
+    SPUTM[1]=utmY;
+
+    gctp(SPUTM,&insys_geo,&inzone_geo,inparm,&inunit_geo,&indatum_geo,&ipr,
+         efile,&jpr,efile,SPGEO,&outsys_geo,&outzone_geo,inparm,&outunit_geo,
+         &outdatum_geo,file27,file83,&iflg);
+
+if(validate_debug) {
+fprintf(stderr,"GEO: SPUTM (%lf, %lf) SPGEO (%lf, %lf)\n", 
+              SPUTM[0], SPUTM[1], SPGEO[0], SPGEO[1]);
+fprintf(stderr,"  2 after GEO: insys_geo(%ld) inzone_geo(%ld)\n",
+              insys_geo, inzone_geo);
+fprintf(stderr,"  2 after GEO: inunit_geo(%ld) indatum_geo(%ld) ipr(%ld) jpr(%ld)\n",
+              inunit_geo, indatum_geo, ipr, jpr);
+fprintf(stderr,"  2 after GEO: outsys_geo(%ld) outzone_geo(%ld) outunit_geo(%ld) outdatum_geo(%ld) iflg(%ld)\n",
+              outsys_geo, outzone_geo, outunit_geo, outdatum_geo, iflg);
+}
+
+    *lon=SPGEO[0];
+    *lat=SPGEO[1];
+}
+
 
 /*
 X,Y,Z,depth,vp63_basin,vs63_basin
@@ -134,6 +182,7 @@ int _next_datfile(FILE *fp, dat_data_t *dat) {
     p = strtok(NULL, delimiter);
     counter++;
   }
+  utm2geo(dat->x,dat->y,&dat->lon,&dat->lat);
   return(0);
 }
 
@@ -193,7 +242,11 @@ int main(int argc, char* const argv[]) {
         int okcount=0;
 
         FILE *ofp= fopen("validate_ucvm_bad.txt","w");
-        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin,vs,vp\n");
+        fprintf(ofp,"X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs\n");
+        FILE *oofp= fopen("validate_ucvm_good.txt","w");
+        fprintf(oofp,"X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs\n");
+        FILE *dfp= fopen("validate_ucvm_debug.txt","w");
+        fprintf(dfp,"id,X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs,surf\n");
 
         /* Parse options */
         while ((opt = getopt(argc, argv, "df:c:h")) != -1) {
@@ -244,13 +297,17 @@ int main(int argc, char* const argv[]) {
         pnts = malloc(NUM_POINTS * sizeof(ucvm_point_t));
         props = malloc(NUM_POINTS * sizeof(ucvm_data_t));
 
-        while(rc==0 && idx < NUM_POINTS && tcount < 3) {
+        while(rc==0 && idx < NUM_POINTS) {
               memset(&(pnts[idx]), 0, sizeof(ucvm_point_t));
               memset(&(dat[idx]), 0, sizeof(dat_data_t));
+
               rc=_next_datfile(fp, &dat[idx]); 
+              if(rc) continue;
+
+              if(validate_debug) fprintf(stderr,"lon %lf lat %lf dep %lf\n", dat[idx].lon, dat[idx].lat, dat[idx].depth);
               tcount++;
-              pnts[idx].coord[0]=dat[idx].x;
-              pnts[idx].coord[1]=dat[idx].y;
+              pnts[idx].coord[0]=dat[idx].lon;
+              pnts[idx].coord[1]=dat[idx].lat;
               pnts[idx].coord[2]=dat[idx].depth;
               idx++;
 
@@ -265,10 +322,30 @@ int main(int argc, char* const argv[]) {
                 // is result matching ?
                 for(int j=0; j<NUM_POINTS; j++) {
                   if(_compare_double(props[j].cmb.vs, dat[j].vs) || _compare_double(props[j].cmb.vp, dat[j].vp)) { 
-                    fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-                          dat[j].x,dat[j].y,dat[j].z,dat[j].depth,dat[j].vp,dat[j].vs,props[j].cmb.vs,props[j].cmb.vp);
+
+                     // okay if ( dat[j].vp == -99999, dat[j].vs== -99999 ) and (props[j].cmb.vs == 0, props[j].cmb.vp == 0)
+                     if (!_compare_double(props[j].cmb.vs, 0) && !_compare_double(props[j].cmb.vp, 0) &&
+                              !_compare_double(dat[j].vs, -99999.0) && !_compare_double(dat[j].vp, -99999.0)) {
+                       mmcount++;  // just 0 vs -99999
+                       fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
+                       } else {
+                          fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
+                          fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          tcount,
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,props[j].surf);
+                          mcount++;
+                     }
+
                     } else {
                       okcount++;
+                      fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
                   }
                 }
                 idx=0;
@@ -281,14 +358,33 @@ int main(int argc, char* const argv[]) {
               return(1);
             }
             // compare result
-            idx=0;
             // is result matching ?
             for(int j=0; j<idx; j++) {
               if(_compare_double(props[j].cmb.vs, dat[j].vs) || _compare_double(props[j].cmb.vp, dat[j].vp)) {
-                fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-                          dat[j].x,dat[j].y,dat[j].z,dat[j].depth,dat[j].vp,dat[j].vs,props[j].cmb.vs,props[j].cmb.vp);
+
+                // okay if ( dat[j].vp == -99999, dat[j].vs== -99999 ) and (props[j].cmb.vs == 0, props[j].cmb.vp == 0)
+                 if (!_compare_double(props[j].cmb.vs, 0) && !_compare_double(props[j].cmb.vp, 0) &&
+                              !_compare_double(dat[j].vs, -99999.0) && !_compare_double(dat[j].vp, -99999.0)) {
+                   mmcount++;  // just 0 vs -99999
+                   fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                      dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                      dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
+                   } else {
+                      fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                      dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                      dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
+                      mcount++;
+                 }
                 } else {
                   okcount++;
+                  fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
+                  fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          tcount,
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,props[j].surf);
+
               }
             }
         }
@@ -300,6 +396,8 @@ int main(int argc, char* const argv[]) {
 
         fclose(fp);
         fclose(ofp);
+        fclose(oofp);
+        fclose(dfp);
 
 	return 0;
 }

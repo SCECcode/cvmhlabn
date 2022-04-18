@@ -280,6 +280,7 @@ CVMHLABN_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
                       }
                     } else {
                          okcount++;
+                         fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                   }
                 } else { // rc=1 
                    if(validate_debug) printf("CVMHLABN_VALIDATE_API: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);

@@ -24,8 +24,7 @@ typedef enum { UCVM_PARAM_QUERY_MODE = 1,
 
 /* Supported coordinate query modes */
 typedef enum { UCVM_COORD_GEO_DEPTH = 0,
-               UCVM_COORD_GEO_ELEV,
-               UCVM_COORD_GEO_ELEVOFF} ucvm_ctype_t;
+               UCVM_COORD_GEO_ELEV } ucvm_ctype_t;
 
 /* Supported model parameters. Used internally by UCVM
 UCVM_MODEL_PARAM_FORCE_DEPTH_ABOVE_SURF : Force elevation points to be

@@ -29,7 +29,7 @@ UCVM_CFLAGS=
 UCVM_LDFLAGS=
 else
 AM_CONDITIONAL(UCVM, true)
-UCVM_CFLAGS=-I$UCVM_INSTALL_PATH/include
+UCVM_CFLAGS="-I$UCVM_INSTALL_PATH/include"
 UCVM_LDFLAGS="-L$UCVM_INSTALL_PATH/lib -lucvm -dynamic  -L$UCVM_INSTALL_PATH/lib/euclid3/lib -letree -L$UCVM_INSTALL_PATH/lib/proj-5/lib -lproj -lpthread -L$UCVM_INSTALL_PATH/lib/fftw/lib -lfftw3"
 fi
 
