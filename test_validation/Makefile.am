@@ -31,7 +31,7 @@ cvmhlabn_ucvm_validate.o : cvmhlabn_ucvm_validate.c
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
 
 cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o 
-	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
 endif
 
 ############################################
