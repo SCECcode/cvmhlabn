@@ -1,23 +1,23 @@
 #!/bin/bash
 
-## testing cvmhlabn part
+## testing cvmhlabn validation with ucvm
 
-cd test
+cd test_validation
 
-make run_unit | tee result_unit.txt
+make run_validate | tee result_validate.txt
 
-p=`grep -c FAIL result_unit.txt` 
+p=`grep -c FAIL result_validate.txt` 
 if [ $p != 0 ]; then
    echo "something wrong.."
    exit 1 
 fi
 
-make run_accept | tee result_accept.txt
-p=`grep -c FAIL result_accept.txt` 
-if [ $p != 0 ]; then
-   echo "something wrong.."
-   exit 1 
-fi
+#make run_validate_with_ucvm | tee result_validate_ucvm.txt
+#p=`grep -c FAIL result_validate_ucvm.txt` 
+#if [ $p != 0 ]; then
+#   echo "something wrong.."
+#   exit 1 
+#fi
 
 exit 0 
 
