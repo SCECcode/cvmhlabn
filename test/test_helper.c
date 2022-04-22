@@ -1,3 +1,7 @@
+/** 
+   test_helper.c
+**/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,18 +12,6 @@
 #include "test_helper.h"
 
 int debug_mode=0;
-
-int test_assert_file_exist(const char* filename)
-{
-  FILE *fp;
-
-  fp = fopen(filename, "r");
-  if (fp == NULL) {
-    fclose(fp);
-    return(1);
-  }
-  return(0);
-}
 
 double get_preset_ucvm_surface(double y, double x) {
    if(y == -118.1 && x == 34.0) {

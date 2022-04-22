@@ -32,6 +32,12 @@ cvmhlabn_ucvm_validate.o : cvmhlabn_ucvm_validate.c
 
 cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o 
 	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
+
+cvmhlabn_ucvm_rerun.o : cvmhlabn_ucvm_rerun.c
+	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
+
+cvmhlabn_ucvm_rerun : cvmhlabn_ucvm_rerun.o 
+	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
 endif
 
 ############################################
@@ -42,9 +48,9 @@ run_validate: cvmhlabn_api_validate cvmhlabn_vxlite_validate
 	./run_vxlite_validate.sh
 	./run_api_validate.sh
 
-run_validate_with_ucvm: cvmhlabn_ucvm_validate
+run_validate_with_ucvm: cvmhlabn_ucvm_validate cvmhlabn_ucvm_rerun
 	./run_ucvm_validate.sh
 
 clean:
-	rm -rf *~ *.o $(bin_PROGRAMS) cvmhlabn_ucvm_validate *.txt
+	rm -rf *~ *.o $(bin_PROGRAMS) cvmhlabn_ucvm_validate cvmhlabn_ucvm_rerun *.txt
 

@@ -8,6 +8,41 @@
 #include <math.h>
 #include "unittest_defs.h"
 
+int track_failure_count = 0;
+
+void _reset_failure() {
+    track_failure_count=0;
+}
+
+int _has_failure() {
+    return track_failure_count;
+}
+
+int _success() {
+   printf("PASS\n");
+   return(0);
+}
+
+int _failure(char* estr) {
+   track_failure_count ++;
+   if(estr) {
+     fprintf(stderr,"ERROR: %s\n", estr);
+   }
+   printf("FAIL\n");
+   return(1);
+}
+
+int test_assert_file_exist(const char* filename)
+{
+  FILE *fp;
+
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
+    fclose(fp);
+    return(1);
+  }
+  return(0);
+}
 
 int test_assert_int(int val1, int val2)
 {

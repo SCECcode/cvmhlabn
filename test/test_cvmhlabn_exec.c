@@ -252,6 +252,88 @@ int test_query_points_by_elevation()
   return(0);
 }
 
+
+int test_query_points_by_depth()
+{
+  printf("Test: model_query() points by depth\n");
+
+  FILE  *infp, *outfp;
+  cvmhlabn_point_t pt;
+  cvmhlabn_properties_t ret;
+
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test-depth-ucvm.in");
+  sprintf(outfile, "%s/%s", currentdir,
+          "test-depth-ucvm.out");
+  sprintf(reffile, "%s/%s", currentdir,
+          "./ref/test-depth-ucvm.ref");
+
+  if (test_assert_file_exist(infile) != 0) {
+    return _failure("filed not found");
+  }
+
+  infp = fopen(infile, "r");
+  if (infp == NULL) {
+    return _failure("input file not found");
+  }
+  outfp = fopen(outfile, "w");
+  if (outfp == NULL) {
+    return _failure("output file can not be open");
+  }
+
+  char *envstr=getenv("UCVM_INSTALL_PATH");
+  if(envstr != NULL) {
+    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+      return _failure("model_init failed");
+    }
+  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+    return _failure("model_init failed");
+  }
+
+  int zmode = UCVM_COORD_GEO_DEPTH;
+  if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
+      return _failure("model_setparam failed");
+  }
+
+/* process one term at a time */
+  char line[1001];
+  while(fgets(line, 1000, infp) != NULL) {
+    if(line[0] == '#') continue; // a comment
+    if (sscanf(line,"%lf %lf %lf",
+         &pt.longitude,&pt.latitude,&pt.depth) == 3) {
+      if (test_assert_int(model_query(&pt, &ret, 1), 0) == 0) {
+         fprintf(outfp,"%lf %lf %lf\n",ret.vs, ret.vp, ret.rho);
+      }
+    }
+  }
+  fclose(infp);
+  fclose(outfp);
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    printf("unmatched result\n");
+    printf("%s\n",outfile);
+    printf("%s\n",reffile);
+    return _failure("diff file");
+  }
+
+  // Close the model.
+  if(model_finalize() != 0) {
+      return _failure("model_finalize failed");
+  }
+  unlink(outfile);
+
+  return _success();
+}
+
+
 int suite_cvmhlabn_exec(const char *xmldir)
 {
   suite_t suite;
@@ -260,7 +342,8 @@ int suite_cvmhlabn_exec(const char *xmldir)
 
   /* Setup test suite */
   strcpy(suite.suite_name, "suite_vcmhlabn_exec");
-  suite.num_tests = 5;
+
+  suite.num_tests = 6;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
   if (suite.tests == NULL) {
     fprintf(stderr, "Failed to alloc test structure\n");
@@ -288,6 +371,10 @@ int suite_cvmhlabn_exec(const char *xmldir)
   strcpy(suite.tests[4].test_name, "test_query_points_by_elevation()");
   suite.tests[4].test_func = &test_query_points_by_elevation;
   suite.tests[4].elapsed_time = 0.0;
+
+  strcpy(suite.tests[5].test_name, "test_query_points_by_depth()");
+  suite.tests[5].test_func = &test_query_points_by_depth;
+  suite.tests[5].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");

@@ -18,7 +18,7 @@
 #include "test_helper.h"
 #include "test_vx_cvmhlabn_exec.h"
 
-int VX_TESTS=4;
+int VX_TESTS=6;
 
 int test_vx_cvmhlabn_points_elevation()
 {
@@ -184,6 +184,72 @@ int test_vx_cvmhlabn_points_gd()
   return(0);
 }
 
+int test_vx_cvmhlabn_points_elevation_cvmhlabn()
+{
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  printf("Test: vx_cvmhlabn executable with elevation option (cvmhlabn)\n");
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test-elev-cvmhlabn.in");
+  sprintf(outfile, "%s/%s", currentdir,
+          "test-vx-cvmhlabn-extract-elev-cvmhlabn.out");
+  sprintf(reffile, "%s/%s", currentdir,
+          "./ref/test-vx-cvmhlabn-extract-elev-cvmhlabn.ref");
+
+  if (test_assert_int(runVXCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile,
+                                MODE_ELEVATION), 0) != 0) {
+    return _failure("vx_cvmhlabn failure");
+  }
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    return _failure("unmatch result with reference");
+  }
+
+  unlink(outfile);
+
+  return _success();
+}
+
+int test_vx_cvmhlabn_points_depth_cvmhlabn()
+{
+  char infile[1280];
+  char outfile[1280];
+  char reffile[1280];
+  char currentdir[1000];
+
+  printf("Test: vx_cvmhlabn executable with depth option (cvmhlabn)\n");
+
+  /* Save current directory */
+  getcwd(currentdir, 1000);
+
+  sprintf(infile, "%s/%s", currentdir, "./inputs/test-depth-cvmhlabn.in");
+  sprintf(outfile, "%s/%s", currentdir,
+          "test-vx-cvmhlabn-extract-depth-cvmhlabn.out");
+  sprintf(reffile, "%s/%s", currentdir,
+          "./ref/test-vx-cvmhlabn-extract-depth-cvmhlabn.ref");
+
+  if (test_assert_int(runVXCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile,
+                                MODE_DEPTH), 0) != 0) {
+    return _failure("vx_cvmhlabn failure");
+  } 
+
+  /* Perform diff btw outfile and ref */
+  if (test_assert_file(outfile, reffile) != 0) {
+    return _failure("diff failure");
+  }
+
+  unlink(outfile);
+
+  return _success();
+}
+
 int suite_vx_cvmhlabn_exec(const char *xmldir)
 {
   suite_t suite;
@@ -217,6 +283,14 @@ int suite_vx_cvmhlabn_exec(const char *xmldir)
   strcpy(suite.tests[3].test_name, "test_vx_cvmhlabn_points_ge");
   suite.tests[3].test_func = &test_vx_cvmhlabn_points_ge;
   suite.tests[3].elapsed_time = 0.0;
+
+  strcpy(suite.tests[4].test_name, "test_vx_cvmhlabn_points_elevation_cvmhlabn");
+  suite.tests[4].test_func = &test_vx_cvmhlabn_points_elevation_cvmhlabn;
+  suite.tests[4].elapsed_time = 0.0;
+
+  strcpy(suite.tests[5].test_name, "test_vx_cvmhlabn_points_depth_cvmhlabn");
+  suite.tests[5].test_func = &test_vx_cvmhlabn_points_depth_cvmhlabn;
+  suite.tests[5].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "Failed to execute tests\n");

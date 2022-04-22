@@ -27,32 +27,32 @@ int validate_debug = 0;
 /*********************************************/
 typedef struct dat_entry_t 
 {
+  int id_idx;
   int x_idx;
   int y_idx;
   int z_idx;
   int vp_idx;
   int vs_idx;
-  int rho_idx;
   int depth_idx;
 } dat_entry_t;
 
 typedef struct dat_data_t 
 {
+  long id;
   double x;
   double y;
   double z;
   double vp;
   double vs;
-  double rho;
   double depth;
 } dat_data_t;
 
 dat_entry_t dat_entry;
 
 /*
-X,Y,Z,depth,vp63_basin,vs63_basin
-383000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
-384000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
+id,X,Y,Z,depth,vp63_basin,vs63_basin
+1,350000.000000,3650000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
+2,351000.000000,3650000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
 */
 FILE *_process_datfile(char *fname) {
 
@@ -62,41 +62,50 @@ FILE *_process_datfile(char *fname) {
     fprintf(stderr,"CVMHLABN_VALIDATE_API: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
+
+  int done=0;
+  while(!done) {
+  
   /* read the title line */
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"CVMHLABN_VALIDATE_API: FAIL: Unable to extract validation data file %s\n", fname);
-    fclose(fp);
-    exit(1);
-  }
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      fprintf(stderr,"CVMHLABN_VALIDATE_API: FAIL: Unable to extract validation data file %s\n", fname);
+      fclose(fp);
+      exit(1);
+    }
 
-  /* Strip terminating newline */
-  int slen = strlen(dat_line);
-  if ((slen > 0) && (dat_line[slen-1] == '\n')) {
-    dat_line[slen-1] = '\0';
-  }
-
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
-
-// X,Y,Z,depth,vp63_basin,vs63_basin
-  while(p != NULL)
-  {
-    if(validate_debug) { printf("CVMHLABN_VALIDATE_API:'%s'\n", p); }
-    if(strcmp(p,"X")==0)
-      dat_entry.x_idx=counter;
-    else if(strcmp(p,"Y")==0)
-      dat_entry.y_idx=counter;
-    else if(strcmp(p,"Z")==0)
-      dat_entry.z_idx=counter;
-    else if(strcmp(p,"vp63_basin")==0)
-      dat_entry.vp_idx=counter;
-    else if(strcmp(p,"vs63_basin")==0)
-      dat_entry.vs_idx=counter;
-    else if(strcmp(p,"depth")==0)
-      dat_entry.depth_idx=counter;
-    p = strtok(NULL, delimiter);
-    counter++;
+    if(dat_line[0]=='#') continue;
+    done=1;
+  
+    /* Strip terminating newline */
+    int slen = strlen(dat_line);
+    if ((slen > 0) && (dat_line[slen-1] == '\n')) {
+      dat_line[slen-1] = '\0';
+    }
+  
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+    while(p != NULL)
+    {
+      if(validate_debug) { printf("CVMHLABN_VALIDATE_API:'%s'\n", p); }
+      if(strcmp(p,"id")==0)
+        dat_entry.id_idx=counter;
+      if(strcmp(p,"X")==0)
+        dat_entry.x_idx=counter;
+      else if(strcmp(p,"Y")==0)
+        dat_entry.y_idx=counter;
+      else if(strcmp(p,"Z")==0)
+        dat_entry.z_idx=counter;
+      else if(strcmp(p,"vp63_basin")==0)
+        dat_entry.vp_idx=counter;
+      else if(strcmp(p,"vs63_basin")==0)
+        dat_entry.vs_idx=counter;
+      else if(strcmp(p,"depth")==0)
+        dat_entry.depth_idx=counter;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return fp;
 }
@@ -104,32 +113,38 @@ FILE *_process_datfile(char *fname) {
 int _next_datfile(FILE *fp, dat_data_t *dat) {
 
   char dat_line[1028];
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    return(1); 
-  }
+  int done=0;
 
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
+  while(!done) {
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      return(1); 
+    }
+    if(dat_line[0]=='#') continue;
+    done=1;
 
-//X,Y,Z,depth,vp63_basin,vs63_basin
-//383000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
-  while(p != NULL) {
-    double val = atof(p);
-    if(counter == dat_entry.x_idx)
-        dat->x=val;
-      else if (counter == dat_entry.y_idx)
-        dat->y=val;
-      else if (counter == dat_entry.z_idx)
-        dat->z=val;
-      else if (counter == dat_entry.vs_idx)
-        dat->vs=val;
-      else if (counter == dat_entry.vp_idx)
-        dat->vp=val;
-      else if (counter == dat_entry.depth_idx)
-        dat->depth=val;
-    p = strtok(NULL, delimiter);
-    counter++;
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+    while(p != NULL) {
+      double val = atof(p);
+      if(counter == dat_entry.x_idx)
+          dat->x=val;
+        else if (counter == dat_entry.id_idx)
+          dat->id=(long) val;
+        else if (counter == dat_entry.y_idx)
+          dat->y=val;
+        else if (counter == dat_entry.z_idx)
+          dat->z=val;
+        else if (counter == dat_entry.vs_idx)
+          dat->vs=val;
+        else if (counter == dat_entry.vp_idx)
+          dat->vp=val;
+        else if (counter == dat_entry.depth_idx)
+          dat->depth=val;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return(0);
 }
@@ -148,17 +163,11 @@ int _compare_double(double f1, double f2) {
 
 /* Usage function */
 void usage() {
-  printf("     vx_cvmhlabn_valiate - (c) SCEC\n");
-  printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
-  printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
-  printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_cvmhlabn_validate [-d] [-z dep/elev/off] -f file.dat\n\n");
+  printf("     cvmhlabn_api_validate - (c) SCEC\n");
+  printf("\tusage: cvmhlabn_api_validate [-d] -f file.dat\n\n");
   printf("Flags:\n");
   printf("\t-f point.dat\n\n");
   printf("\t-d enable debug/verbose mode\n\n");
-  printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
-  printf("Output format is:\n");
-  printf("\tvp vs rho\n\n");
   exit (0);
 }
 
@@ -189,8 +198,8 @@ int main(int argc, char* const argv[]) {
         int okcount=0;
         FILE *ofp= fopen("validate_api_bad.txt","w");
         FILE *oofp= fopen("validate_api_good.txt","w");
-        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
-        fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(ofp,"id,X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(oofp,"id,X,Y,Z,depth,vp63_basin,vs63_basin\n");
 
         /* Parse options */
         while ((opt = getopt(argc, argv, "df:z:h")) != -1) {
@@ -241,8 +250,10 @@ int main(int argc, char* const argv[]) {
         rc=_next_datfile(fp, &dat);
         while(rc==0) {
               tcount++;
+
               pt.longitude = dat.x;
               pt.latitude = dat.y;
+
               pt.depth = dat.depth;
 
 	      rc=cvmhlabn_query(&pt, &ret, 1); // rc 0 is okay
@@ -269,18 +280,18 @@ CVMHLABN_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
                      if (!_compare_double(ret.vs, -1.0) && !_compare_double(ret.vp, -1.0) &&
                               !_compare_double(dat.vs, -99999.0) && !_compare_double(dat.vp, -99999.0)) {
                        mmcount++;  // just -1 vs -99999
-                       fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
+                       fprintf(oofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                        } else {
                          fprintf(stderr,"\nCVMHLABN_VALIDATE_API:Mismatching -\n");
                          fprintf(stderr,"CVMHLABN_VALIDATE_API:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
                          fprintf(stderr,"CVMHLABN_VALIDATE_API: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
                          fprintf(stderr,"CVMHLABN_VALIDATE_API:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
                          mcount++;  // real mismatch
-                         fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
+                         fprintf(ofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                       }
                     } else {
                          okcount++;
-                         fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
+                         fprintf(oofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                   }
                 } else { // rc=1 
                    if(validate_debug) printf("CVMHLABN_VALIDATE_API: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);

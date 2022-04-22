@@ -76,6 +76,11 @@ static char *hrvsbuffer = NULL;
 /* Data source labels */
 char *VX_SRC_NAMES[7] = {"nr", "hr", "lr", "cm", "to", "bk", "gt"};
 
+int vx_round(double v) {
+  double r=round(v*10.0);
+  int rval=round(r/10.0);
+  return rval;
+}
 
 /* Setup function to be called prior to querying points */
 int vx_setup(const char *data_dir)
@@ -466,8 +471,8 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
     
     // we start with the elevations; the voxet does not have a vertical
     // dimension
-    gcoor[0]=round((entry->coor_utm[0]-to_a.O[0])/step_to[0]);
-    gcoor[1]=round((entry->coor_utm[1]-to_a.O[1])/step_to[1]);
+    gcoor[0]=vx_round((entry->coor_utm[0]-to_a.O[0])/step_to[0]);
+    gcoor[1]=vx_round((entry->coor_utm[1]-to_a.O[1])/step_to[1]);
     gcoor[2]=0;
 
     //check if inside

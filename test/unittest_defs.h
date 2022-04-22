@@ -36,6 +36,10 @@ typedef struct suite_t {
   time_t exec_time;
 } suite_t;
 
+int _success();
+int _failure(char* estr);
+void _reset_failure();
+int _has_failure();
 
 /* Assertions of equality */
 int test_assert_int(int val1, int val2);

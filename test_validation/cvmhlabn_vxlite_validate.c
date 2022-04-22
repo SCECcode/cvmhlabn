@@ -8,7 +8,7 @@
  * new input dataset that includes depth from cvmh topography.
  *
  *
- *  ./cvmhlabn_vxlite_validate -m cvmhlabn/model/dir -f validation/dir/CVMHB-Los-Angeles-Basin.dat
+ *  ./cvmhlabn_vxlite_validate -m cvmhlabn/model/dir -f validation/dir/CVMHB-San-Gabriel-Basin.dat
  *
  */
 
@@ -32,11 +32,11 @@ typedef struct dat_entry_t
   int z_idx;
   int vp_idx;
   int vs_idx;
-  int rho_idx;
 } dat_entry_t;
 
 typedef struct dat_data_t 
 {
+  long id;
   double x;
   double y;
   double z;
@@ -60,39 +60,46 @@ FILE *_process_datfile(char *fname) {
     fprintf(stderr,"CVMHLABN_VALIDATE_VXLITE: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
-  /* read the title line */
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"CVMHLABN_VALIDATE_VXLITE: FAIL: Unable to extract validation data file %s\n", fname);
-    fclose(fp);
-    exit(1);
-  }
 
-  /* Strip terminating newline */
-  int slen = strlen(dat_line);
-  if ((slen > 0) && (dat_line[slen-1] == '\n')) {
-    dat_line[slen-1] = '\0';
-  }
-
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
-
-// X,Y,Z,tag61_basin,vp63_basin,vs63_basin
-  while(p != NULL)
-  {
-    if(validate_debug) { printf("CVMHLABN_VALIDATE_VXLITE:'%s'\n", p); }
-    if(strcmp(p,"X")==0)
-      dat_entry.x_idx=counter;
-    else if(strcmp(p,"Y")==0)
-      dat_entry.y_idx=counter;
-    else if(strcmp(p,"Z")==0)
-      dat_entry.z_idx=counter;
-    else if(strcmp(p,"vp63_basin")==0)
-      dat_entry.vp_idx=counter;
-    else if(strcmp(p,"vs63_basin")==0)
-      dat_entry.vs_idx=counter;
-    p = strtok(NULL, delimiter);
-    counter++;
+  int done=0;
+  while(!done) {
+    /* read the title line */
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      fprintf(stderr,"CVMHLABN_VALIDATE_VXLITE: FAIL: Unable to extract validation data file %s\n", fname);
+      fclose(fp);
+      exit(1);
+    }
+    if(dat_line[0]=='#') continue;
+  
+    done=1;
+  
+    /* Strip terminating newline */
+    int slen = strlen(dat_line);
+    if ((slen > 0) && (dat_line[slen-1] == '\n')) {
+      dat_line[slen-1] = '\0';
+    }
+  
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+  // X,Y,Z,tag61_basin,vp63_basin,vs63_basin
+    while(p != NULL)
+    {
+      if(validate_debug) { printf("CVMHLABN_VALIDATE_VXLITE:'%s'\n", p); }
+      if(strcmp(p,"X")==0)
+        dat_entry.x_idx=counter;
+      else if(strcmp(p,"Y")==0)
+        dat_entry.y_idx=counter;
+      else if(strcmp(p,"Z")==0)
+        dat_entry.z_idx=counter;
+      else if(strcmp(p,"vp63_basin")==0)
+        dat_entry.vp_idx=counter;
+      else if(strcmp(p,"vs63_basin")==0)
+        dat_entry.vs_idx=counter;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return fp;
 }
@@ -100,30 +107,37 @@ FILE *_process_datfile(char *fname) {
 int _next_datfile(FILE *fp, dat_data_t *dat) {
 
   char dat_line[1028];
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    return(1); 
-  }
 
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
+  int done=0;
+  while(!done) {
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      return(1); 
+    }
 
+    if(dat_line[0]=='#') continue;
+    done=1;
+
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
 //X,Y,Z,tag61_basin,vp63_basin,vs63_basin
 //383000.000000,3744000.000000,-15000.000000,-99999.000000,-99999.000000,-99999.000000
-  while(p != NULL) {
-    double val = atof(p);
-    if(counter == dat_entry.x_idx)
-        dat->x=val;
-      else if (counter == dat_entry.y_idx)
-        dat->y=val;
-      else if (counter == dat_entry.z_idx)
-        dat->z=val;
-      else if (counter == dat_entry.vs_idx)
-        dat->vs=val;
-      else if (counter == dat_entry.vp_idx)
-        dat->vp=val;
-    p = strtok(NULL, delimiter);
-    counter++;
+    while(p != NULL) {
+      double val = atof(p);
+      if(counter == dat_entry.x_idx)
+          dat->x=val;
+        else if (counter == dat_entry.y_idx)
+          dat->y=val;
+        else if (counter == dat_entry.z_idx)
+          dat->z=val;
+        else if (counter == dat_entry.vs_idx)
+          dat->vs=val;
+        else if (counter == dat_entry.vp_idx)
+          dat->vp=val;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return(0);
 }
@@ -165,8 +179,8 @@ int main(int argc, char* const argv[]) {
         FILE *ofp = fopen("validate_vxlite_bad.txt", "w");
         FILE *oofp = fopen("validate_vxlite_good.txt", "w");
 
-        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
-        fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(ofp,"id,X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(oofp,"id,X,Y,Z,depth,vp63_basin,vs63_basin\n");
 
         vx_zmode_t zmode=VX_ZMODE_ELEV;
         strcpy(modeldir,".");
@@ -220,6 +234,7 @@ int main(int argc, char* const argv[]) {
               entry.coor[0] = dat.x;
               entry.coor[1] = dat.y;
               entry.coor[2] = dat.z;
+              dat.id=tcount;
 
               /* In case we got anything like degrees */
               if ((entry.coor[0]<360.) && (fabs(entry.coor[1])<90)) {
@@ -256,10 +271,10 @@ CVMHLABN_VALIDATE_VXLITE:   ret vs:(-1.000000) ret vp:(-1.000000)
                          fprintf(stderr,"CVMHLABN_VALIDATE_VXLITE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
                          mcount++;  // real mismatch
                       }
-                      fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
+                      fprintf(ofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
                     } else {
                          okcount++;
-                         fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
+                         fprintf(oofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
                   }
               }
           rc=_next_datfile(fp, &dat);
