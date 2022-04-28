@@ -13,7 +13,6 @@ AM_LDFLAGS = -L../gctpc/source -lgctpc -lm
 libcvmhlabn_a_SOURCES = vx_sub_cvmhlabn.c vx_io.c 
 vx_lite_cvmhlabn_SOURCES = vx_lite_cvmhlabn.c
 vx_cvmhlabn_SOURCES = cvmhlabn.c vx_cvmhlabn.c
-cvmhlabn_SOURCES = cvmhlabn.c cvmhlabn.h
 
 TARGETS = vx_lite_cvmhlabn vx_cvmhlabn libvxapi_cvmhlabn.a libcvmhlabn.a libcvmhlabn.so
 
@@ -27,20 +26,23 @@ install:
 	cp libcvmhlabn.a ${prefix}/lib
 	cp cvmhlabn.h ${prefix}/include
 
-cvmhlabn.h: cvmhbn.h vx_sub_cvmhlabn.h
+cvmhlabn.h: ../cvmhbn/src/cvmhbn.h vx_sub_cvmhlabn.h
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/src/cvmhbn.h > cvmhlabn.h
 
-cvmhlabn.c: cvmhbn.c cvmhlabn.h
+cvmhlabn.c: ../cvmhbn/src/cvmhbn.c cvmhlabn.h
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/src/cvmhbn.c > cvmhlabn.c
 
-vx_lite_cvmhlabn.c: vx_lite_cvmhbn.c
+vx_lite_cvmhlabn.c: ../cvmhbn/src/vx_lite_cvmhbn.c vx_sub_cvmhlabn.h
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/src/vx_lite_cvmhbn.c > vx_lite_cvmhlabn.c
 
-vx_cvmhlabn.c: vx_cvmhbn.c cvmhlabn.h
+vx_cvmhlabn.c: ../cvmhbn/src/vx_cvmhbn.c cvmhlabn.h
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/src/vx_cvmhbn.c > vx_cvmhlabn.c
 
-vx_sub_cvmhlabn.c: vx_sub_cvmhbn.c vx_sub_cvmhlabn.h
+vx_sub_cvmhlabn.c: ../cvmhbn/src/vx_sub_cvmhbn.c vx_sub_cvmhlabn.h
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/src/vx_sub_cvmhbn.c > vx_sub_cvmhlabn.c
+
+vx_sub_cvmhlabn.h: ../cvmhbn/src/vx_sub_cvmhbn.h 
+	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/src/vx_sub_cvmhbn.h > vx_sub_cvmhlabn.h
 
 libcvmhlabn.a: vx_sub_cvmhlabn.o vx_io.o utils.o cvmhlabn_static.o 
 	$(AR) rcs $@ $^
