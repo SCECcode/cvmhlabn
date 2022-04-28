@@ -380,6 +380,11 @@ int vx_cleanup()
   if(hrtbuffer) free(hrtbuffer);
   if(hrvsbuffer) free(hrvsbuffer);
 
+  hrbuffer = NULL;
+  tobuffer = mobuffer = babuffer = mtopbuffer = NULL;
+  hrtbuffer = NULL;
+  hrvsbuffer = NULL;
+
   vx_zmode = VX_ZMODE_ELEV;
 
   return(0);
