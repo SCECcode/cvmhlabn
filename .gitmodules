@@ -1,0 +1,3 @@
+[submodule "cvmhbn"]
+	path = cvmhbn
+	url = git@github.com:meihuisu/cvmhbn.git
