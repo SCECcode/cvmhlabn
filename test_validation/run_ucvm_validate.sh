@@ -16,7 +16,7 @@ if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
   echo " === UCVM query by ucvm depth ==="
   ./cvmhlabn_ucvm_rerun -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./validate_ucvm_bad.txt
   echo " === ucvm_query with cvmh depth  ==="
-  ./cvmhlabn_ucvm_rerun -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./ucvm_rerun_bad.txt
+  ./cvmhlabn_ucvm_retry -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./ucvm_rerun_bad.txt
   else
     echo "need to have UCVM_INSTALL_PATH set!!!"
 fi

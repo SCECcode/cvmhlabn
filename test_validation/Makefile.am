@@ -3,7 +3,7 @@
 bin_PROGRAMS = cvmhlabn_api_validate cvmhlabn_vxlite_validate
 
 # General compiler/linker flags
-AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
+AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -g -std=c99 -D_LARGEFILE_SOURCE \
         -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -I../src
 AM_LDFLAGS = -L../src -lcvmhlabn -L../gctpc/source -lgctpc -lm -ldl
 
