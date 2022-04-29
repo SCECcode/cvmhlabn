@@ -272,8 +272,12 @@ int test_query_points_by_depth()
   sprintf(infile, "%s/%s", currentdir, "./inputs/test-depth-ucvm.in");
   sprintf(outfile, "%s/%s", currentdir,
           "test-depth-ucvm.out");
-  sprintf(reffile, "%s/%s", currentdir,
-          "./ref/test-depth-ucvm.ref");
+  /*** seems to differ in result from mac and linux ***/
+#ifdef __APPLE__
+  sprintf(reffile, "%s/%s", currentdir, "./ref/test-depth-ucvm_mac.ref");
+#else
+  sprintf(reffile, "%s/%s", currentdir, "./ref/test-depth-ucvm.ref");
+#endif
 
   if (test_assert_file_exist(infile) != 0) {
     return _failure("filed not found");
