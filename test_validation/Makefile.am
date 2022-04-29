@@ -68,11 +68,11 @@ run_validate: cvmhlabn_api_validate cvmhlabn_vxlite_validate
 	./run_vxlite_validate.sh
 	./run_api_validate.sh
 
-run_validate_with_ucvm: cvmhlabn_ucvm_validate cvmhlabn_ucvm_rerun
+run_validate_with_ucvm: cvmhlabn_ucvm_validate cvmhlabn_ucvm_rerun cvmhlabn_ucvm_retry
 	./run_ucvm_validate.sh
 
 clean:
 	rm -rf *~ *.o $(bin_PROGRAMS) cvmhlabn_ucvm_validate cvmhlabn_ucvm_rerun *.txt
-	rm -rf cvmhlabn_ucvm_rerun.c cvmhlabn_ucvm_validate.c cvmhlabn_vxlite_validate.c cvmhlabn_api_validate.c
+	rm -rf cvmhlabn_ucvm_rerun.c cvmhlabn_ucvm_validate.c cvmhlabn_vxlite_validate.c cvmhlabn_api_validate.c cvmhlabn_ucvm_retry.c
 
 
