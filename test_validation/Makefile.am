@@ -44,10 +44,19 @@ cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o
 cvmhlabn_ucvm_rerun.c : ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c > cvmhlabn_ucvm_rerun.c
 
+cvmhlabn_ucvm_retry.c : ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c
+	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c > cvmhlabn_ucvm_retry.c
+
 cvmhlabn_ucvm_rerun.o : cvmhlabn_ucvm_rerun.c
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
 
 cvmhlabn_ucvm_rerun : cvmhlabn_ucvm_rerun.o 
+	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
+
+cvmhlabn_ucvm_retry.o : cvmhlabn_ucvm_retry.c
+	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
+
+cvmhlabn_ucvm_retry : cvmhlabn_ucvm_retry.o 
 	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
 endif
 
