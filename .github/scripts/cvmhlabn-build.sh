@@ -9,6 +9,7 @@ fi
 
 git submodule init
 git submodule update
+git pull origin main
 aclocal
 automake --add-missing
 autoconf
