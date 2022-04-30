@@ -7,6 +7,8 @@ if [ $tmp == 'Darwin' ]; then
   brew install automake
 fi
 
+git submodule init
+git submodule update
 aclocal
 automake --add-missing
 autoconf

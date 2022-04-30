@@ -21,11 +21,11 @@ all: $(bin_PROGRAMS)
 cvmhlabn_vxlite_validate.c : ../cvmhbn/test_validation/cvmhbn_vxlite_validate.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_vxlite_validate.c > cvmhlabn_vxlite_validate.c
 
-cvmhlabn_vxlite_validate : cvmhlabn_vxlite_validate.o 
-	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
 cvmhlabn_api_validate.c : ../cvmhbn/test_validation/cvmhbn_api_validate.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_api_validate.c > cvmhlabn_api_validate.c
+
+cvmhlabn_vxlite_validate : cvmhlabn_vxlite_validate.o 
+	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
 cvmhlabn_api_validate : cvmhlabn_api_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
@@ -34,18 +34,17 @@ cvmhlabn_api_validate : cvmhlabn_api_validate.o
 if UCVM
 cvmhlabn_ucvm_validate.c : ../cvmhbn/test_validation/cvmhbn_ucvm_validate.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_validate.c > cvmhlabn_ucvm_validate.c
+cvmhlabn_ucvm_rerun.c : ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c
+	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c > cvmhlabn_ucvm_rerun.c
+
+cvmhlabn_ucvm_retry.c : ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c
+	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c > cvmhlabn_ucvm_retry.c
 
 cvmhlabn_ucvm_validate.o : cvmhlabn_ucvm_validate.c
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
 
 cvmhlabn_ucvm_validate : cvmhlabn_ucvm_validate.o 
 	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
-
-cvmhlabn_ucvm_rerun.c : ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c
-	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c > cvmhlabn_ucvm_rerun.c
-
-cvmhlabn_ucvm_retry.c : ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c
-	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c > cvmhlabn_ucvm_retry.c
 
 cvmhlabn_ucvm_rerun.o : cvmhlabn_ucvm_rerun.c
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
