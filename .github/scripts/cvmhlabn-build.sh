@@ -9,7 +9,9 @@ fi
 
 git submodule init
 git submodule update
+cd cvmhbn
 git pull origin main
+cd ..
 aclocal
 automake --add-missing
 autoconf
