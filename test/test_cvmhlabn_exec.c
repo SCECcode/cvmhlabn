@@ -357,27 +357,27 @@ int suite_cvmhlabn_exec(const char *xmldir)
   test_get_time(&suite.exec_time);
 
   /* Setup test cases */
-  strcpy(suite.tests[0].test_name, "test_setup()");
+  strcpy(suite.tests[0].test_name, "test_setup");
   suite.tests[0].test_func = &test_setup;
   suite.tests[0].elapsed_time = 0.0;
 
-  strcpy(suite.tests[1].test_name, "test_separam()");
+  strcpy(suite.tests[1].test_name, "test_separam");
   suite.tests[1].test_func = &test_setparam;
   suite.tests[1].elapsed_time = 0.0;
 
-  strcpy(suite.tests[2].test_name, "test_query_by_depth()");
+  strcpy(suite.tests[2].test_name, "test_query_by_depth");
   suite.tests[2].test_func = &test_query_by_depth;
   suite.tests[2].elapsed_time = 0.0;
 
-  strcpy(suite.tests[3].test_name, "test_query_by_elevation()");
+  strcpy(suite.tests[3].test_name, "test_query_by_elevation");
   suite.tests[3].test_func = &test_query_by_elevation;
   suite.tests[3].elapsed_time = 0.0;
 
-  strcpy(suite.tests[4].test_name, "test_query_points_by_elevation()");
+  strcpy(suite.tests[4].test_name, "test_query_points_by_elevation");
   suite.tests[4].test_func = &test_query_points_by_elevation;
   suite.tests[4].elapsed_time = 0.0;
 
-  strcpy(suite.tests[5].test_name, "test_query_points_by_depth()");
+  strcpy(suite.tests[5].test_name, "test_query_points_by_depth");
   suite.tests[5].test_func = &test_query_points_by_depth;
   suite.tests[5].elapsed_time = 0.0;
 
