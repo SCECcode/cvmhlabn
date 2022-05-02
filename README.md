@@ -27,6 +27,9 @@ version 21.12.0 or higher.
 This package can also be build as a standalone program
 
 <pre>
+git submodule init
+git submodule update
+
 aclocal
 automake --add-missing
 autoconf
