@@ -41,7 +41,7 @@ AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cencal/include/cencalvm/query/cvmerror.h
 
 
 UCVM_CFLAGS="-I$UCVM_INSTALL_PATH/include"
-UCVM_LDFLAGS="-L$UCVM_INSTALL_PATH/lib -lucvm $CVMH_LDFLAGS $CENCAL_LDFLAGS -dynamic  -L$UCVM_INSTALL_PATH/lib/euclid3/lib -letree -L$UCVM_INSTALL_PATH/lib/proj-5/lib -lproj -lpthread -L$UCVM_INSTALL_PATH/lib/fftw/lib -lfftw3 -m -ldl"
+UCVM_LDFLAGS="-L$UCVM_INSTALL_PATH/lib -lucvm $CVMH_LDFLAGS $CENCAL_LDFLAGS -dynamic  -L$UCVM_INSTALL_PATH/lib/euclid3/lib -letree -L$UCVM_INSTALL_PATH/lib/proj-5/lib -lproj -lpthread -L$UCVM_INSTALL_PATH/lib/fftw/lib -lfftw3 -lm -ldl"
 fi
 
 # Checks for library functions.
