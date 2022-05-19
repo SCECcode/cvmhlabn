@@ -35,7 +35,7 @@ AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cvmh/include/vx_sub.h],
   [CVMH_LDFLAGS="-L$UCVM_INSTALL_PATH/model/cvmh/lib -lvxapi -L$UCVM_INSTALL_PATH/model/cvmh/lib -lgeo"], 
   [CVMH_LDFLAGS=""])
 
-AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cencal/include/cencal.h],
+AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cencal/include/cencalvm/query/cvmerror.h],
   [CENCAL_LDFLAGS="-L$UCVM_INSTALL_PATH/model/cencal/lib -lcencal"],
   [CENCAL_LDFLAGS=""])
 
