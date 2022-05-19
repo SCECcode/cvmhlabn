@@ -36,7 +36,7 @@ AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cvmh/include/vx_sub.h],
   [CVMH_LDFLAGS=""])
 
 AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cencal/include/cencalvm/query/cvmerror.h],
-  [CENCAL_LDFLAGS="-L$UCVM_INSTALL_PATH/model/cencal/lib -lcencal"],
+  [CENCAL_LDFLAGS="-L$UCVM_INSTALL_PATH/model/cencal/lib -lcencalvm -lstdc++"],
   [CENCAL_LDFLAGS=""])
 
 
