@@ -33,9 +33,6 @@ cvmhlabn_api_validate : cvmhlabn_api_validate.o
 ### only run after ucvm is built and installed
 if UCVM
 
-UCVM_CFLAGS = -I$(UCVM_INSTALL_PATH)/include
-UCVM_LDFLAGS = -L$(UCVM_INSTALL_PATH)/lib -lucvm -dynamic  -L$(UCVM_INSTALL_PATH)/lib/euclid3/lib -letree -L$(UCVM_INSTALL_PATH)/lib/proj-5/lib -lproj -lpthread -L$(UCVM_INSTALL_PATH)/lib/fftw/lib -lfftw3 -lm -ldl
-
 CVMH_LDFLAGS = -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lvxapi -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lgeo 
 CENCAL_LDFLAGS = -L$(UCVM_INSTALL_PATH)/model/cencal/lib -lcencalvm -lstdc++
 
