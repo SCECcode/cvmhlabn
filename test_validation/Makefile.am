@@ -32,17 +32,24 @@ cvmhlabn_api_validate : cvmhlabn_api_validate.o
 
 ### only run after ucvm is built and installed
 if UCVM
+
+UCVM_CFLAGS = -I$(UCVM_INSTALL_PATH)/include
+UCVM_LDFLAGS = -L$(UCVM_INSTALL_PATH)/lib -lucvm -dynamic  -L$(UCVM_INSTALL_PATH)/lib/euclid3/lib -letree -L$(UCVM_INSTALL_PATH)/lib/proj-5/lib -lproj -lpthread -L$(UCVM_INSTALL_PATH)/lib/fftw/lib -lfftw3 -lm -ldl
+
+CVMH_LDFLAGS = -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lvxapi -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lgeo 
+CENCAL_LDFLAGS = -L$(UCVM_INSTALL_PATH)/model/cencal/lib -lcencalvm -lstdc++
+
+CVMH_EXISTS := $(shell [[ -e $(UCVM_INSTALL_PATH)/model/cvmh/include/vx_sub.h ]] && echo 1 || echo 0 )
+CENCAL_EXISTS := $(shell [[ -e $(UCVM_INSTALL_PATH)/model/cencal/include/cencalvm/query/cvmerror.h ]] && echo 1 || echo 0 )
+
 cvmhlabn_ucvm_validate.c : ../cvmhbn/test_validation/cvmhbn_ucvm_validate.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_validate.c > cvmhlabn_ucvm_validate.c
-	$(call getLDFLAGS)
 
 cvmhlabn_ucvm_rerun.c : ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c > cvmhlabn_ucvm_rerun.c
-	$(call getLDFLAGS)
 
 cvmhlabn_ucvm_retry.c : ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c
 	sed -f ../cvmhbn/setup/cvmhlabn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c > cvmhlabn_ucvm_retry.c
-	$(call getLDFLAGS)
 
 cvmhlabn_ucvm_validate.o : cvmhlabn_ucvm_validate.c
 	$(CC) -c -o $@ $^ $(UCVM_CFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -61,17 +68,6 @@ cvmhlabn_ucvm_retry.o : cvmhlabn_ucvm_retry.c
 
 cvmhlabn_ucvm_retry : cvmhlabn_ucvm_retry.o 
 	$(CC) -o $@ $^ $(UCVM_LDFLAGS) $(AM_LDFLAGS)
-
-define getLDFLAGS =
-    if [ -f '$(UCVM_INSTALL_PATH)/model/cvmh/include/vx_sub.h' ]; then
-        CVMH_ldflags = -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lvxapi -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lgeo
-    fi
-    if [ -f '$(UCVM_INSTALL_PATH)/model/cencal/include/cencalvm/query/cvmerror.h' ]; then
-        CENCAL_ldflags = '-L$UCVM_INSTALL_PATH/model/cencal/lib -lcencalvm -lstdc++'
-    fi
-    UCVM_LDFLAGS = -L$(UCVM_INSTALL_PATH)/lib -lucvm $(CVMH_ldflags) $(CENCAL_ldflags) -dynamic  -L$(UCVM_INSTALL_PATH)/lib/euclid3/lib -letree -L$(UCVM_INSTALL_PATH)/lib/proj-5/lib -lproj -lpthread -L$(UCVM_INSTALL_PATH)/lib/fftw/lib -lfftw3 -lm -ldl
-    UCVM_CFLAGS= -I$(UCVM_INSTALL_PATH)/include
-endef
 
 endif
 
