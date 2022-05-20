@@ -64,8 +64,12 @@ cvmhlabn_ucvm_retry : cvmhlabn_ucvm_retry.o
 
 define getLDFLAGS =
     if [ -f '$(UCVM_INSTALL_PATH)/model/cvmh/include/vx_sub.h' ]; then
-        UCVM_LDFLAGS = -L$(UCVM_INSTALL_PATH)/lib -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lvxapi -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lgeo -lucvm -dynamic  -L$(UCVM_INSTALL_PATH)/lib/euclid3/lib -letree -L$(UCVM_INSTALL_PATH)/lib/proj-5/lib -lproj -lpthread -L$(UCVM_INSTALL_PATH)/lib/fftw/lib -lfftw3 -lm -ldl
+        CVMH_ldflags = -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lvxapi -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lgeo
     fi
+    if [ -f '$(UCVM_INSTALL_PATH)/model/cencal/include/cencalvm/query/cvmerror.h' ]; then
+        CENCAL_ldflags = '-L$UCVM_INSTALL_PATH/model/cencal/lib -lcencalvm -lstdc++'
+    fi
+    UCVM_LDFLAGS = -L$(UCVM_INSTALL_PATH)/lib -lucvm $(CVMH_ldflags) $(CENCAL_ldflags) -dynamic  -L$(UCVM_INSTALL_PATH)/lib/euclid3/lib -letree -L$(UCVM_INSTALL_PATH)/lib/proj-5/lib -lproj -lpthread -L$(UCVM_INSTALL_PATH)/lib/fftw/lib -lfftw3 -lm -ldl
     UCVM_CFLAGS= -I$(UCVM_INSTALL_PATH)/include
 endef
 
